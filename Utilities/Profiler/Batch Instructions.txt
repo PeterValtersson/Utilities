@@ -1,0 +1,9 @@
+Download Graphviz, Ghostscript and GnuWin32
+
+http://www.graphviz.org/pub/graphviz/stable/windows/graphviz-2.38.msi
+https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs921/gs921w64.exe
+https://sourceforge.net/projects/getgnuwin32/files/getgnuwin32/0.6.30/GetGnuWin32-0.6.3.exe/download
+
+Add C:\Program Files (x86)\Graphviz2.38\bin (or equivalent) to Path Environment variable
+Add C:\Program Files\gs\gs9.21\lib (or equivalent) to Path Environment variable
+C:\Program Files (x86)\GnuWin32\bin (or equivalent) to Path Environment variable

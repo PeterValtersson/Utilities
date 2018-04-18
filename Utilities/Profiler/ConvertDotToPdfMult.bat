@@ -1,0 +1,1 @@
+for /r %%f in (*.dot) do dot -Tpdf "%%f" -o "%%~nf.pdf" && del "%%f"

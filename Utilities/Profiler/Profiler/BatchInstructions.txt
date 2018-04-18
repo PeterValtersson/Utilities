@@ -1,0 +1,4 @@
+Download Graphviz
+http://www.graphviz.org/pub/graphviz/stable/windows/graphviz-2.38.msi
+Add C:\Program Files (x86)\Graphviz2.38\bin (or equivalent) to Path Environment variable
+
