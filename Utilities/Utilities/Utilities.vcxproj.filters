@@ -42,5 +42,8 @@
     <ClInclude Include="..\Include\ThreadPool.h">
       <Filter>Other</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\CircularFIFO.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

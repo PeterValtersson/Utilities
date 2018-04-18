@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\CircularFIFO.h" />
     <ClInclude Include="..\Include\CompileTimeString.h" />
     <ClInclude Include="..\Include\Flags.h" />
     <ClInclude Include="..\Include\GUID.h" />
