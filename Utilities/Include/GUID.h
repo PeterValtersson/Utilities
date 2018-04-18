@@ -3,7 +3,7 @@
 #include "CompileTimeString.h"
 #include <string>
 
-	namespace Utilz
+	namespace Utilities
 	{
 		struct GUID
 		{

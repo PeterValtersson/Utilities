@@ -3,7 +3,7 @@
 #include <cstdarg>
 #include <IConsole.h>
 
-void SE::DevConsole::Commands::InterpretCommand(IConsole* console, const char * commandd)
+void Utilities::Commands::InterpretCommand(IConsole* console, const char * commandd)
 {
 	int argc = 0;
 	char* argv[MAX_ARGUMENTS];
@@ -26,12 +26,12 @@ void SE::DevConsole::Commands::InterpretCommand(IConsole* console, const char * 
 	delete[] command;
 }
 
-void SE::DevConsole::Commands::GetMap(std::map<size_t, Command_Structure>& commands)
+void Utilities::Commands::GetMap(std::map<size_t, Command_Structure>& commands)
 {
 	commands = this->commands;
 }
 
-void SE::DevConsole::Commands::ParseCommandString(char * command, int * argc, char ** argv)
+void Utilities::Commands::ParseCommandString(char * command, int * argc, char ** argv)
 {
 	*argc = 0;
 	int j = 0;
@@ -63,7 +63,7 @@ void SE::DevConsole::Commands::ParseCommandString(char * command, int * argc, ch
 	}
 }
 
-SE::DevConsole::Commands::Commands()
+Utilities::Commands::Commands()
 {
 	commands[std::hash<std::string>{}("commands")] =
 	{
@@ -81,19 +81,19 @@ SE::DevConsole::Commands::Commands()
 		"Lists all available commands"
 	};
 }
-SE::DevConsole::Commands::~Commands()
+Utilities::Commands::~Commands()
 {
 }
 
 /*Hash the identifier and add the command*/
-int SE::DevConsole::Commands::AddCommand(const DevConsole_Command& commandFunction, char * name, char * description)
+int Utilities::Commands::AddCommand(const DevConsole_Command& commandFunction, char * name, char * description)
 {
 	auto hash = std::hash<std::string>{}(name);
 	commands[hash] = { commandFunction, name ,description };
 	return 0;
 }
 
-int SE::DevConsole::Commands::RemoveCommand(const char* name)
+int Utilities::Commands::RemoveCommand(const char* name)
 {
 	auto hash = std::hash<std::string>{}(name);
 	auto find = commands.find(hash);

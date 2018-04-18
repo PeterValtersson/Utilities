@@ -23,13 +23,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\DevConsole\CMDConsole.h">
+    <ClInclude Include="..\Include\CMDConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\DevConsole\Commands.h">
+    <ClInclude Include="..\Include\Commands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\DevConsole\IConsole.h">
+    <ClInclude Include="..\Include\IConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

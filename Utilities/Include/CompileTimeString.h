@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <cstddef>
 
-	namespace Utilz
+	namespace Utilities
 	{
 
 
@@ -91,9 +91,9 @@
 
 		};
 	}
-	constexpr Utilz::HashValue operator "" _hash(const char* toHash, std::size_t size)
+	constexpr Utilities::HashValue operator "" _hash(const char* toHash, std::size_t size)
 	{
-		return Utilz::StringHash::GetHash_ConstexprString(toHash, static_cast<uint32_t>(size));
+		return Utilities::StringHash::GetHash_ConstexprString(toHash, static_cast<uint32_t>(size));
 	}
 
 

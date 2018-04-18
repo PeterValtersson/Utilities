@@ -135,10 +135,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\CompileTimeString.h" />
+    <ClInclude Include="..\Include\Flags.h" />
     <ClInclude Include="..\Include\GUID.h" />
-    <ClInclude Include="..\Include\MultiAllocSofa.h" />
+    <ClInclude Include="..\Include\PathHelpers.h" />
     <ClInclude Include="..\Include\Profiler.h" />
     <ClInclude Include="..\Include\Sofa.h" />
+    <ClInclude Include="..\Include\StringReadWrite.h" />
+    <ClInclude Include="..\Include\SuperPromise.h" />
+    <ClInclude Include="..\Include\ThreadPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

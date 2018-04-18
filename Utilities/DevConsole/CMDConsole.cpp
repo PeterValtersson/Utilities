@@ -4,7 +4,7 @@
 #include <cstdarg>
 #include <iostream>
 
-void SE::DevConsole::CMDConsole::Run()
+void Utilities::CMDConsole::Run()
 {
 	using namespace std::chrono_literals;
 
@@ -19,16 +19,16 @@ void SE::DevConsole::CMDConsole::Run()
 }
 
 
-SE::DevConsole::CMDConsole::CMDConsole()
+Utilities::CMDConsole::CMDConsole()
 {
 }
 
 
-SE::DevConsole::CMDConsole::~CMDConsole()
+Utilities::CMDConsole::~CMDConsole()
 {
 }
 
-int SE::DevConsole::CMDConsole::Initialize()
+int Utilities::CMDConsole::Initialize()
 {
 	running = true;
 	myThread = std::thread(&CMDConsole::Run, this);
@@ -36,13 +36,13 @@ int SE::DevConsole::CMDConsole::Initialize()
 	return 0;
 }
 
-void SE::DevConsole::CMDConsole::Shutdown()
+void Utilities::CMDConsole::Shutdown()
 {
 	running = false;
 	myThread.join();
 }
 
-void SE::DevConsole::CMDConsole::Show()
+void Utilities::CMDConsole::Show()
 {
 	if (AllocConsole())
 	{
@@ -55,37 +55,37 @@ void SE::DevConsole::CMDConsole::Show()
 
 }
 
-void SE::DevConsole::CMDConsole::Hide()
+void Utilities::CMDConsole::Hide()
 {
 	FreeConsole();
 }
 
-bool SE::DevConsole::CMDConsole::IsVisible()
+bool Utilities::CMDConsole::IsVisible()
 {
 	return false;
 }
 
-void SE::DevConsole::CMDConsole::Toggle()
+void Utilities::CMDConsole::Toggle()
 {
 }
 
-void SE::DevConsole::CMDConsole::BeginFrame()
+void Utilities::CMDConsole::BeginFrame()
 {
 }
 
-void SE::DevConsole::CMDConsole::Frame()
+void Utilities::CMDConsole::Frame()
 {
 }
 
-void SE::DevConsole::CMDConsole::EndFrame()
+void Utilities::CMDConsole::EndFrame()
 {
 }
 
-void SE::DevConsole::CMDConsole::Clear()
+void Utilities::CMDConsole::Clear()
 {
 }
 
-void SE::DevConsole::CMDConsole::PrintChannel(const char * line, const char * channel, ...)
+void Utilities::CMDConsole::PrintChannel(const char * line, const char * channel, ...)
 {
 	va_list args;
 	va_start(args, line);
@@ -96,7 +96,7 @@ void SE::DevConsole::CMDConsole::PrintChannel(const char * line, const char * ch
 	va_end(args);
 }
 
-void SE::DevConsole::CMDConsole::Print(const char * line, ...)
+void Utilities::CMDConsole::Print(const char * line, ...)
 {
 	va_list args;
 	va_start(args, line);
@@ -105,13 +105,13 @@ void SE::DevConsole::CMDConsole::Print(const char * line, ...)
 	fflush(stdout);
 	va_end(args);
 }
-void SE::DevConsole::CMDConsole::VPrint(const char * line, va_list args)
+void Utilities::CMDConsole::VPrint(const char * line, va_list args)
 {
 	vprintf(line, args);
 	printf("\n");
 	fflush(stdout);
 }
-void SE::DevConsole::CMDConsole::VPrint(const char* channel, const char * line, va_list args)
+void Utilities::CMDConsole::VPrint(const char* channel, const char * line, va_list args)
 {
 	printf("%s: ", channel);
 	vprintf(line, args);
@@ -119,12 +119,12 @@ void SE::DevConsole::CMDConsole::VPrint(const char* channel, const char * line, 
 	fflush(stdout);
 }
 
-void SE::DevConsole::CMDConsole::Getline(std::string& string)
+void Utilities::CMDConsole::Getline(std::string& string)
 {
 	std::getline(std::cin, string);
 }
 
-size_t SE::DevConsole::CMDConsole::Getline(const char * buffer, size_t size)
+size_t Utilities::CMDConsole::Getline(const char * buffer, size_t size)
 {
 	std::string in;
 	std::getline(std::cin, in);
@@ -134,21 +134,21 @@ size_t SE::DevConsole::CMDConsole::Getline(const char * buffer, size_t size)
 	return in.size();
 }
 
-int SE::DevConsole::CMDConsole::AddCommand(const DevConsole_Command & commandFunction, char * name, char * description)
+int Utilities::CMDConsole::AddCommand(const DevConsole_Command & commandFunction, char * name, char * description)
 {
 	return commands.AddCommand(commandFunction, name, description);
 }
 
-int SE::DevConsole::CMDConsole::RemoveCommand(const char* name)
+int Utilities::CMDConsole::RemoveCommand(const char* name)
 {
 	return 0;
 }
 
-void SE::DevConsole::CMDConsole::AddFrameCallback(const std::function<void()>& frameCallback)
+void Utilities::CMDConsole::AddFrameCallback(const std::function<void()>& frameCallback)
 {
 }
 
-void * SE::DevConsole::CMDConsole::GetContext()
+void * Utilities::CMDConsole::GetContext()
 {
 	return nullptr;
 }

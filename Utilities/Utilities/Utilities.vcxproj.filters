@@ -10,6 +10,9 @@
     <Filter Include="SofA">
       <UniqueIdentifier>{46a5bc21-a0de-4e5e-a6c3-46e7bf7294a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Other">
+      <UniqueIdentifier>{e82ba3f4-256f-4e30-9383-fe33422b25df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\CompileTimeString.h">
@@ -24,8 +27,20 @@
     <ClInclude Include="..\Include\Sofa.h">
       <Filter>SofA</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\MultiAllocSofa.h">
-      <Filter>SofA</Filter>
+    <ClInclude Include="..\Include\Flags.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\PathHelpers.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\StringReadWrite.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\SuperPromise.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\ThreadPool.h">
+      <Filter>Other</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
