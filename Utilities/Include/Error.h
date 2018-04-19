@@ -28,7 +28,7 @@ namespace Utilities
 		return { message, StringHash::GetHash_ConstexprString(message), file, line };
 	}
 	template<typename extraType>
-	UERROR CreateErrorExtra(const Error& err, extraType extra)
+	static UERROR CreateErrorExtra(const Error& err, extraType extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + std::to_string(extra)).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
@@ -37,7 +37,7 @@ namespace Utilities
 		return __lastError__;
 	}
 	template<>
-	UERROR CreateErrorExtra(const Error& err,const std::string& extra)
+	static UERROR CreateErrorExtra(const Error& err,const std::string& extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + extra).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
@@ -46,7 +46,7 @@ namespace Utilities
 		return __lastError__;
 	}
 	template<>
-	UERROR CreateErrorExtra(const Error& err, const char* extra)
+	static UERROR CreateErrorExtra(const Error& err, const char* extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + std::string(extra)).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
