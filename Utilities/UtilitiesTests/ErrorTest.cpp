@@ -35,7 +35,9 @@ namespace UtilitiesTests
 		TEST_METHOD(ERRORTest_Basic)
 		{
 			Assert::AreEqual("Success"_hash, Function(1).hash);
+			Assert::AreEqual(16u, Function(1).line);
 			Assert::AreEqual("i == 0"_hash, Foo().hash);
+			Assert::AreEqual(14u, Foo().line);
 		}
 		TEST_METHOD(ERRORTest_Extra)
 		{
