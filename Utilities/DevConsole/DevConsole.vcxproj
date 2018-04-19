@@ -70,31 +70,31 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
-    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)../../Utilities/Utilities/Include/</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
-    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)../../Utilities/Utilities/Include/</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
-    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <TargetName>$(ProjectName)D</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)../../Utilities/Utilities/Include/</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
-    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
+    <OutDir>$(SolutionDir)Build\lib\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)Intermediate\$(Platform)\</IntDir>
     <TargetExt>.lib</TargetExt>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)../../Utilities/Utilities/Include/</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)Build\lib\$(Platform);$(SolutionDir)External Dependencies\lib\$(Platform)\</LibraryPath>
@@ -144,9 +144,9 @@
     <ClCompile Include="Commands.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\CMDConsole.h" />
-    <ClInclude Include="..\Include\Commands.h" />
-    <ClInclude Include="..\Include\IConsole.h" />
+    <ClInclude Include="..\includes\DevConsole\CMDConsole.h" />
+    <ClInclude Include="..\includes\DevConsole\Commands.h" />
+    <ClInclude Include="..\includes\DevConsole\IConsole.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
