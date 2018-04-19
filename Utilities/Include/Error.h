@@ -58,5 +58,14 @@ namespace Utilities
 		__lastError__.line = err.line;
 		return __lastError__;
 	}
+	template<>
+	static UERROR CreateErrorExtra(const Error& err, char* extra)
+	{
+		__lastError__.message = (__lastErrorString__ = err.message + std::string(extra)).c_str();
+		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
+		__lastError__.file = err.file;
+		__lastError__.line = err.line;
+		return __lastError__;
+	}
 }
 #endif
