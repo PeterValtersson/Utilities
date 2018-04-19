@@ -8,27 +8,27 @@ namespace UtilitiesTests
 	TEST_CLASS(ERRORTest)
 	{
 	public:
-		ERROR Function(int i)
+		UERROR Function(int i)
 		{
 			if (i == 0)
 				RETURN_ERROR("i == 0");
 
 			RETURN_SUCCESS;
 		}
-		ERROR Foo()
+		UERROR Foo()
 		{
 			PASS_IF_ERROR(Function(0));
 			RETURN_SUCCESS;
 		}
-		ERROR Foo_int(int i)
+		UERROR Foo_int(int i)
 		{
 			RETURN_ERROR_EX("Error ", i);
 		}
-		ERROR Foo_char()
+		UERROR Foo_char()
 		{
 			RETURN_ERROR_EX("Error ", "char");
 		}
-		ERROR Foo_str()
+		UERROR Foo_str()
 		{
 			RETURN_ERROR_EX("Error ", std::string("char"));
 		}

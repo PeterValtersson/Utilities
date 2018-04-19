@@ -8,7 +8,7 @@
 #define RETURN_SUCCESS return (Utilities::__lastError__ = Utilities::CreateError("Success", __FILE__, __LINE__))
 #define RETURN_ERROR(msg) return (Utilities::__lastError__ = Utilities::CreateError(msg, __FILE__, __LINE__))
 #define RETURN_ERROR_EX(msg, extra) return Utilities::CreateErrorExtra(Utilities::CreateError(msg, __FILE__, __LINE__), extra)
-#define ERROR const Utilities::Error&
+#define UERROR const Utilities::Error&
 
 
 namespace Utilities
@@ -28,7 +28,7 @@ namespace Utilities
 		return { message, StringHash::GetHash_ConstexprString(message), file, line };
 	}
 	template<typename extraType>
-	ERROR CreateErrorExtra(const Error& err, extraType extra)
+	UERROR CreateErrorExtra(const Error& err, extraType extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + std::to_string(extra)).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
@@ -37,7 +37,7 @@ namespace Utilities
 		return __lastError__;
 	}
 	template<>
-	ERROR CreateErrorExtra(const Error& err, std::string extra)
+	UERROR CreateErrorExtra(const Error& err, std::string extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + extra).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
@@ -46,7 +46,7 @@ namespace Utilities
 		return __lastError__;
 	}
 	template<>
-	ERROR CreateErrorExtra(const Error& err, const char* extra)
+	UERROR CreateErrorExtra(const Error& err, const char* extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + std::string(extra)).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
