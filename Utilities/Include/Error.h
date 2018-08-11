@@ -41,7 +41,7 @@ namespace Utilities
 		return __lastError__;
 	}
 	template<>
-	static UERROR CreateErrorExtra(const Error& err,const std::string& extra)
+	static UERROR CreateErrorExtra(const Error& err, std::string extra)
 	{
 		__lastError__.message = (__lastErrorString__ = err.message + extra).c_str();
 		__lastError__.hash = StringHash::GetHash_ConstexprString(__lastErrorString__.c_str(), uint32_t(__lastErrorString__.size()));
