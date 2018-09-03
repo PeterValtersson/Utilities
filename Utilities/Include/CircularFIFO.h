@@ -26,7 +26,7 @@ namespace Utilities
 		}
 
 		//Consumer only
-		inline const Element& top()const
+		inline Element& top()
 		{
 			const auto current_head = head.load();
 			//if (current_head == tail.load())
