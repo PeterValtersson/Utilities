@@ -45,5 +45,8 @@
     <ClInclude Include="..\Profiler\Profiler.h">
       <Filter>Other</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\HelperFunction.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
