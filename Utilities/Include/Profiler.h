@@ -11,7 +11,7 @@
 #include <thread>
 #include <iomanip>
 #include <filesystem>
-#include "CompileTimeString.h"
+
 
 #ifdef _P_NS
 static const char* scale = "ns";
@@ -42,7 +42,7 @@ struct ProfilerNode {
 	{
 
 	}
-	ProfilerNode(ProfilerNode* parent, const char* functionName, Utilities::HashValue myHash, const char* file)
+	ProfilerNode(ProfilerNode* parent, const char* functionName, uint32_t myHash, const char* file)
 		: parent(parent), functionName(functionName), myHash(myHash), timesCalled(0), timeSpent(0),
 		file(file)
 	{
@@ -59,11 +59,11 @@ struct ProfilerNode {
 	ProfilerNode* parent;
 	std::string functionName;
 	const char* file;
-	Utilities::HashValue myHash;
+	uint32_t myHash;
 	uint64_t timesCalled;
 	std::chrono::nanoseconds timeSpent;
 	std::chrono::high_resolution_clock::time_point timeStart;
-	std::map<Utilities::HashValue, ProfilerNode*> children;
+	std::map<uint32_t, ProfilerNode*> children;
 
 	inline std::string getHexCode(unsigned char c) {
 
@@ -153,10 +153,10 @@ public:
 		return inst;
 	}
 	
-	template<uint64_t functionHash>
+	template<uint32_t functionHash>
 	void startProfile(const char * funcName, const char* file)
 	{
-		/*if (!_profile)
+		if (!_profile)
 		{
 			std::string name = funcName;
 			size_t lastindex = name.find_last_of(":");
@@ -179,7 +179,7 @@ public:
 			_current = child;
 		}
 		_current->timesCalled++;
-		_current->timeStart = std::chrono::high_resolution_clock::now();*/
+		_current->timeStart = std::chrono::high_resolution_clock::now();
 	}
 
 	inline void stopProfile()
@@ -429,9 +429,11 @@ struct Prolifer
 		p.stopProfile();
 	}
 };
+// This doesn't take into account the nul char
+#define COMPILE_TIME_CRC32_STR(x) (CompileTimeHash::MM<sizeof(x)-1>::crc32(x))
 
-#define StartProfile Prolifer pl(Profiler::GetInstance()); pl.p.startProfile<Utilities::StringHash::GetHash_ConstexprString(__FUNCTION__)> (Basename::functionName(__FUNCTION__), Basename::fileName( __FILE__));
-#define StartProfileC(x) Prolifer pl(Profiler::GetInstance()); pl.p.startProfile<Utilities::StringHash::GetHash_ConstexprString(x)>(x, Basename::fileName( __FILE__) );
+#define StartProfile Prolifer pl(Profiler::GetInstance()); pl.p.startProfile<COMPILE_TIME_CRC32_STR(__FUNCTION__)> (Basename::functionName(__FUNCTION__), Basename::fileName( __FILE__));
+#define StartProfileC(x) Prolifer pl(Profiler::GetInstance()); pl.p.startProfile<COMPILE_TIME_CRC32_STR(x)>(x, Basename::fileName( __FILE__) );
 
 #else
 #define StartProfile 

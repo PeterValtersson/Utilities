@@ -21,8 +21,6 @@ int main()
 
 	auto& p = Profiler::GetInstance();
 
-	p.startProfile<-1>("Korv", "Me");
-	p.startProfile<Utilities::StringHash::GetHash_ConstexprString("ASD")>("Korv", "Me");
 	#if defined( DEBUG ) || defined( _DEBUG )
 		_CrtDumpMemoryLeaks();
 		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
