@@ -21,9 +21,6 @@
     <ClInclude Include="..\Include\GUID.h">
       <Filter>CompileTimeGUID</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Profiler.h">
-      <Filter>Profiler</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Sofa.h">
       <Filter>SofA</Filter>
     </ClInclude>
@@ -47,6 +44,9 @@
     </ClInclude>
     <ClInclude Include="..\Include\HelperFunction.h">
       <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Profiler.h">
+      <Filter>Profiler</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
