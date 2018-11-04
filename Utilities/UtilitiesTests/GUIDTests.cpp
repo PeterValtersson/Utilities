@@ -8,7 +8,6 @@ namespace UtilitiesTests
 	TEST_CLASS(GUIDTests)
 	{
 	public:
-		
 		TEST_METHOD(GUID_Performance_std)
 		{
 			std::string str = "asasdasd";

@@ -26,9 +26,9 @@ namespace Utilities
 
 		GUID() : id(0) {};
 		GUID(HashValue idi) : id(idi) { };
-		GUID(const std::string& str) : id(StringHash::GetHash_ConstexprString(str.c_str(), uint32_t(str.size()))) { };
+		GUID(const std::string& str) : id(hashString(str.c_str(), uint32_t(str.size()))) { };
 		template<std::size_t N>
-		constexpr GUID(const char(&a)[N]) : id(StringHash::GetHash_ConstexprString(a, N - 1)) { };
+		constexpr GUID(const char(&a)[N]) : id(hashString(a, N - 1)) { };
 		GUID(const GUID& other) : id(other.id) {}
 		GUID(const GUID&& other) : id(other.id) {}
 		bool operator!=(const GUID& other) const { return id != other.id; }
