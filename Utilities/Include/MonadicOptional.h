@@ -13,11 +13,9 @@ namespace Utilities
 		optional(std::nullopt_t nullopt) : std::optional<T>(nullopt) {}
 		optional(T && v) : std::optional<T>(v) {}
 		optional(T const& v) : std::optional<T>(v) {}
-		
-
-		/*********** Map Functions *************/
-		{
-			/*********** Free Functions ***********/
+			
+#pragma region Map_Functions
+#pragma region Free_Functions
 			{
 				// By value
 				template <class Return>
@@ -83,10 +81,10 @@ namespace Utilities
 					return optional(std::nullopt);
 				}
 
-			}
+#pragma endregion Free Functions
 
 			/************ Methods ***************/
-			{
+			
 				/*template <class Return, class C>
 				optional<Return> map(Return(C::*CMethod)()) noexcept
 				{
@@ -94,10 +92,10 @@ namespace Utilities
 						return std::nullopt;
 					return (&this->value()->*CMethod)();
 				}*/
-			}
+			
 
 			/*********** Lambda **************/
-			{
+			
 				/*
 				template <class T>
 				auto map(T const& lambda) noexcept
@@ -106,8 +104,8 @@ namespace Utilities
 						return optional(std::nullopt);
 					return optional(lambda(**this));
 				}*/
-			}
-		}
+			
+#pragma endregion Map_Functions
 	};
 
 	using index = ptrdiff_t;
