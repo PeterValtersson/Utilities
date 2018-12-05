@@ -8,7 +8,7 @@
 
 namespace Utilities
 {
-	namespace SofA
+	namespace Sofa
 	{
 		namespace Array
 		{
@@ -20,7 +20,7 @@ namespace Utilities
 			// Goes through the tuple and sets up the pointers for each attribute in the one allocation block. ( The stop recursion template)
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				setupPointers(std::tuple<typename make_ptr_t<Types>::type...>& t, size_t allocated)
+				setupPointers(std::tuple<typename make_ptr_t<Types>::type...>& t, size_t maxEntries)
 			{ }
 
 			// Goes through the tuple and sets up the pointers for each attribute in the one allocation block. 
@@ -28,9 +28,9 @@ namespace Utilities
 			// Setup the new pointers
 			newData.data = operator new(newSize);
 			newData.key = (int*)newData.data;
-			newData.v1 = (int*)(newData.key + newData.allocated);
-			newData.v2 = (bool*)(newData.v1 + newData.allocated);
-			newData.v3 = (char*)(newData.v2 + newData.allocated);
+			newData.v1 = (int*)(newData.key + newData.maxEntries);
+			newData.v2 = (bool*)(newData.v1 + newData.maxEntries);
+			newData.v3 = (char*)(newData.v2 + newData.maxEntries);
 
 			|0|1|2|3|4|5|6|7|
 			 ^		 ^
@@ -39,10 +39,10 @@ namespace Utilities
 			*/
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				setupPointers(std::tuple<typename make_ptr_t<Types>::type...>& t, size_t allocated)
+				setupPointers(std::tuple<typename make_ptr_t<Types>::type...>& t, size_t maxEntries)
 			{
-				std::get<I>(t) = reinterpret_cast<typename std::tuple_element<I, std::tuple<typename make_ptr_t<Types>::type...>>::type>(std::get<I - 1>(t) + allocated);
-				setupPointers<I + 1, Types...>(t, allocated);
+				std::get<I>(t) = reinterpret_cast<typename std::tuple_element<I, std::tuple<typename make_ptr_t<Types>::type...>>::type>(std::get<I - 1>(t) + maxEntries);
+				setupPointers<I + 1, Types...>(t, maxEntries);
 			}
 
 			// 'Takes one tuple of values and inserts them into the tuple holding arrays in the correct location.( The stop recursion template)
@@ -105,34 +105,36 @@ namespace Utilities
 			}
 
 			template<class Key, class KeyHash, class... Types>
-			class SofA
+			class Sofa
 			{
 			public:
-				SofA(std::size_t size = 64) : used(0), allocated(size), byteWidth(0)
+				Sofa(std::size_t size = 64) : numEntries(0), maxEntries(size), byteWidth(0)
 				{
 					for (auto&& v : typeSizes)
 						byteWidth += v;
-					Allocate(allocated);
+					Allocate(maxEntries);
 				}
-				~SofA()
+				~Sofa()
 				{
 					operator delete(data);
 				}
-				/*@brief Clear the entries, only sets used to 0. All memory and data is intact*/
+
+				/*@brief Clear the entries, only sets numEntries to 0. Memory and data is intact*/
 				inline void clear()
 				{
-					used = 0;
+					numEntries = 0;
 					map.clear();
 				}
-				inline size_t Allocated()const
+
+				inline size_t MaxEntries()const
 				{
-					return allocated;
+					return maxEntries;
 				}
 
-				/*@brief Shrinks the block to exactly fit the amount used.*/
+				/*@brief Shrinks the block to exactly fit the number of entries.*/
 				inline void shrink_to_fit()
 				{
-					Allocate(used);
+					Allocate(numEntries);
 				}
 				inline std::optional<std::pair<Key, std::size_t>> find(const Key key)const
 				{
@@ -142,23 +144,23 @@ namespace Utilities
 						return std::nullopt;
 				}
 
-				inline std::size_t size()const { return used; };
+				inline std::size_t size()const { return numEntries; };
 
 				void add(const Key key, const Types... args)
 				{
-					if (used + 1 > allocated)
-						Allocate(allocated * 2);
-					auto index = map[key] = used++;
+					if (numEntries + 1 > maxEntries)
+						Allocate(maxEntries * 2);
+					auto index = map[key] = numEntries++;
 					const auto tpl = std::make_tuple(key, args...);
 					setValue<0, Key, Types...>(typePointers, tpl, index);
 				}
 
 				std::size_t add(const Key key)
 				{
-					if (used + 1 > allocated)
-						Allocate(allocated * 2);
-					std::get<0>(typePointers)[used] = key;
-					return map[key] = used++;
+					if (numEntries + 1 > maxEntries)
+						Allocate(maxEntries * 2);
+					std::get<0>(typePointers)[numEntries] = key;
+					return map[key] = numEntries++;
 				}
 
 				template<std::size_t N, class type>
@@ -173,7 +175,7 @@ namespace Utilities
 					return std::get<N>(typePointers)[index];
 				}
 				template<std::size_t N>
-				inline const auto& getConst(std::size_t index)const
+				inline const auto& peek(std::size_t index)const
 				{
 					return std::get<N>(typePointers)[index];
 				}
@@ -183,7 +185,7 @@ namespace Utilities
 					return std::get<N>(typePointers);
 				}
 				template<std::size_t N>
-				inline const auto& getConst()const
+				inline const auto& peak()const
 				{
 					return std::get<N>(typePointers);
 				}
@@ -192,16 +194,19 @@ namespace Utilities
 				{
 					if (const auto find = map.find(key); find != map.end())
 					{
-						destroy(find->second);
+						erase(find->second);
 						return true;
 					}
 					return false;
 				}
 
 
-				void destroy(std::size_t at)
+				void erase(std::size_t at)
 				{
-					auto last = --used;
+					if at >= numEntries
+					{
+					}
+					auto last = --numEntries;
 
 					auto at_key = std::get<0>(typePointers)[at];
 					auto last_key = std::get<0>(typePointers)[last];
@@ -214,35 +219,35 @@ namespace Utilities
 
 				std::size_t GetMemoryUsage()const
 				{
-					return byteWidth * allocated;
+					return byteWidth * maxEntries;
 				}
 				void Allocate(std::size_t newSize)
 				{
-					std::size_t newAllocated = newSize;
-					void* newData = operator new(newAllocated*byteWidth);
+					std::size_t newmaxEntries = newSize;
+					void* newData = operator new(newmaxEntries*byteWidth);
 					type newTypePointers;
 
 					std::get<0>(newTypePointers) = (Key*)newData;
-					setupPointers<1, Key, Types...>(newTypePointers, newAllocated);
+					setupPointers<1, Key, Types...>(newTypePointers, newmaxEntries);
 
 					memcpyTuple<0, Key, Types...>(newTypePointers, typePointers);
 
 					operator delete(data);
 					typePointers = newTypePointers;
-					allocated = newAllocated;
+					maxEntries = newmaxEntries;
 					data = newData;
 				}
-				void Reinit(std::size_t newUsed)
+				void Reinit(std::size_t newnumEntries)
 				{
-					used = newUsed;
+					numEntries = newnumEntries;
 					map.clear();
-					for (std::size_t i = 0; i < used; i++)
+					for (std::size_t i = 0; i < numEntries; i++)
 						map[std::get<0>(typePointers)[i]] = i;
 				}
 			private:
 				void *data;
-				std::size_t used;
-				std::size_t allocated;
+				std::size_t numEntries;
+				std::size_t maxEntries;
 				std::size_t byteWidth;
 
 				const std::array<std::size_t, sizeof...(Types)+1> typeSizes{ sizeof(Key), sizeof(Types)... };
@@ -263,7 +268,7 @@ namespace Utilities
 				inline typename std::enable_if < I < sizeof...(Types), void>::type
 					memcpyTuple(std::tuple<typename make_ptr_t<Types>::type...>& t1, std::tuple<typename make_ptr_t<Types>::type...>& t2)
 				{
-					memcpy(std::get<I>(t1), std::get<I>(t2), typeSizes[I] * used);
+					memcpy(std::get<I>(t1), std::get<I>(t2), typeSizes[I] * numEntries);
 					memcpyTuple<I + 1, Types...>(t1, t2);
 				}
 
@@ -317,27 +322,27 @@ namespace Utilities
 
 
 			template<class Key, class KeyHash, class... Types>
-			class SofA
+			class Sofa
 			{
 			public:
-				SofA(std::size_t size = 64) : used(0), allocated(size)
+				Sofa(std::size_t size = 64) : numEntries(0), maxEntries(size)
 				{
-					Allocate(allocated);
+					Allocate(maxEntries);
 				}
 
-				~SofA()
+				~Sofa()
 				{
 
 				}
 
 				void clear()
 				{
-					used = 0;
+					numEntries = 0;
 				}
 
 				inline void shrink_to_fit()
 				{
-					Allocate(used);
+					Allocate(numEntries);
 				}
 				inline std::optional<std::pair<Key, std::size_t>> find(const Key key)const
 				{
@@ -347,22 +352,22 @@ namespace Utilities
 						return std::nullopt;
 				}
 
-				inline std::size_t size()const { return used; };
+				inline std::size_t size()const { return numEntries; };
 
 				std::size_t add(const Key key)
 				{
-					if (used + 1 > allocated)
-						Allocate(allocated * 2);
-					auto index = used++;
+					if (numEntries + 1 > maxEntries)
+						Allocate(maxEntries * 2);
+					auto index = numEntries++;
 					std::get<0>(tvec)[index] = key;
 					return map[key] = index;
 				}
 
 				void add(const Key key, const Types... args)
 				{
-					if (used + 1 > allocated)
-						Allocate(allocated * 2);
-					auto index = map[key] = used++;
+					if (numEntries + 1 > maxEntries)
+						Allocate(maxEntries * 2);
+					auto index = map[key] = numEntries++;
 					const auto tpl = std::make_tuple(key, args...);
 					setValue<0, Key, Types...>(tvec, tpl, index);
 				}
@@ -400,16 +405,16 @@ namespace Utilities
 				{
 					if (const auto find = map.find(key); find != map.end())
 					{
-						destroy(find->second);
+						erase(find->second);
 						return true;
 					}
 					return false;
 				}
 
 
-				void destroy(std::size_t at)
+				void erase(std::size_t at)
 				{
-					auto last = --used;
+					auto last = --numEntries;
 
 					auto at_key = std::get<0>(tvec)[at];
 					auto last_key = std::get<0>(tvec)[last];
@@ -422,8 +427,8 @@ namespace Utilities
 
 
 			private:
-				std::size_t used;
-				std::size_t allocated;
+				std::size_t numEntries;
+				std::size_t maxEntries;
 
 				std::tuple<std::vector<Key>, std::vector<Types>...> tvec;
 				std::unordered_map<Key, std::size_t, KeyHash> map;
@@ -431,7 +436,7 @@ namespace Utilities
 				void Allocate(std::size_t newSize)
 				{
 					resizeVectorsInTuple(tvec, newSize);
-					allocated = newSize;
+					maxEntries = newSize;
 				}
 			};
 

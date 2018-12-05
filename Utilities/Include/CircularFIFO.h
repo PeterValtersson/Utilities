@@ -13,14 +13,14 @@ namespace Utilities
 		CircularFiFo() : tail(0), head(0) {};
 		~CircularFiFo() {};
 
-		inline bool WasFull() const
+		inline bool isFull() const
 		{
 			auto index = tail.load();
 			auto next_tail = (index + 1) % Capacity;
 			return (next_tail == head.load());
 		}
 
-		inline bool wasEmpty() const
+		inline bool isEmpty() const
 		{
 			return (head.load() == tail.load());
 		}
@@ -62,6 +62,7 @@ namespace Utilities
 			assert(next_tail == current_head);
 			return false;  // full queue
 		}
+
 		// Producer only
 		inline bool push(Element&& item)
 		{

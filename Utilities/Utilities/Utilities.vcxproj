@@ -148,7 +148,6 @@
     <ClInclude Include="..\Include\Sofa.h" />
     <ClInclude Include="..\Include\StringReadWrite.h" />
     <ClInclude Include="..\Include\ThreadPool.h" />
-    <ClInclude Include="..\Profiler\Profiler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
