@@ -13,6 +13,9 @@
     <Filter Include="Other">
       <UniqueIdentifier>{e82ba3f4-256f-4e30-9383-fe33422b25df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Concurrency">
+      <UniqueIdentifier>{0b339e02-a409-45ed-abfe-8d12f0b6d339}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\CompileTimeString.h">
@@ -39,11 +42,17 @@
     <ClInclude Include="..\Include\CircularFIFO.h">
       <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\HelperFunction.h">
-      <Filter>Other</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Profiler.h">
       <Filter>Profiler</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\MonadicOptional.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Concurrent.h">
+      <Filter>Concurrency</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
 </Project>

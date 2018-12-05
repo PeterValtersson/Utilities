@@ -28,7 +28,7 @@ private:
 		std::thread::id threadID; std::shared_ptr<Profiler> profiler;
 	};
 	std::vector<ID_Profiler_Pair> profilers;
-	std::mutex profil
+	std::mutex profileLock;
 };
 
 class Profiler {
