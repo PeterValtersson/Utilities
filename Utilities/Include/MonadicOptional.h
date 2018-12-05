@@ -13,27 +13,100 @@ namespace Utilities
 		optional(std::nullopt_t nullopt) : std::optional<T>(nullopt) {}
 		optional(T && v) : std::optional<T>(v) {}
 		optional(T const& v) : std::optional<T>(v) {}
+		
 
-		template <class Return>
-		optional<Return> map(Return(func)(T)) noexcept
+		/*********** Map Functions *************/
 		{
-			if (!this->has_value())
-				return std::nullopt;
-			return func(**this);
-		}
-		template <class Return, class C>
-		optional<Return> map(Return(C::*CMethod)()) noexcept
-		{
-			if (!this->has_value())
-				return std::nullopt;
-			return (&this->value()->*CMethod)();
-		}
-		template <class T>
-		auto map(T const& lambda) noexcept
-		{
-			if (!this->has_value())
-				return optional(std::nullopt);
-			return optional(lambda(**this));
+			/*********** Free Functions ***********/
+			{
+				// By value
+				template <class Return>
+				auto map(Return(func)(T)) noexcept
+				{
+					if (!this->has_value())
+						return optional(std::nullopt);
+					return optional(func(**this));
+				}
+				template <>
+				auto map(void(func)(T)) noexcept
+				{
+					if (this->has_value())
+						func(**this);
+					return optional(std::nullopt);
+				}
+
+				// By reference
+				template <class Return>
+				auto map(Return(func)(T&)) noexcept
+				{
+					if (!this->has_value())
+						return optional(std::nullopt);
+					return optional(func(**this));
+				}
+				template <>
+				auto map(void(func)(T&)) noexcept
+				{
+					if (this->has_value())
+						func(**this);
+					return optional(std::nullopt);
+				}
+
+				// By const ref.
+				template <class Return>
+				auto map(Return(func)(T const&)) noexcept
+				{
+					if (!this->has_value())
+						return optional(std::nullopt);
+					return optional(func(**this));
+				}
+				template <>
+				auto map(void(func)(T const&)) noexcept
+				{
+					if (this->has_value())
+						func(**this);
+					return optional(std::nullopt);
+				}
+
+				// void
+				template <class Return>
+				auto map(Return(func)()) noexcept
+				{
+					if (!this->has_value())
+						return optional(std::nullopt);
+					return optional(func());
+				}
+				template <>
+				auto map(void(func)()) noexcept
+				{
+					if (this->has_value())
+						func();
+					return optional(std::nullopt);
+				}
+
+			}
+
+			/************ Methods ***************/
+			{
+				/*template <class Return, class C>
+				optional<Return> map(Return(C::*CMethod)()) noexcept
+				{
+					if (!this->has_value())
+						return std::nullopt;
+					return (&this->value()->*CMethod)();
+				}*/
+			}
+
+			/*********** Lambda **************/
+			{
+				/*
+				template <class T>
+				auto map(T const& lambda) noexcept
+				{
+					if (!this->has_value())
+						return optional(std::nullopt);
+					return optional(lambda(**this));
+				}*/
+			}
 		}
 	};
 
