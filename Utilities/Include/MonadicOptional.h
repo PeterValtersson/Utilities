@@ -15,88 +15,74 @@ namespace Utilities
 		optional(T const& v) : std::optional<T>(v) {}
 
 #pragma region Map_Functions
-		template <class Return, typename... Param>
-		auto map(Return(func)(T, Param...), Param... args) -> optional<Return>
-		{
+		
+#pragma region Free_Functions
 
+		// By value
+		template <class Return, typename... Param>
+		auto map(Return(func)(T, Param...), Param... args) noexcept -> optional<Return>
+		{
+			if (!this->has_value())
+				return std::nullopt;
+			return func(**this, std::forward<Param>(args)...);
+		}		
+		template <typename... Param>
+		auto map(void(func)(T, Param...), Param... args) noexcept -> void
+		{
+			if (this->has_value())
+				func(**this, std::forward<Param>(args)...);
+			return;
+		}
+
+		// By reference
+		template <class Return, typename... Param>
+		auto map(Return(func)(T&, Param...), Param... args) noexcept -> optional<Return>
+		{
 			if (!this->has_value())
 				return std::nullopt;
 			return func(**this, std::forward<Param>(args)...);
 		}
-//#pragma region Free_Functions
-//
-//		// By value
-//		template <class Return>
-//		auto map(Return(func)(T)) noexcept
-//		{
-//			if (!this->has_value())
-//				return optional<Return>(std::nullopt);
-//			return optional<Return>(func(**this));
-//		}
-//		
-//		template <>
-//		auto map(void(func)(T)) noexcept
-//		{
-//			if (this->has_value())
-//				func(**this);
-//			return;
-//		}
-//		template <typename... PARAMS>
-//		auto map(void(func)(T, PARAMS...)) noexcept
-//		{
-//			if (this->has_value())
-//				func(**this);
-//			return;
-//		}
-//		// By reference
-//		template <class Return>
-//		auto map(Return(func)(T&)) noexcept
-//		{
-//			if (!this->has_value())
-//				return optional<Return>(std::nullopt);
-//			return optional<Return>(func(**this));
-//		}
-//		template <>
-//		auto map(void(func)(T&)) noexcept
-//		{
-//			if (this->has_value())
-//				func(**this);
-//			return;
-//		}
-//
-//		// By const ref.
-//		template <class Return>
-//		auto map(Return(func)(T const&)) noexcept
-//		{
-//			if (!this->has_value())
-//				return optional<Return>(std::nullopt);
-//			return optional<Return>(func(**this));
-//		}
-//		template <>
-//		auto map(void(func)(T const&)) noexcept
-//		{
-//			if (this->has_value())
-//				func(**this);
-//			return;
-//		}
-//
-//		// void
-//		template <class Return>
-//		auto map(Return(func)()) noexcept
-//		{
-//			if (!this->has_value())
-//				return optional<Return>(std::nullopt);
-//			return optional<Return>(func());
-//		}
-//		template <>
-//		auto map(void(func)()) noexcept
-//		{
-//			if (this->has_value())
-//				func();
-//			return;
-//		}
-//
-//#pragma endregion Free Functions
+		template <typename... Param>
+		auto map(void(func)(T&, Param...), Param... args) noexcept -> void
+		{
+			if (this->has_value())
+				func(**this, std::forward<Param>(args)...);
+			return;
+		}
+
+		//// By const ref.
+		//template <class Return>
+		//auto map(Return(func)(T const&)) noexcept
+		//{
+		//	if (!this->has_value())
+		//		return optional<Return>(std::nullopt);
+		//	return optional<Return>(func(**this));
+		//}
+		//template <>
+		//auto map(void(func)(T const&)) noexcept
+		//{
+		//	if (this->has_value())
+		//		func(**this);
+		//	return;
+		//}
+
+		//// void
+		//template <class Return>
+		//auto map(Return(func)()) noexcept
+		//{
+		//	if (!this->has_value())
+		//		return optional<Return>(std::nullopt);
+		//	return optional<Return>(func());
+		//}
+		//template <>
+		//auto map(void(func)()) noexcept
+		//{
+		//	if (this->has_value())
+		//		func();
+		//	return;
+		//}
+
+#pragma endregion Free Functions
 //	
 //#pragma region Methods
 //
