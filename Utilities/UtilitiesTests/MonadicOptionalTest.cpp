@@ -6,17 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UtilitiesTests
 {
-	class A {
-	public:
-		int a;
-		A(int a) : a(a) {}
-		int Add()
-		{
-			a++;
-			return a;
-		}
-
-	};
+	
 	int Add(int mon)
 	{
 		return mon + 1;
@@ -24,15 +14,6 @@ namespace UtilitiesTests
 	void AddV(int mon)
 	{
 		Logger::WriteMessage(("AddV: " + std::to_string(mon)).c_str());
-	}
-	int Add2(int& mon)
-	{
-		mon = mon + 1;
-		return mon;
-	}
-	void Add2V(int& mon)
-	{
-		Logger::WriteMessage(("Add2V: " + std::to_string(mon)).c_str());
 	}
 	int Five()
 	{
@@ -42,40 +23,123 @@ namespace UtilitiesTests
 	{
 		Logger::WriteMessage("Five");
 	}
-	void Add3(int& mon)
+
+	int Add2(int& mon)
+	{
+		mon = mon + 1;
+		return mon;
+	}
+	void Add2V(int& mon)
 	{
 		mon++;
+		Logger::WriteMessage(("Add2V: " + std::to_string(mon)).c_str());
 	}
+	int Add2C(int const& mon)
+	{
+		return mon + 1;
+	}
+	void Add2VC(int const& mon)
+	{
+		Logger::WriteMessage(("Add2VC: " + std::to_string(mon)).c_str());
+	}
+	int AddP(int mon, int a)
+	{
+		return mon + a;
+	}
+	void AddPV(int mon, int a)
+	{
+		Logger::WriteMessage(("Add2VC: " + std::to_string(mon + a)).c_str());
+	}
+
+	template<class T>
+	struct AsFunction
+		: public AsFunction<decltype(&T::operator())>
+	{};
+
+	template<class ReturnType, class... Args>
+	struct AsFunction<ReturnType(Args...)> {
+		using type = std::function<ReturnType(Args...)>;
+	};
+
+	template<class ReturnType, class... Args>
+	struct AsFunction<ReturnType(*)(Args...)> {
+		using type = std::function<ReturnType(Args...)>;
+	};
+
+
+	template<class Class, class ReturnType, class... Args>
+	struct AsFunction<ReturnType(Class::*)(Args...) const> {
+		using type = std::function<ReturnType(Args...)>;
+	};
+
+	template<class F>
+	auto toFunction(F f) -> typename AsFunction<F>::type {
+		return { f };
+	}
+
+	template<class R, class... P>
+	void fu(Func<R,P...> f)
+	{
+		return;
+	}
+
+	
 	TEST_CLASS(MonadicTest)
 	{
 	public:
-		TEST_METHOD(MonadicTest_Map)
+		TEST_METHOD(MonadicTest_Map_FreeFunctions)
 		{
 			Utilities::optional<int> tmo(1);
 			Assert::AreEqual(1, *tmo);
 			*tmo = 2;
 			Assert::AreEqual(2, *tmo);
-			tmo = tmo.map(&Add);
-			tmo.map(&AddV);
-			Assert::AreEqual(3, *tmo);
-			tmo.map(&AddV);
 
-			tmo.map(&Add2);
-			Assert::AreEqual(4, *tmo);
-			tmo.map(&Add2V);
-			//tmo = tmo.map([](int a) {return a * 2; });
-			//Assert::AreEqual(8, *tmo);
-			Assert::AreEqual(5, *tmo.map(&Five));
-			tmo.map(&Five2);
+			fu(&Add);
 
-			/////*tmo.map(&Add3);
-			////Assert::AreEqual(8, *tmo);*/
+			/*tmo = tmo.map(&Five2);
+			Assert::AreEqual(3, *tmo);*/
+			//tmo.map(&AddV);
 
-			//Utilities::optional<A> tmoa{5};
-			//Assert::AreEqual(5, tmoa->a);
-			//auto tmoa2 = tmoa.map(&A::Add);
-			//Assert::AreEqual(6, tmoa->a);
-			//Assert::AreEqual(6, *tmoa2);
+			//tmo.map(&Add2);
+			//Assert::AreEqual(4, *tmo);
+			//tmo.map(&Add2V);
+			//Assert::AreEqual(5, *tmo);
+
+			//tmo = tmo.map(&Add2C);
+			//Assert::AreEqual(6, *tmo);
+			//tmo.map(&Add2VC);
+			//Assert::AreEqual(6, *tmo);
+
+
+			//Assert::AreEqual(5, *tmo.map(&Five));
+			//tmo.map(&Five2);
+
+
+		}
+		
+
+		class A {
+		public:
+			int a;
+			A(int a) : a(a) {}
+			int Add()
+			{
+				a++;
+				return a;
+			}
+			void AddV()
+			{
+				a++;
+			}
+		};
+		TEST_METHOD(MonadicTest_Map_Methods)
+		{
+			/*Utilities::optional<A> tmo(1);
+			auto r = tmo.map(&A::Add);
+			Assert::AreEqual(2, *r);
+			Assert::AreEqual(2, tmo->a);
+			tmo.map(&A::AddV);
+			Assert::AreEqual(3, tmo->a);*/
 		}
 
 

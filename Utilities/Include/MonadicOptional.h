@@ -15,85 +15,103 @@ namespace Utilities
 		optional(T const& v) : std::optional<T>(v) {}
 
 #pragma region Map_Functions
-#pragma region Free_Functions
-
-		// By value
-		template <class Return>
-		auto map(Return(func)(T)) noexcept
+		template <class Return, typename... Param>
+		void map(std::function<Return(Param...)> const& func, Param... args)
 		{
-			if (!this->has_value())
-				return optional(std::nullopt);
-			return optional(func(**this));
+			return;
 		}
-		template <>
-		auto map(void(func)(T)) noexcept
-		{
-			if (this->has_value())
-				func(**this);
-			return optional(std::nullopt);
-		}
-
-		// By reference
-		template <class Return>
-		auto map(Return(func)(T&)) noexcept
-		{
-			if (!this->has_value())
-				return optional(std::nullopt);
-			return optional(func(**this));
-		}
-		template <>
-		auto map(void(func)(T&)) noexcept
-		{
-			if (this->has_value())
-				func(**this);
-			return optional(std::nullopt);
-		}
-
-		// By const ref.
-		template <class Return>
-		auto map(Return(func)(T const&)) noexcept
-		{
-			if (!this->has_value())
-				return optional(std::nullopt);
-			return optional(func(**this));
-		}
-		template <>
-		auto map(void(func)(T const&)) noexcept
-		{
-			if (this->has_value())
-				func(**this);
-			return optional(std::nullopt);
-		}
-
-		// void
-		template <class Return>
-		auto map(Return(func)()) noexcept
-		{
-			if (!this->has_value())
-				return optional(std::nullopt);
-			return optional(func());
-		}
-		template <>
-		auto map(void(func)()) noexcept
-		{
-			if (this->has_value())
-				func();
-			return optional(std::nullopt);
-		}
-
-#pragma endregion Free Functions
-
-		/************ Methods ***************/
-
-			/*template <class Return, class C>
-			optional<Return> map(Return(C::*CMethod)()) noexcept
-			{
-				if (!this->has_value())
-					return std::nullopt;
-				return (&this->value()->*CMethod)();
-			}*/
-
-
+//#pragma region Free_Functions
+//
+//		// By value
+//		template <class Return>
+//		auto map(Return(func)(T)) noexcept
+//		{
+//			if (!this->has_value())
+//				return optional<Return>(std::nullopt);
+//			return optional<Return>(func(**this));
+//		}
+//		
+//		template <>
+//		auto map(void(func)(T)) noexcept
+//		{
+//			if (this->has_value())
+//				func(**this);
+//			return;
+//		}
+//		template <typename... PARAMS>
+//		auto map(void(func)(T, PARAMS...)) noexcept
+//		{
+//			if (this->has_value())
+//				func(**this);
+//			return;
+//		}
+//		// By reference
+//		template <class Return>
+//		auto map(Return(func)(T&)) noexcept
+//		{
+//			if (!this->has_value())
+//				return optional<Return>(std::nullopt);
+//			return optional<Return>(func(**this));
+//		}
+//		template <>
+//		auto map(void(func)(T&)) noexcept
+//		{
+//			if (this->has_value())
+//				func(**this);
+//			return;
+//		}
+//
+//		// By const ref.
+//		template <class Return>
+//		auto map(Return(func)(T const&)) noexcept
+//		{
+//			if (!this->has_value())
+//				return optional<Return>(std::nullopt);
+//			return optional<Return>(func(**this));
+//		}
+//		template <>
+//		auto map(void(func)(T const&)) noexcept
+//		{
+//			if (this->has_value())
+//				func(**this);
+//			return;
+//		}
+//
+//		// void
+//		template <class Return>
+//		auto map(Return(func)()) noexcept
+//		{
+//			if (!this->has_value())
+//				return optional<Return>(std::nullopt);
+//			return optional<Return>(func());
+//		}
+//		template <>
+//		auto map(void(func)()) noexcept
+//		{
+//			if (this->has_value())
+//				func();
+//			return;
+//		}
+//
+//#pragma endregion Free Functions
+//	
+//#pragma region Methods
+//
+//			template <class Return, class C>
+//			auto map(Return(C::*CMethod)()) noexcept
+//			{
+//				if (!this->has_value())
+//					return optional<Return>(std::nullopt);
+//				return optional<Return>((&this->value()->*CMethod)());
+//			}
+//			template <class C>
+//			auto map(void(C::*CMethod)()) noexcept
+//			{
+//				if (this->has_value())
+//					(&this->value()->*CMethod)();
+//				return;
+//			}
+//#pragma endregion Methods
 			/*********** Lambda **************/
 
 				/*
