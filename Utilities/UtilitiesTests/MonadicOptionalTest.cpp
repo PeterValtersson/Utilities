@@ -51,38 +51,6 @@ namespace UtilitiesTests
 		Logger::WriteMessage(("Add2VC: " + std::to_string(mon + a)).c_str());
 	}
 
-	template<class T>
-	struct AsFunction
-		: public AsFunction<decltype(&T::operator())>
-	{};
-
-	template<class ReturnType, class... Args>
-	struct AsFunction<ReturnType(Args...)> {
-		using type = std::function<ReturnType(Args...)>;
-	};
-
-	template<class ReturnType, class... Args>
-	struct AsFunction<ReturnType(*)(Args...)> {
-		using type = std::function<ReturnType(Args...)>;
-	};
-
-
-	template<class Class, class ReturnType, class... Args>
-	struct AsFunction<ReturnType(Class::*)(Args...) const> {
-		using type = std::function<ReturnType(Args...)>;
-	};
-
-	template<class F>
-	auto toFunction(F f) -> typename AsFunction<F>::type {
-		return { f };
-	}
-
-	template<class R, class... P>
-	void fu(Func<R,P...> f)
-	{
-		return;
-	}
-
 	
 	TEST_CLASS(MonadicTest)
 	{
@@ -94,7 +62,7 @@ namespace UtilitiesTests
 			*tmo = 2;
 			Assert::AreEqual(2, *tmo);
 
-			fu(&Add);
+			tmo.map(&Add);
 
 			/*tmo = tmo.map(&Five2);
 			Assert::AreEqual(3, *tmo);*/

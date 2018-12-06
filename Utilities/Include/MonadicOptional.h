@@ -16,9 +16,12 @@ namespace Utilities
 
 #pragma region Map_Functions
 		template <class Return, typename... Param>
-		void map(std::function<Return(Param...)> const& func, Param... args)
+		auto map(Return(func)(T, Param...), Param... args) -> optional<Return>
 		{
-			return;
+
+			if (!this->has_value())
+				return std::nullopt;
+			return func(**this, std::forward<Param>(args)...);
 		}
 //#pragma region Free_Functions
 //
