@@ -57,7 +57,7 @@ namespace UtilitiesTests
 	{
 		return mon + 1;
 	}
-	void Add2VC(int const& mon)
+	void Add2VC(int const& mon, int b)
 	{
 		Logger::WriteMessage(("Add2VC: " + std::to_string(mon)).c_str());
 	}
@@ -74,44 +74,53 @@ namespace UtilitiesTests
 	TEST_CLASS(MonadicTest)
 	{
 	public:
-		TEST_METHOD(MonadicTest_Map_FreeFunctions)
+		TEST_METHOD(MonadicTest_Map_FreeFunctions_Value)
+
 		{
-			{
-				Utilities::optional<int> tmo(1);
-				Assert::AreEqual(1, *tmo);
-				*tmo = 2;
-				Assert::AreEqual(2, *tmo);
+			Utilities::optional<int> tmo(1);
+			Assert::AreEqual(1, *tmo);
+			*tmo = 2;
+			Assert::AreEqual(2, *tmo);
 
-				auto r = tmo.map(&Add).map(&Add);
-				Assert::AreEqual(2, *tmo);
-				Assert::AreEqual(4, *r);
-				tmo.map(&AddV);
-				tmo.map(&AddVe, 5, false);
-			}
-			{
-				Utilities::optional<int> tmo(0);
-				auto r = tmo.map(&Add2).map(&Add2);
-				Assert::AreEqual(1, *tmo);
-				Assert::AreEqual(2, *r);
+			auto r = tmo.map(&Add).map(&Add);
+			Assert::AreEqual(2, *tmo);
+			Assert::AreEqual(4, *r);
+			tmo.map(&AddV);
+			tmo.map(&AddVe, 5, false);
+		}
+		TEST_METHOD(MonadicTest_Map_FreeFunctions_Ref)
+		{
+			Utilities::optional<int> tmo(0);
+			auto r = tmo.map(&Add2).map(&Add2);
+			Assert::AreEqual(1, *tmo);
+			Assert::AreEqual(2, *r);
 
-				tmo.map(&Add2V);
-				Assert::AreEqual(2, *tmo);
-				tmo.map(&Add2Ve, 2);
-				Assert::AreEqual(4, *tmo);
-			}
-			//tmo = tmo.map(&Add2C);
-			//Assert::AreEqual(6, *tmo);
-			//tmo.map(&Add2VC);
-			//Assert::AreEqual(6, *tmo);
-
-
-			//Assert::AreEqual(5, *tmo.map(&Five));
-			//tmo.map(&Five2);
-			/*tmo = tmo.map(&Five2);
-			Assert::AreEqual(3, *tmo);*/
-
+			tmo.map(&Add2V);
+			Assert::AreEqual(2, *tmo);
+			tmo.map(&Add2Ve, 2);
+			Assert::AreEqual(4, *tmo);
+		}
+		TEST_METHOD(MonadicTest_Map_FreeFunctions_CRef)
+		{
+			Utilities::optional<int> tmo(0);
+			auto r = tmo.map(&Add2C);
+			Assert::AreEqual(0, *tmo);
+			Assert::AreEqual(1, *r);
+			tmo.map(&Add2VC, 2);
+			Assert::AreEqual(0, *tmo);
+		}
+		TEST_METHOD(MonadicTest_Map_FreeFunctions_Void)
+		{
+			Utilities::optional<int> tmo(0);
+			Assert::AreEqual(5, *tmo.map(&Five));
+			Assert::AreEqual(0, *tmo);
+			tmo.map(&Five2);
+			Assert::AreEqual(0, *tmo);
 		}
 		
+
+
+
 
 		class A {
 		public:
@@ -126,17 +135,32 @@ namespace UtilitiesTests
 			{
 				a++;
 			}
+			void AddR(int& b)
+			{
+				b = a;
+			}
 		};
 		TEST_METHOD(MonadicTest_Map_Methods)
 		{
-			/*Utilities::optional<A> tmo(1);
+			Utilities::optional<A> tmo(1);
 			auto r = tmo.map(&A::Add);
 			Assert::AreEqual(2, *r);
 			Assert::AreEqual(2, tmo->a);
 			tmo.map(&A::AddV);
-			Assert::AreEqual(3, tmo->a);*/
+			Assert::AreEqual(3, tmo->a);
+			int a = 7;
+			Assert::AreEqual(7, a);
+			tmo.map<int&>(&A::AddR, a);
+			Assert::AreEqual(3, a);
 		}
-
+		TEST_METHOD(MonadicTest_Map_Lambda)
+		{
+			Utilities::optional<int> tmo(1);
+			auto r = tmo.map([](int a) {return a + 1; });
+			Assert::AreEqual(2, *r);
+			Assert::AreEqual(1, *tmo);
+			Assert::AreEqual(5, *tmo.map([](int) {return 5; }));
+		}
 
 	};
 }
