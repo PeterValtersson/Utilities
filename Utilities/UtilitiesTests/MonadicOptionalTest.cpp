@@ -70,7 +70,14 @@ namespace UtilitiesTests
 		Logger::WriteMessage(("Add2VC: " + std::to_string(mon + a)).c_str());
 	}
 
-	
+	int foo(int a)
+	{
+		return a;
+	}
+	void fooV(int a)
+	{
+		Logger::WriteMessage(("fooV: " + std::to_string(a)).c_str());
+	}
 	TEST_CLASS(MonadicTest)
 	{
 	public:
@@ -116,6 +123,8 @@ namespace UtilitiesTests
 			Assert::AreEqual(0, *tmo);
 			tmo.map(&Five2);
 			Assert::AreEqual(0, *tmo);
+			tmo.map(&Add, 2);
+			tmo.map(&AddPV, 2, 4);
 		}
 		
 
@@ -160,7 +169,25 @@ namespace UtilitiesTests
 			Assert::AreEqual(2, *r);
 			Assert::AreEqual(1, *tmo);
 			Assert::AreEqual(5, *tmo.map([](int) {return 5; }));
+			Assert::AreEqual(6, *tmo.map([](int a, int b) {return a + b; }, 5));
+		}
+		
+		TEST_METHOD(MonadicTest_Or_Else_FreeFunctions)
+		{	
+			Utilities::optional<int> tmo;
+			Assert::IsFalse(tmo.has_value());
+			tmo = tmo.or_else(&foo, 1);
+			Assert::IsFalse(tmo.has_value());
+			tmo = std::nullopt;
+			tmo.or_else(&fooV, 1337);
 		}
 
+		/*TEST_METHOD(MonadicTest_And_Or_Else_Lambda)
+		{
+			Utilities::optional<int> tmo;
+			tmo.and_or_else([](int) {return 0; }, [] {});
+		}*/
 	};
+
+
 }

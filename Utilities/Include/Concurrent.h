@@ -1,9 +1,20 @@
 #ifndef _UTILITIES_CONCURRENT_H_
 #define _UTILITIES_CONCURRENT_H_
-namespace Concurrency {
-	template<typ
+#include <mutex>
+namespace Utilities 
+{
+	template<class T> 
 	class Concurrent {
-
+	public:
+		template<class F, typename... Param>
+		void operate(F const& f, Param... args)
+		{
+			std::lock_guard<std::mutex> lg(lock);
+			f(obj, std::forward<Param>(args)...);
+		}
+	private:
+		std::mutex lock;
+		T obj;
 	};
 }
 #endif

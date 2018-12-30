@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "../Include/GUID.h"
+#include "../Include/CompileTimeString.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UtilitiesTests
@@ -28,6 +29,13 @@ namespace UtilitiesTests
 			Utilities::GUID hash = 0;
 			for (int i = 0; i < 200000; i++)
 				hash = Utilities::GUID("asasdasd");
+		}
+
+		TEST_METHOD(Constexpr_String)
+		{
+			Utilities::ConstexprString<4> asd("asd");
+			Assert::AreEqual(3ui64, asd.size());
+			Assert::AreEqual(2550621077u, Utilities::EnsureHash<"asd"_hash>::value);
 		}
 
 	};

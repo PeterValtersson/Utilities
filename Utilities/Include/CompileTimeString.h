@@ -2,6 +2,7 @@
 #define _UTILZ_COMPILE_TIME_STRING_H_
 #include <stdint.h>
 #include <cstddef>
+#include <type_traits>
 
 
 namespace Utilities
@@ -27,39 +28,43 @@ namespace Utilities
 		}
 		return hash;
 	}
+	template<size_t N>
 	class ConstexprString
 	{
 		const char* string;
-		size_t stringSize;
 	public:
-		struct Hasher
-		{
-			constexpr inline HashValue operator()(const ConstexprString& g) const
-			{
-				return g.hash();
-			}
-		};
-		constexpr HashValue hash()const { return hashString(string, stringSize); }
-		template<size_t N>
-		constexpr ConstexprString(const char(&a)[N]) : p(a), stringSize(N - 1) {  };
-		constexpr ConstexprString(const char* pS, const size_t size) : string(pS), stringSize(size - 1) {  };
-		constexpr char operator[](std::size_t n) const { return (n >= stringSize) ? '\0' : string[n]; };
-		constexpr std::size_t size()const { return stringSize; };
+		
+		constexpr ConstexprString(const char(&a)[N]) : string(a) {  };
+		constexpr HashValue hash() { return hashString(string, N - 1); }
+		constexpr char operator[](std::size_t n) const { return (n >= N-1) ? '\0' : string[n]; };
+		constexpr std::size_t size()const { return N-1; };
 		constexpr operator const char*()const { return string; };
 	};
 
-	constexpr HashValue hashString(const ConstexprString& toHash)
+	template<size_t N>
+	constexpr HashValue hashString(const ConstexprString<N>& toHash)
 	{
 		return hashString(toHash, static_cast<uint32_t>(toHash.size()));
 	}
+	template<size_t N>
+	constexpr HashValue hashString(const char(&a)[N])
+	{
+		return hashString(a, N-1);
+	}
+	template<HashValue v>
+	struct EnsureHash {
+		static constexpr HashValue value = v;
+	};
+	template<size_t N>
+	ConstexprString<N> CreateCString(const char(&a)[N])
+	{
+		return ConstexprString<N>(a);
+	}
 }
-constexpr Utilities::ConstexprString operator "" _cString(const char* toHash, std::size_t size)
+
+constexpr Utilities::HashValue operator "" _hash(const char* str, size_t size)
 {
-	return Utilities::ConstexprString(toHash, size);
-}
-constexpr Utilities::HashValue operator "" _hash(const char* toHash, std::size_t size)
-{
-	return Utilities::ConstexprString(toHash, size).hash();
+	return Utilities::hashString(str, size - 1);
 }
 
 #endif //_UTILZ_COMPILE_TIME_STRING_H_

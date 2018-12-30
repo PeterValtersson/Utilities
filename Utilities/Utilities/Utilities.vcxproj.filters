@@ -33,9 +33,6 @@
     <ClInclude Include="..\Include\PathHelpers.h">
       <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\StringReadWrite.h">
-      <Filter>Other</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\ThreadPool.h">
       <Filter>Other</Filter>
     </ClInclude>
@@ -50,6 +47,9 @@
     </ClInclude>
     <ClInclude Include="..\Include\Concurrent.h">
       <Filter>Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\StringUtilities.h">
+      <Filter>Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

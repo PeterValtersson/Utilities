@@ -5,58 +5,198 @@
 #include <memory>
 #include <vector>
 #include <thread>
-#include <mutex>
+#include "Concurrent.h"
+#include "MonadicOptional.h"
+#include "CompileTimeString.h"
+#include "StringUtilities.h"
+#include <sstream>
 
-class Profiler;
+namespace Utilities
+{
+	class ProfileEntry {
+	public:
+		ProfileEntry(const char* str) : name(str), timesCalled(0) {};
+		ProfileEntry(const char* str, HashValue hash, std::shared_ptr<ProfileEntry> parent) : name(str), hash(hash), timesCalled(0), parent(parent), timeSpent(0) {};
+		std::string name;
+		HashValue hash;
+		size_t timesCalled;
+		std::shared_ptr<ProfileEntry> parent;
+		std::shared_ptr<ProfileEntry> child;
+		std::shared_ptr<ProfileEntry> nextChild;
+		std::chrono::nanoseconds timeSpent;
+		std::chrono::high_resolution_clock::time_point start;
+	};
 
-class Profiler_Data_Collector {
-public:
-	static std::shared_ptr<Profiler_Data_Collector> Get() noexcept
-	{
-		static std::shared_ptr<Profiler_Data_Collector> collector;
-		if (!collector)
-			collector = std::make_shared<Profiler_Data_Collector>();
-		return collector;
-	}
-	void AddProfiler(std::thread::id threadID, std::shared_ptr<Profiler> profiler) noexcept
-	{
-		if (std::find(std::begin(profilers), std::end(profilers), threadID) != std::end(profilers))
-			profilers.push_back({ threadID, profiler });
-	}
-private:
+	class Profiler;
+	
 	struct ID_Profiler_Pair {
 		std::thread::id threadID; std::shared_ptr<Profiler> profiler;
 	};
-	std::vector<ID_Profiler_Pair> profilers;
-	std::mutex profileLock;
-};
+	bool operator==(ID_Profiler_Pair const& l, std::thread::id r) { return l.threadID == r; }
 
-class Profiler {
-public:
-	static std::shared_ptr<Profiler> Get() noexcept
-	{
-		thread_local static std::shared_ptr<Profiler> profiler;
-		if (!profiler)
+
+	class Profiler_Data_Collector {
+	public:
+		static std::shared_ptr<Profiler_Data_Collector> get()
 		{
-			profiler = std::make_shared<Profiler>();
-			Profiler_Data_Collector::Get()->AddProfiler(std::this_thread::get_id(), profiler);
+			//static std::weak_ptr<Profiler_Data_Collector> collector;
+			/*if (auto ptr = collector.lock())
+			return ptr;*/
+
+			static auto ptr = std::shared_ptr<Profiler_Data_Collector>(new Profiler_Data_Collector());
+			//collector = ptr;
+			return ptr;
 		}
-		return profiler;
-	}
-};
-class Profiler_Start_Stop {
-public:
-	Profiler_Start_Stop(std::shared_ptr<Profiler>)
-	{
+		void addProfiler(std::thread::id threadID, std::shared_ptr<Profiler> profiler)
+		{
+			profilers.operate([&](std::vector<ID_Profiler_Pair>& v)
+			{
+				Utilities::find(v, threadID).or_else([&]
+				{
+					v.push_back({ threadID, profiler });
+				});
+			});
+			
+		}
+		~Profiler_Data_Collector()
+		{
 
-	}
-	~Profiler_Start_Stop()
-	{
+		}
+	
+		std::string str()
+		{
+			std::stringstream ss;
+			profilers.operate([&](auto& ps)
+			{
+				ss << std::endl;
+				for (auto profiler : ps)
+				{
+					ss << "Profile Thread " << profiler.threadID << std::endl;
+					ss << profiler.profiler->str(1) << std::endl;
+				}
+			});
+			return ss.str();
+		}
+	private:	
+		Utilities::Concurrent<std::vector<ID_Profiler_Pair>> profilers;
 
-	}
-};
-#define Profile Profiler_Start_Stop();
 
+		Profiler_Data_Collector(){}
+	
+	};
+	extern std::weak_ptr<Profiler_Data_Collector> collector;
+	//std::shared_ptr<Profiler_Data_Collector> Utilities::Profiler_Data_Collector::get()
+	
+
+	class Profiler {
+	public:
+		static std::shared_ptr<Profiler> get()
+		{
+			thread_local static std::shared_ptr<Profiler> profiler;
+			if (!profiler)
+			{
+				profiler = std::make_shared<Profiler>();
+				auto g = Profiler_Data_Collector::get();
+				g->addProfiler(std::this_thread::get_id(), profiler);
+			}
+			return profiler;
+		}
+		void start(HashValue hash, const char * str) noexcept
+		{
+			current = *findEntry(hash).or_else_this([&]
+			{
+				return createChild(str, hash);
+			});
+
+			current->timesCalled++;
+			current->start = std::chrono::high_resolution_clock::now();
+	
+		}
+		void stop() noexcept
+		{
+			auto stop = std::chrono::high_resolution_clock::now();
+			current->timeSpent += stop - current->start;
+			current = current->parent;
+		}
+		std::string str(int tabDepth) noexcept
+		{
+			std::stringstream ss;
+			auto walker = root->child;
+			while (walker)
+			{
+				str(ss, walker, tabDepth);
+				walker = walker->nextChild;
+			}
+			return ss.str();
+		}
+		void str(std::stringstream& ss, std::shared_ptr<ProfileEntry> entry, int tabDepth) noexcept
+		{
+			ss << tabs(tabDepth) << entry->name << ": Times called: " << entry->timesCalled
+				<< " Time spent: " << std::chrono::duration_cast<std::chrono::nanoseconds>(entry->timeSpent).count()
+				<< " Average: " << std::chrono::duration_cast<std::chrono::nanoseconds>(entry->timeSpent).count() / entry->timesCalled << std::endl;
+			auto walker = entry->child;
+			while (walker)
+			{
+				str(ss, walker, tabDepth + 1);
+				walker = walker->nextChild;
+			}
+
+		}
+	private:
+		std::shared_ptr<ProfileEntry> root = std::make_shared<ProfileEntry>("Root");
+		std::shared_ptr<ProfileEntry> current = root;
+		std::shared_ptr<ProfileEntry> createChild(const char* str, HashValue hash) noexcept
+		{
+			auto newChild = std::make_shared<ProfileEntry>(str, hash, current);
+			addChild(newChild);
+			return newChild;
+		}
+		void addChild(std::shared_ptr<ProfileEntry> parent, std::shared_ptr<ProfileEntry> child) noexcept
+		{
+			if (!current->nextChild)
+				current->nextChild = child;
+			else
+				addChild(current->nextChild, child);
+		}
+		void addChild(std::shared_ptr<ProfileEntry> child) noexcept
+		{
+			if (!current->child)
+				current->child = child;
+			else
+				addChild(current->child, child);
+		}
+
+		optional<std::shared_ptr<ProfileEntry>> findEntry(HashValue hash) noexcept
+		{
+			std::shared_ptr<ProfileEntry> walker;
+			walker = current->child;
+			while (walker && walker->hash != hash)
+				walker = walker->nextChild;
+			if (walker)
+				return walker;
+			return std::nullopt;
+		}
+
+	};
+
+
+
+	class Profiler_Start_Stop {
+	public:
+		Profiler_Start_Stop(std::shared_ptr<Profiler> profiler, HashValue hash, const char * str) : profiler(profiler)
+		{
+			_ASSERT(profiler);
+			profiler->start(hash, str);
+		}
+		~Profiler_Start_Stop()
+		{
+			profiler->stop();
+		}
+	private:
+		std::shared_ptr<Profiler> profiler;
+	};
+}
+#define Profile Utilities::Profiler_Start_Stop __FUNCTION__##_profile(Utilities::Profiler::get(), Utilities::hashString(__FUNCTION__), __FUNCTION__);
 #endif
 //
 //
