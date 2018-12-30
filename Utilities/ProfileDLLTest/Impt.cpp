@@ -1,6 +1,6 @@
 #include "head.h"
 #include "../Include/Profiler.h"
-Utilities::collector = nullptr;
+
 void DoStuff2()
 {
 	Profile;

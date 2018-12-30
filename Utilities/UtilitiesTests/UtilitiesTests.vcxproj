@@ -77,19 +77,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Tests/$(Configuration)/$(Platform)/</OutDir>
+    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
+    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Tests/$(Configuration)/$(Platform)/</OutDir>
+    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
+    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Tests/$(Configuration)/$(Platform)/</OutDir>
+    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
+    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Tests/$(Configuration)/$(Platform)/</OutDir>
+    <OutDir>$(SolutionDir)Build/$(Configuration)/$(Platform)/</OutDir>
+    <IntDir>$(ProjectDir)Intermediate/$(Configuration)/$(Platform)/</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -177,6 +181,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ProfileDLLTest\ProfileDLLTest.vcxproj">
       <Project>{e499d478-7a85-463e-934a-57ae94880b29}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Profiler\Profiler.vcxproj">
+      <Project>{bae4cf46-4926-4052-a0b5-290947489c07}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

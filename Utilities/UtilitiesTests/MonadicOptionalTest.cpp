@@ -180,13 +180,35 @@ namespace UtilitiesTests
 			Assert::IsFalse(tmo.has_value());
 			tmo = std::nullopt;
 			tmo.or_else(&fooV, 1337);
+			
+
+
+
 		}
 
-		/*TEST_METHOD(MonadicTest_And_Or_Else_Lambda)
+		TEST_METHOD(MonadicTest_Or_Else_This_Lambda)
 		{
-			Utilities::optional<int> tmo;
-			tmo.and_or_else([](int) {return 0; }, [] {});
-		}*/
+			{
+				Utilities::optional<int> tmo;
+				auto res = tmo.or_else_this([] {
+					return int(3);
+				}).map([](int i)
+				{
+					return i == 2;
+				});
+				Assert::IsFalse(*res);
+			}
+			{
+				Utilities::optional<int> tmo;
+				auto res = tmo.or_else_this([] {
+					return int(3);
+				}).map([](int i)
+				{
+					return i == 3;
+				});
+				Assert::IsTrue(*res);
+			}
+		}
 	};
 
 

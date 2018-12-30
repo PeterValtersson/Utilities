@@ -4,8 +4,6 @@
 #include <future>
 #include "../ProfileDLLTest/head.h"
 
-#pragma comment(lib, "ProfileDLLTest.lib")
-
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UtilitiesTests
@@ -22,18 +20,20 @@ namespace UtilitiesTests
 		DoSomething();
 		DoSomething();
 	}
-
+	
 	TEST_CLASS(ProfilerTests)
 	{
 	public:
 		TEST_METHOD(Profiler_Basic)
 		{
 			
-
-			auto handle = std::async(std::launch::async, []()
+			Utilities::Profiler_Master::get();
+			Entry();
+			auto handle = std::async(std::launch::async, []
 			{
 				for (int i = 0; i < 100000; i++)
 					Entry();
+				Main_Entry();
 			});
 
 
@@ -45,10 +45,8 @@ namespace UtilitiesTests
 
 
 
-
-
 			handle.get();
-			Logger::WriteMessage(Utilities::Profiler_Data_Collector::get()->str().c_str());
+			Logger::WriteMessage(Utilities::Profiler_Master::get()->str().c_str());
 			
 
 		}

@@ -4,9 +4,6 @@
     <Filter Include="CompileTimeGUID">
       <UniqueIdentifier>{b9344cf4-7d84-48ac-b9f5-39602374e0db}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Profiler">
-      <UniqueIdentifier>{991cfb9b-1341-4c97-b5b4-e7372c434658}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SofA">
       <UniqueIdentifier>{46a5bc21-a0de-4e5e-a6c3-46e7bf7294a4}</UniqueIdentifier>
     </Filter>
@@ -15,6 +12,9 @@
     </Filter>
     <Filter Include="Concurrency">
       <UniqueIdentifier>{0b339e02-a409-45ed-abfe-8d12f0b6d339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Profiler">
+      <UniqueIdentifier>{66c7c9e6-214d-46ef-998e-87cab98cea73}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,9 +39,6 @@
     <ClInclude Include="..\Include\CircularFIFO.h">
       <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Profiler.h">
-      <Filter>Profiler</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\MonadicOptional.h">
       <Filter>Other</Filter>
     </ClInclude>
@@ -50,6 +47,9 @@
     </ClInclude>
     <ClInclude Include="..\Include\StringUtilities.h">
       <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Profiler.h">
+      <Filter>Profiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

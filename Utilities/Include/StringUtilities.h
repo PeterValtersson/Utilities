@@ -20,12 +20,12 @@ namespace Utilities
 	}
 	namespace Operators
 	{
-		std::ostream& operator<<(std::ostream& out, const std::string& str)
+		inline std::ostream& operator<<(std::ostream& out, const std::string& str)
 		{
 			Utilities::string_binary_write(out, str);
 			return out;
 		}
-		std::istream& operator>>(std::istream& in, std::string& str)
+		inline std::istream& operator>>(std::istream& in, std::string& str)
 		{
 			Utilities::string_binary_read(in, str);
 			return in;

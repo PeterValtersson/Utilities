@@ -1,5 +1,6 @@
 #ifndef _UTILITIES_PROFILER_H_
 #define _UTILITIES_PROFILER_H_
+#pragma once
 
 #include <string_view>
 #include <memory>
@@ -10,14 +11,24 @@
 #include "CompileTimeString.h"
 #include "StringUtilities.h"
 #include <sstream>
+#include "Profile_Export.h"
+#include <filesystem>
+
 
 namespace Utilities
 {
+
+	/**************************** ProfileEntry *******************************/
+	// Container for all the information for a function.
+	// A "Child" is function that are called from this function.
+	// There is no limit to the number of children (First child is in child, then child->nextChild, then child->nextChild->nextChild, and so on).
+	// Parent is the calling function
 	class ProfileEntry {
 	public:
 		ProfileEntry(const char* str) : name(str), timesCalled(0) {};
-		ProfileEntry(const char* str, HashValue hash, std::shared_ptr<ProfileEntry> parent) : name(str), hash(hash), timesCalled(0), parent(parent), timeSpent(0) {};
+		ProfileEntry(const char* str, HashValue hash, const char* file, std::shared_ptr<ProfileEntry> parent) : name(str), hash(hash), file(file), timesCalled(0), parent(parent), timeSpent(0) {};
 		std::string name;
+		std::string file;
 		HashValue hash;
 		size_t timesCalled;
 		std::shared_ptr<ProfileEntry> parent;
@@ -27,90 +38,25 @@ namespace Utilities
 		std::chrono::high_resolution_clock::time_point start;
 	};
 
-	class Profiler;
-	
-	struct ID_Profiler_Pair {
-		std::thread::id threadID; std::shared_ptr<Profiler> profiler;
-	};
-	bool operator==(ID_Profiler_Pair const& l, std::thread::id r) { return l.threadID == r; }
 
 
-	class Profiler_Data_Collector {
-	public:
-		static std::shared_ptr<Profiler_Data_Collector> get()
-		{
-			//static std::weak_ptr<Profiler_Data_Collector> collector;
-			/*if (auto ptr = collector.lock())
-			return ptr;*/
-
-			static auto ptr = std::shared_ptr<Profiler_Data_Collector>(new Profiler_Data_Collector());
-			//collector = ptr;
-			return ptr;
-		}
-		void addProfiler(std::thread::id threadID, std::shared_ptr<Profiler> profiler)
-		{
-			profilers.operate([&](std::vector<ID_Profiler_Pair>& v)
-			{
-				Utilities::find(v, threadID).or_else([&]
-				{
-					v.push_back({ threadID, profiler });
-				});
-			});
-			
-		}
-		~Profiler_Data_Collector()
-		{
-
-		}
-	
-		std::string str()
-		{
-			std::stringstream ss;
-			profilers.operate([&](auto& ps)
-			{
-				ss << std::endl;
-				for (auto profiler : ps)
-				{
-					ss << "Profile Thread " << profiler.threadID << std::endl;
-					ss << profiler.profiler->str(1) << std::endl;
-				}
-			});
-			return ss.str();
-		}
-	private:	
-		Utilities::Concurrent<std::vector<ID_Profiler_Pair>> profilers;
-
-
-		Profiler_Data_Collector(){}
-	
-	};
-	extern std::weak_ptr<Profiler_Data_Collector> collector;
-	//std::shared_ptr<Profiler_Data_Collector> Utilities::Profiler_Data_Collector::get()
-	
-
+	/****************************** Profiler ************************************/
+	// One created for each thread.
 	class Profiler {
 	public:
-		static std::shared_ptr<Profiler> get()
-		{
-			thread_local static std::shared_ptr<Profiler> profiler;
-			if (!profiler)
-			{
-				profiler = std::make_shared<Profiler>();
-				auto g = Profiler_Data_Collector::get();
-				g->addProfiler(std::this_thread::get_id(), profiler);
-			}
-			return profiler;
-		}
-		void start(HashValue hash, const char * str) noexcept
+		inline static std::shared_ptr<Profiler> get();
+		void start(HashValue hash, const char* str, const char* file)
 		{
 			current = *findEntry(hash).or_else_this([&]
 			{
-				return createChild(str, hash);
+				auto newChild = std::make_shared<ProfileEntry>(str, hash, file, current);
+				addChild(newChild);
+				return newChild;
 			});
 
 			current->timesCalled++;
 			current->start = std::chrono::high_resolution_clock::now();
-	
+
 		}
 		void stop() noexcept
 		{
@@ -142,21 +88,17 @@ namespace Utilities
 			}
 
 		}
+
 	private:
 		std::shared_ptr<ProfileEntry> root = std::make_shared<ProfileEntry>("Root");
 		std::shared_ptr<ProfileEntry> current = root;
-		std::shared_ptr<ProfileEntry> createChild(const char* str, HashValue hash) noexcept
-		{
-			auto newChild = std::make_shared<ProfileEntry>(str, hash, current);
-			addChild(newChild);
-			return newChild;
-		}
+		
 		void addChild(std::shared_ptr<ProfileEntry> parent, std::shared_ptr<ProfileEntry> child) noexcept
 		{
-			if (!current->nextChild)
-				current->nextChild = child;
+			if (!parent->nextChild)
+				parent->nextChild = child;
 			else
-				addChild(current->nextChild, child);
+				addChild(parent->nextChild, child);
 		}
 		void addChild(std::shared_ptr<ProfileEntry> child) noexcept
 		{
@@ -179,14 +121,170 @@ namespace Utilities
 
 	};
 
+	struct ID_Profiler_Pair {
+		std::thread::id threadID; std::shared_ptr<Profiler> profiler;
+	};
+	inline bool operator==(ID_Profiler_Pair const& l, std::thread::id r) { return l.threadID == r; }
 
+
+	/******************************** Profiler_Master *********************************/
+	// Only one is created.
+	// Creates and handles the Profilers for each individual thread.
+	class Profiler_Master {
+	public:
+		DECLSPEC_PROFILER static std::shared_ptr<Profiler_Master> get();
+		std::shared_ptr<Profiler> getProfiler(std::thread::id threadID);
+		~Profiler_Master() {}
+		inline std::string str() noexcept;
+		void createDotAndBat(std::string_view folder) noexcept;
+	private:	
+		Utilities::Concurrent<std::vector<ID_Profiler_Pair>> profilers;
+		Profiler_Master(){}
+	};
+
+
+	/**************** Profiler_Master Function definitions ****************************/
+	inline std::shared_ptr<Profiler> Utilities::Profiler_Master::getProfiler(std::thread::id threadID)
+	{
+		std::shared_ptr<Profiler> profiler;
+		profilers.operate([&](std::vector<ID_Profiler_Pair>& v)
+		{
+			profiler = *Utilities::find(v, threadID).or_else_this([&]
+			{
+				v.push_back({ threadID,  std::make_shared<Profiler>() });
+				return v.size() - 1;
+			}).map([&](index i)
+			{
+				return v[i].profiler;		
+			});
+		});
+
+		return profiler;
+
+	}
+	inline std::string Utilities::Profiler_Master::str() noexcept
+	{
+		std::stringstream ss;
+		profilers.operate([&](auto& ps)
+		{
+			ss << std::endl;
+			for (auto profiler : ps)
+			{
+				ss << "Profile Thread " << profiler.threadID << std::endl;
+				ss << profiler.profiler->str(1) << std::endl;
+			}
+		});
+		return ss.str();
+	}
+	void Utilities::Profiler_Master::createDotAndBat(std::string_view folder) noexcept
+	{
+
+		//std::stringstream ss;
+
+		//ss << "digraph \"" << std::this_thread::get_id() << "\"{\n";
+		//ss << " rankdir = LR;\n";
+
+		//if (_profile)
+		//{
+		//	_profile->makeTree(ss);
+		//}
+
+		//ss << "\n}\n";
+
+
+
+		//std::experimental::filesystem::create_directory("Profiler");
+		//std::experimental::filesystem::create_directory("Profiler\\" + _profile->functionName);
+		//std::ofstream bfile;
+		//bfile.open("Profiler\\ConvertDotsToPdf.bat", std::ios::trunc);
+		//if (bfile.is_open())
+		//	bfile << R"(@if (@X)==(@Y) @end /* JScript comment
+		//    @echo off
+		//
+		//    set "extension=dot"
+		//
+		//    setlocal enableDelayedExpansion
+		//    for /R %%a in (*%extension%) do (
+		//        for /f %%# in ('cscript //E:JScript //nologo "%~f0" %%a') do set "cdate=%%#"
+		//       echo "%%~a"
+		//	   echo "%%~dpa%%~na_!cdate!.pdf"
+		//	   dot -Tpdf "%%~a" -o "%%~dpa%%~na_!cdate!.pdf"
+		//	   del "%%~a"
+		//    )
+		//
+		//    rem cscript //E:JScript //nologo "%~f0" %*
+		//    exit /b %errorlevel%
+		//@if (@X)==(@Y) @end JScript comment */
+		//
+		//
+		//FSOObj = new ActiveXObject("Scripting.FileSystemObject");
+		//var ARGS = WScript.Arguments;
+		//var file=ARGS.Item(0);
+		//
+		//var d1=FSOObj.GetFile(file).DateCreated;
+		//
+		//d2=new Date(d1);
+		//var year=d2.getFullYear();
+		//var mon=d2.getMonth();
+		//var day=d2.getDate();
+		//var h=d2.getHours();
+		//var m=d2.getMinutes();
+		//var s=d2.getSeconds();
+		//var ms=d2.getMilliseconds();
+		//
+		//if (mon<10){mon="0"+mon;}
+		//if (day<10){day="0"+day;}
+		//if (h<10){h="0"+h;}
+		//if (m<10){m="0"+m;}
+		//if (s<10){s="0"+s;}
+		//if (ms<10){ms="00"+ms;}else if(ms<100){ms="0"+ms;}
+		//
+		//WScript.Echo(""+year+mon+day+h+m+s+ms);)";
+
+
+		//bfile.close();
+
+
+		//std::ofstream rf;
+		//rf.open("Profiler\\BatchInstructions.txt", std::ios::trunc);
+		//if (rf.is_open())
+		//	rf << R"(Download Graphviz
+		//http://www.graphviz.org/pub/graphviz/stable/windows/graphviz-2.38.msi
+		//Add C:\Program Files (x86)\Graphviz2.38\bin (or equivalent) to Path Environment variable
+		//
+		//)";
+
+		//rf.close();
+		//std::ofstream out;
+		//std::stringstream fn;
+		//fn << "Profiler\\" << escapeLessGreaterSymbols(_profile->functionName) << "\\profile_" << std::this_thread::get_id() << ".dot";
+		//out.open(fn.str(), std::ios::out | std::ios::trunc);
+		//if (!out.is_open())
+		//	throw std::exception("Profile file could not be opened");
+		//out.write(ss.str().c_str(), ss.str().size());
+
+		//out.close();
+
+		//return void();
+
+	}
+	/******************** Profiler Function definitions *********************************/
+	inline std::shared_ptr<Profiler> Utilities::Profiler::get()
+	{
+		thread_local static std::shared_ptr<Profiler> profiler;
+		if (!profiler)
+		{		
+			profiler = Profiler_Master::get()->getProfiler(std::this_thread::get_id());
+		}
+		return profiler;
+	}
 
 	class Profiler_Start_Stop {
 	public:
-		Profiler_Start_Stop(std::shared_ptr<Profiler> profiler, HashValue hash, const char * str) : profiler(profiler)
+		Profiler_Start_Stop(std::shared_ptr<Profiler> profiler, HashValue hash, const char * str, const char * file) : profiler(profiler)
 		{
 			_ASSERT(profiler);
-			profiler->start(hash, str);
+			profiler->start(hash, str, file);
 		}
 		~Profiler_Start_Stop()
 		{
@@ -195,8 +293,65 @@ namespace Utilities
 	private:
 		std::shared_ptr<Profiler> profiler;
 	};
+
+
+
+	namespace Basename
+	{
+
+		// Retrieves the filename (and the closest folder) from a path
+		constexpr const char* fileName(const char* path)
+		{
+			const char* f2 = nullptr;
+			const char* f = nullptr;
+			const char* c = path;
+			while (*c != '\0')
+			{
+				if (*c == '/' || *c == '\\')
+				{
+					f2 = f;
+					f = c;
+				}
+	
+				++c;
+			}
+			if (f2)
+				return ++f2;
+			else if (f)
+				return ++f;
+			else
+				return path;
+		}
+
+		// Removed all the namespaces from an indentifier except the last two. 
+		constexpr const char* functionName(const char* file)
+		{
+			const char* f2 = nullptr;
+			const char* f = nullptr;
+			const char* c = file;
+			while (*c != '\0')
+			{
+				if (*c == ':')
+				{
+					++c;
+					f2 = f;
+					f = c;
+	
+				}
+	
+				++c;
+			}
+			if (f2)
+				return ++f2;
+			else if (f)
+				return ++f;
+			else
+				return file;
+		}
+	}
 }
-#define Profile Utilities::Profiler_Start_Stop __FUNCTION__##_profile(Utilities::Profiler::get(), Utilities::hashString(__FUNCTION__), __FUNCTION__);
+
+#define Profile Utilities::Profiler_Start_Stop __FUNCTION__##_profile(Utilities::Profiler::get(), Utilities::EnsureHash<Utilities::hashString(__FUNCTION__)>::value, Utilities::Basename::functionName(__FUNCTION__), Utilities::Basename::fileName(__FILE__));
 #endif
 //
 //
@@ -504,55 +659,7 @@ namespace Utilities
 //
 //};
 //
-//namespace Basename
-//{
-//	static const char* fileName(const char* file)
-//	{
-//		const char* f2 = nullptr;
-//		const char* f = nullptr;
-//		const char* c = file;
-//		while (*c != '\0')
-//		{
-//			if (*c == '/' || *c == '\\')
-//			{
-//				f2 = f;
-//				f = c;
-//			}
-//
-//			++c;
-//		}
-//		if (f2)
-//			return ++f2;
-//		else if (f)
-//			return ++f;
-//		else
-//			return file;
-//	}
-//	static const char* functionName(const char* file)
-//	{
-//		const char* f2 = nullptr;
-//		const char* f = nullptr;
-//		const char* c = file;
-//		while (*c != '\0')
-//		{
-//			if (*c == ':')
-//			{
-//				++c;
-//				f2 = f;
-//				f = c;
-//
-//			}
-//
-//			++c;
-//		}
-//		if (f2)
-//			return ++f2;
-//		else if (f)
-//			return ++f;
-//		else
-//			return file;
-//	}
-//}
+
 //namespace CompileTimeHash
 //{
 //	static constexpr unsigned int crc_table[256] = {

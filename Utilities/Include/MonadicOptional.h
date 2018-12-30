@@ -105,11 +105,11 @@ namespace Utilities
 
 
 		template <class T, typename... Param>
-		auto map(T const& lambda, Param... args) noexcept
+		auto map(T const& lambda, Param... args) noexcept -> optional<decltype(lambda(**this, std::forward<Param>(args)...))>
 		{
 			if (!this->has_value())
-				return  optional<decltype(lambda(**this, args...))>(std::nullopt);
-			return optional<decltype(lambda(**this, args...))>(lambda(**this, std::forward<Param>(args)...));
+				return std::nullopt;
+			return lambda(**this, std::forward<Param>(args)...);
 		}
 
 #pragma endregion Methods Lambda
@@ -140,7 +140,8 @@ namespace Utilities
 		}
 		template <class T, typename... Param>
 		inline auto or_else_this(T const& lambda, Param... args)const noexcept
-		{
+		{		
+		//	static_assert(std::is_same<T, decltype(lambda(std::forward<Param>(args)...))>::value, "Return type of or_else_this must be the same type as the original optional");
 			if (!this->has_value())
 				return optional(lambda(std::forward<Param>(args)...));
 			return *this;
