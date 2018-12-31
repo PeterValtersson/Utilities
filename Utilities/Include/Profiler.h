@@ -13,7 +13,8 @@
 #include <sstream>
 #include "Profile_Export.h"
 #include <filesystem>
-
+#include <fstream>
+#include "Time.h"
 
 namespace Utilities
 {
@@ -25,7 +26,7 @@ namespace Utilities
 	// Parent is the calling function
 	class ProfileEntry {
 	public:
-		ProfileEntry(const char* str) : name(str), timesCalled(0) {};
+		ProfileEntry(const char* str) : name(str), timesCalled(0), hash(0) {};
 		ProfileEntry(const char* str, HashValue hash, const char* file, std::shared_ptr<ProfileEntry> parent) : name(str), hash(hash), file(file), timesCalled(0), parent(parent), timeSpent(0) {};
 		std::string name;
 		std::string file;
@@ -89,6 +90,18 @@ namespace Utilities
 
 		}
 
+		template <class timeUnit>
+		std::string getDotTree(std::string_view unit) noexcept
+		{
+			std::stringstream ss;
+			auto walker = root->child;
+			while (walker)
+			{
+				getDotTree<timeUnit>(ss, walker, unit);
+				walker = walker->nextChild;
+			}
+			return ss.str();
+		}
 	private:
 		std::shared_ptr<ProfileEntry> root = std::make_shared<ProfileEntry>("Root");
 		std::shared_ptr<ProfileEntry> current = root;
@@ -119,6 +132,51 @@ namespace Utilities
 			return std::nullopt;
 		}
 
+		template <class timeUnit>
+		void getDotTree(std::stringstream& ss, std::shared_ptr<ProfileEntry> node, std::string_view unit) noexcept
+		{
+			ss << "\"" << node << "\"" << "[\n shape = none" << std::endl;
+			ss << "label = <<table border=\"0\" cellspacing = \"0\">" << std::endl;
+			double div = 0.0;
+			if (node->parent && node->parent->hash != 0)
+				div = ((double)node->timeSpent.count() / node->parent->timeSpent.count());
+			ss << "<tr><td port=\"port1\" border=\"1\" bgcolor = \"#"
+				<< charToHex(unsigned char(150 * div)) << charToHex(50) << charToHex(unsigned char(50 * (1.0 - div))) << "\">" << std::endl;
+			ss << "<font color=\"white\">" << node->file << ": " << replaceAll(replaceAll(node->name, "<", "\\<"), ">", "\\>") << "</font></td></tr>\n" << std::endl;
+
+			ss << "<tr><td border=\"1\">" << "Times Called: " << node->timesCalled << "</td></tr>" << std::endl;
+			ss << "<tr><td border=\"1\">" << "Time Spent(IC): " << std::chrono::duration_cast<timeUnit>(node->timeSpent).count() << " " << unit;
+			if (node->parent && node->parent->hash != 0)
+				ss << " " << div * 100 << " % of parents.</td></tr>" << std::endl;
+			else
+				ss << "</td></tr>" << std::endl;
+
+			ss << "<tr><td border=\"1\">" << "Time Spent(avg): " << std::chrono::duration_cast<timeUnit>(node->timeSpent / double(node->timesCalled).count()) << " " << unit << "</td></tr>" << std::endl;
+
+			if (node->child)
+			{
+				auto walker = node->child;
+				auto timeEC = node->timeSpent;
+				while (walker)
+				{
+					timeEC -= walker->timeSpent;
+					walker = walker->nextChild;
+				}
+				ss << "<tr><td border=\"1\">" << "Time Spent(EC): " << std::chrono::duration_cast<timeUnit>(timeEC).count() << " " << unit << "</td></tr>" << std::endl;
+			}
+
+			ss << "</table>>]" << std::endl;
+
+			auto walker = node->child;
+			while (walker)
+			{
+				getDotTree<timeUnit>(ss, walker, unit);
+				ss << "\"" << node << "\":port1 -> \"" << walker << "\":port1" << std::endl;
+				walker = walker->nextChild;
+			}
+
+			ss << "" << std::endl;
+		}
 	};
 
 	struct ID_Profiler_Pair {
@@ -136,7 +194,8 @@ namespace Utilities
 		std::shared_ptr<Profiler> getProfiler(std::thread::id threadID);
 		~Profiler_Master() {}
 		inline std::string str() noexcept;
-		void createDotAndBat(std::string_view folder) noexcept;
+		template <class timeUnit = std::chrono::milliseconds>
+		int createDotAndBat(const std::string& folder, bool convertDotToPdf = false, std::string_view unit = "ms") noexcept;
 	private:	
 		Utilities::Concurrent<std::vector<ID_Profiler_Pair>> profilers;
 		Profiler_Master(){}
@@ -176,97 +235,52 @@ namespace Utilities
 		});
 		return ss.str();
 	}
-	void Utilities::Profiler_Master::createDotAndBat(std::string_view folder) noexcept
+
+	template <class timeUnit>
+	int Utilities::Profiler_Master::createDotAndBat(const std::string& folder, bool convertDotToPdf, std::string_view unit) noexcept
 	{
 
-		//std::stringstream ss;
+		std::stringstream ss;
 
-		//ss << "digraph \"" << std::this_thread::get_id() << "\"{\n";
-		//ss << " rankdir = LR;\n";
-
-		//if (_profile)
-		//{
-		//	_profile->makeTree(ss);
-		//}
-
-		//ss << "\n}\n";
-
-
-
-		//std::experimental::filesystem::create_directory("Profiler");
-		//std::experimental::filesystem::create_directory("Profiler\\" + _profile->functionName);
-		//std::ofstream bfile;
-		//bfile.open("Profiler\\ConvertDotsToPdf.bat", std::ios::trunc);
-		//if (bfile.is_open())
-		//	bfile << R"(@if (@X)==(@Y) @end /* JScript comment
-		//    @echo off
-		//
-		//    set "extension=dot"
-		//
-		//    setlocal enableDelayedExpansion
-		//    for /R %%a in (*%extension%) do (
-		//        for /f %%# in ('cscript //E:JScript //nologo "%~f0" %%a') do set "cdate=%%#"
-		//       echo "%%~a"
-		//	   echo "%%~dpa%%~na_!cdate!.pdf"
-		//	   dot -Tpdf "%%~a" -o "%%~dpa%%~na_!cdate!.pdf"
-		//	   del "%%~a"
-		//    )
-		//
-		//    rem cscript //E:JScript //nologo "%~f0" %*
-		//    exit /b %errorlevel%
-		//@if (@X)==(@Y) @end JScript comment */
-		//
-		//
-		//FSOObj = new ActiveXObject("Scripting.FileSystemObject");
-		//var ARGS = WScript.Arguments;
-		//var file=ARGS.Item(0);
-		//
-		//var d1=FSOObj.GetFile(file).DateCreated;
-		//
-		//d2=new Date(d1);
-		//var year=d2.getFullYear();
-		//var mon=d2.getMonth();
-		//var day=d2.getDate();
-		//var h=d2.getHours();
-		//var m=d2.getMinutes();
-		//var s=d2.getSeconds();
-		//var ms=d2.getMilliseconds();
-		//
-		//if (mon<10){mon="0"+mon;}
-		//if (day<10){day="0"+day;}
-		//if (h<10){h="0"+h;}
-		//if (m<10){m="0"+m;}
-		//if (s<10){s="0"+s;}
-		//if (ms<10){ms="00"+ms;}else if(ms<100){ms="0"+ms;}
-		//
-		//WScript.Echo(""+year+mon+day+h+m+s+ms);)";
+		ss << "digraph Profile_Graph{\n";
+		ss << "rankdir = LR;" << std::endl;
+	
+		profilers.operate([&](std::vector<ID_Profiler_Pair>& locked_profilers)
+		{
+			for (auto& profiler : locked_profilers)
+			{
+				ss << "subgraph \"cluster_" << profiler.threadID << "\" {" << std::endl;
+				ss << "label = \"Thread " << profiler.threadID << "\";" << std::endl;
+				ss << profiler.profiler->getDotTree<timeUnit>(unit) << std::endl;
+				ss << "}" << std::endl;
+			}
 
 
-		//bfile.close();
+		});
+
+	
+		ss << std::endl << "}" << std::endl;
 
 
-		//std::ofstream rf;
-		//rf.open("Profiler\\BatchInstructions.txt", std::ios::trunc);
-		//if (rf.is_open())
-		//	rf << R"(Download Graphviz
-		//http://www.graphviz.org/pub/graphviz/stable/windows/graphviz-2.38.msi
-		//Add C:\Program Files (x86)\Graphviz2.38\bin (or equivalent) to Path Environment variable
-		//
-		//)";
+		std::experimental::filesystem::create_directories(folder);
+		std::stringstream filename;
+		filename << folder << "/Profile_" << Time::currentDateTime();
+		auto strFilename = replaceAll(replaceAll(filename.str(), " ", "_"), ":", "-");
+		std::ofstream out(strFilename + ".dot");
+		if (!out.is_open())
+			return 1 << 16;
 
-		//rf.close();
-		//std::ofstream out;
-		//std::stringstream fn;
-		//fn << "Profiler\\" << escapeLessGreaterSymbols(_profile->functionName) << "\\profile_" << std::this_thread::get_id() << ".dot";
-		//out.open(fn.str(), std::ios::out | std::ios::trunc);
-		//if (!out.is_open())
-		//	throw std::exception("Profile file could not be opened");
-		//out.write(ss.str().c_str(), ss.str().size());
-
-		//out.close();
-
-		//return void();
-
+		out << ss.str();
+		out.close();
+		if (convertDotToPdf)
+		{
+#include <stdlib.h>
+			std::stringstream cmd;
+			cmd << "dot -Tpdf " << strFilename << ".dot" << " -o " << strFilename << ".pdf";
+			int ret = system(cmd.str().c_str());
+			return ret;
+		}
+		return 0;
 	}
 	/******************** Profiler Function definitions *********************************/
 	inline std::shared_ptr<Profiler> Utilities::Profiler::get()

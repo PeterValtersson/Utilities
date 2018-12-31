@@ -47,7 +47,7 @@ namespace UtilitiesTests
 
 			handle.get();
 			Logger::WriteMessage(Utilities::Profiler_Master::get()->str().c_str());
-			
+			Utilities::Profiler_Master::get()->createDotAndBat("Profiles", true);
 
 		}
 

@@ -51,6 +51,7 @@
     <ClInclude Include="..\Include\Profiler.h">
       <Filter>Profiler</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
