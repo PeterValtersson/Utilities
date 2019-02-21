@@ -136,10 +136,10 @@ namespace Utilities
 				{
 					Allocate(numEntries);
 				}
-				inline std::optional<std::pair<Key, std::size_t>> find(const Key key)const
+				inline std::optional<std::size_t> find(const Key key)const
 				{
 					if (auto const find = map.find(key); find != map.end())
-						return { { find->first, find->second } };
+						return { find->second };
 					else
 						return std::nullopt;
 				}
