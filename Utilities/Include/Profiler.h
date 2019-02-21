@@ -21,7 +21,7 @@ namespace Utilities
 
 	/**************************** ProfileEntry *******************************/
 	// Container for all the information for a function.
-	// A "Child" is function that are called from this function.
+	// A "Child" is s function that is called from this function.
 	// There is no limit to the number of children (First child is in child, then child->nextChild, then child->nextChild->nextChild, and so on).
 	// Parent is the calling function
 	class ProfileEntry {
@@ -151,7 +151,7 @@ namespace Utilities
 			else
 				ss << "</td></tr>" << std::endl;
 
-			ss << "<tr><td border=\"1\">" << "Time Spent(avg): " << std::chrono::duration_cast<timeUnit>(node->timeSpent / double(node->timesCalled).count()) << " " << unit << "</td></tr>" << std::endl;
+			ss << "<tr><td border=\"1\">" << "Time Spent(avg): " << std::chrono::duration_cast<timeUnit>(node->timeSpent).count() / double(node->timesCalled) << " " << unit << "</td></tr>" << std::endl;
 
 			if (node->child)
 			{
