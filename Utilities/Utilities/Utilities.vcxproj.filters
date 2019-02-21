@@ -16,6 +16,9 @@
     <Filter Include="Profiler">
       <UniqueIdentifier>{66c7c9e6-214d-46ef-998e-87cab98cea73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ErrorHandling">
+      <UniqueIdentifier>{6cb66676-2fc9-4cf0-9836-7e3fab9950e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\CompileTimeString.h">
@@ -52,6 +55,9 @@
       <Filter>Profiler</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Time.h" />
+    <ClInclude Include="..\Include\ErrorHandling.h">
+      <Filter>ErrorHandling</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

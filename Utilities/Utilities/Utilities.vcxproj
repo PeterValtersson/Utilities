@@ -145,6 +145,7 @@
     <ClInclude Include="..\Include\CircularFIFO.h" />
     <ClInclude Include="..\Include\CompileTimeString.h" />
     <ClInclude Include="..\Include\Concurrent.h" />
+    <ClInclude Include="..\Include\ErrorHandling.h" />
     <ClInclude Include="..\Include\Flags.h" />
     <ClInclude Include="..\Include\GUID.h" />
     <ClInclude Include="..\Include\MonadicOptional.h" />
