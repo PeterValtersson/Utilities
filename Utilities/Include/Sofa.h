@@ -3,8 +3,8 @@
 #include <tuple>
 #include <array>
 #include <unordered_map>
-#include <optional>
 #include <list>
+#include "MonadicOptional.h"
 
 namespace Utilities
 {
@@ -136,7 +136,7 @@ namespace Utilities
 				{
 					Allocate(numEntries);
 				}
-				inline std::optional<std::size_t> find(const Key key)const
+				inline optional<std::size_t> find(const Key key)const
 				{
 					if (auto const find = map.find(key); find != map.end())
 						return { find->second };
@@ -344,10 +344,10 @@ namespace Utilities
 				{
 					Allocate(numEntries);
 				}
-				inline std::optional<std::pair<Key, std::size_t>> find(const Key key)const
+				inline optional<std::size_t> find(const Key key)const
 				{
 					if (auto const find = map.find(key); find != map.end())
-						return { { find->first, find->second } };
+						return {  find->second };
 					else
 						return std::nullopt;
 				}
