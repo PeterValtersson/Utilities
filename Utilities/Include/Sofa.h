@@ -185,7 +185,7 @@ namespace Utilities
 					return std::get<N>(typePointers);
 				}
 				template<std::size_t N>
-				inline const auto& peak()const
+				inline const auto& peek()const
 				{
 					return std::get<N>(typePointers);
 				}
