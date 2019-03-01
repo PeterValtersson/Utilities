@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <list>
 #include "MonadicOptional.h"
+#include <fstream>
+#include <FStreamHelpers.h>
 
 namespace Utilities
 {
@@ -20,7 +22,7 @@ namespace Utilities
 			// Goes through the tuple and sets up the pointers for each attribute in the one allocation block. ( The stop recursion template)
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				setupPointers(std::tuple<typename make_ptr_t<Types>::type...>& t, size_t maxEntries)
+				setupPointers( std::tuple<typename make_ptr_t<Types>::type...>& t, size_t maxEntries )
 			{ }
 
 			// Goes through the tuple and sets up the pointers for each attribute in the one allocation block. 
@@ -39,16 +41,16 @@ namespace Utilities
 			*/
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				setupPointers(std::tuple<typename make_ptr_t<Types>::type...>& t, size_t maxEntries)
+				setupPointers( std::tuple<typename make_ptr_t<Types>::type...>& t, size_t maxEntries )
 			{
-				std::get<I>(t) = reinterpret_cast<typename std::tuple_element<I, std::tuple<typename make_ptr_t<Types>::type...>>::type>(std::get<I - 1>(t) + maxEntries);
-				setupPointers<I + 1, Types...>(t, maxEntries);
+				std::get<I>( t ) = reinterpret_cast<typename std::tuple_element<I, std::tuple<typename make_ptr_t<Types>::type...>>::type>(std::get<I - 1>( t ) + maxEntries);
+				setupPointers<I + 1, Types...>( t, maxEntries );
 			}
 
 			// 'Takes one tuple of values and inserts them into the tuple holding arrays in the correct location.( The stop recursion template)
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				setValue(std::tuple<typename make_ptr_t<Types>::type...>& tp, const std::tuple<Types...>& t, std::size_t index)
+				setValue( std::tuple<typename make_ptr_t<Types>::type...>& tp, const std::tuple<Types...>& t, std::size_t index )
 			{ }
 
 			// Takes one tuple of values and inserts them into the tuple holding arrays in the correct location.
@@ -71,16 +73,16 @@ namespace Utilities
 			*/
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				setValue(std::tuple<typename make_ptr_t<Types>::type...>& tp, const std::tuple<Types...>& t, std::size_t index)
+				setValue( std::tuple<typename make_ptr_t<Types>::type...>& tp, const std::tuple<Types...>& t, std::size_t index )
 			{
-				std::get<I>(tp)[index] = std::get<I>(t);
-				setValue<I + 1, Types...>(tp, t, index);
+				std::get<I>( tp )[index] = std::get<I>( t );
+				setValue<I + 1, Types...>( tp, t, index );
 			}
 
 			// Copies an entry from one location to another ( The stop recursion template)
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				copyValue(std::tuple<typename make_ptr_t<Types>::type...>& tp, std::size_t to, std::size_t from)
+				copyValue( std::tuple<typename make_ptr_t<Types>::type...>& tp, std::size_t to, std::size_t from )
 			{ }
 			// Copies an entry from one location to another
 			/*
@@ -98,21 +100,20 @@ namespace Utilities
 
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				copyValue(std::tuple<typename make_ptr_t<Types>::type...>& tp, std::size_t to, std::size_t from)
+				copyValue( std::tuple<typename make_ptr_t<Types>::type...>& tp, std::size_t to, std::size_t from )
 			{
-				std::get<I>(tp)[to] = std::get<I>(tp)[from];
-				copyValue<I + 1, Types...>(tp, to, from);
+				std::get<I>( tp )[to] = std::get<I>( tp )[from];
+				copyValue<I + 1, Types...>( tp, to, from );
 			}
 
 			template<class Key, class KeyHash, class... Types>
-			class Sofa
-			{
+			class Sofa {
 			public:
-				Sofa(std::size_t size = 64) : numEntries(0), maxEntries(size), byteWidth(0)
+				Sofa( std::size_t size = 64 ) : numEntries( 0 ), maxEntries( size ), byteWidth( 0 )
 				{
-					for (auto&& v : typeSizes)
+					for ( auto&& v : typeSizes )
 						byteWidth += v;
-					Allocate(maxEntries);
+					Allocate( maxEntries );
 				}
 				~Sofa()
 				{
@@ -134,11 +135,11 @@ namespace Utilities
 				/*@brief Shrinks the block to exactly fit the number of entries.*/
 				inline void shrink_to_fit()
 				{
-					Allocate(numEntries);
+					Allocate( numEntries );
 				}
-				inline optional<std::size_t> find(const Key key)const
+				inline optional<std::size_t> find( const Key key )const
 				{
-					if (auto const find = map.find(key); find != map.end())
+					if ( auto const find = map.find( key ); find != map.end() )
 						return { find->second };
 					else
 						return std::nullopt;
@@ -146,74 +147,74 @@ namespace Utilities
 
 				inline std::size_t size()const { return numEntries; };
 
-				void add(const Key key, const Types... args)
+				void add( const Key key, const Types... args )
 				{
-					if (numEntries + 1 > maxEntries)
-						Allocate(maxEntries * 2);
+					if ( numEntries + 1 > maxEntries )
+						Allocate( maxEntries * 2 );
 					auto index = map[key] = numEntries++;
-					const auto tpl = std::make_tuple(key, args...);
-					setValue<0, Key, Types...>(typePointers, tpl, index);
+					const auto tpl = std::make_tuple( key, args... );
+					setValue<0, Key, Types...>( typePointers, tpl, index );
 				}
 
-				std::size_t add(const Key key)
+				std::size_t add( const Key key )
 				{
-					if (numEntries + 1 > maxEntries)
-						Allocate(maxEntries * 2);
-					std::get<0>(typePointers)[numEntries] = key;
+					if ( numEntries + 1 > maxEntries )
+						Allocate( maxEntries * 2 );
+					std::get<0>( typePointers )[numEntries] = key;
 					return map[key] = numEntries++;
 				}
 
 				template<std::size_t N, class type>
-				inline void set(std::size_t index, const type&& t)
+				inline void set( std::size_t index, const type&& t )
 				{
-					std::get<N>(typePointers)[index] = t;
+					std::get<N>( typePointers )[index] = t;
 				}
 
 				template<std::size_t N>
-				inline auto& get(std::size_t index)
+				inline auto& get( std::size_t index )
 				{
-					return std::get<N>(typePointers)[index];
+					return std::get<N>( typePointers )[index];
 				}
 				template<std::size_t N>
-				inline const auto& peek(std::size_t index)const
+				inline const auto& peek( std::size_t index )const
 				{
-					return std::get<N>(typePointers)[index];
+					return std::get<N>( typePointers )[index];
 				}
 				template<std::size_t N>
 				inline auto& get()
 				{
-					return std::get<N>(typePointers);
+					return std::get<N>( typePointers );
 				}
 				template<std::size_t N>
 				inline const auto& peek()const
 				{
-					return std::get<N>(typePointers);
+					return std::get<N>( typePointers );
 				}
 
-				bool erase(const Key key)
+				bool erase( const Key key )
 				{
-					if (const auto find = map.find(key); find != map.end())
+					if ( const auto find = map.find( key ); find != map.end() )
 					{
-						erase(find->second);
+						erase( find->second );
 						return true;
 					}
 					return false;
 				}
 
-				void erase(std::size_t at)
+				void erase( std::size_t at )
 				{
 					if at >= numEntries
 					{
 					}
 					auto last = --numEntries;
 
-					auto at_key = std::get<0>(typePointers)[at];
-					auto last_key = std::get<0>(typePointers)[last];
+					auto at_key = std::get<0>( typePointers )[at];
+					auto last_key = std::get<0>( typePointers )[last];
 
-					copyValue<0, Key, Types...>(typePointers, at, last);
+					copyValue<0, Key, Types...>( typePointers, at, last );
 
 					map[last_key] = at;
-					map.erase(at_key);
+					map.erase( at_key );
 				}
 
 				std::size_t GetMemoryUsage()const
@@ -221,16 +222,16 @@ namespace Utilities
 					return byteWidth * maxEntries;
 				}
 
-				void Allocate(std::size_t newSize)
+				void Allocate( std::size_t newSize )
 				{
 					std::size_t newmaxEntries = newSize;
 					void* newData = operator new(newmaxEntries*byteWidth);
 					type newTypePointers;
 
-					std::get<0>(newTypePointers) = (Key*)newData;
-					setupPointers<1, Key, Types...>(newTypePointers, newmaxEntries);
+					std::get<0>( newTypePointers ) = (Key*)newData;
+					setupPointers<1, Key, Types...>( newTypePointers, newmaxEntries );
 
-					memcpyTuple<0, Key, Types...>(newTypePointers, typePointers);
+					memcpyTuple<0, Key, Types...>( newTypePointers, typePointers );
 
 					operator delete(data);
 					typePointers = newTypePointers;
@@ -238,21 +239,61 @@ namespace Utilities
 					data = newData;
 				}
 
-				void Reinit(std::size_t newnumEntries)
+				void Reinit( std::size_t newnumEntries )
 				{
 					numEntries = newnumEntries;
 					map.clear();
-					for (std::size_t i = 0; i < numEntries; i++)
-						map[std::get<0>(typePointers)[i]] = i;
+					for ( std::size_t i = 0; i < numEntries; i++ )
+						map[std::get<0>( typePointers )[i]] = i;
+				}
+
+				int readFromFile( std::ifstream file )
+				{
+					std::size_t byteWidth;
+					Binary::read( file, version );
+
+					std::size_t byteWidth;
+					Binary::read( file, byteWidth );
+					if ( this->byteWidth != byteWidth )
+						return -1;
+
+					std::size_t totalSize;
+					Binary::read( file, totalSize );
+
+					if ( totalSize % byteWidth != 0 )
+						return -2;
+
+					maxEntries = totalSize / byteWidth;
+					Allocate( maxEntries );
+
+					std::size_t numEntires;
+					Binary::read( file, numEntires );
+
+					Binary::read( file, data, totalSize );
+
+					Reinit(numEntires);
+
+
+				}
+
+				void writeToFile( std::ofstream file )
+				{
+					auto totalSize = GetMemoryUsage();
+					Binary::write( file, version );
+					Binary::write( file, byteWidth );
+					Binary::write( file, totalSize );
+					Binary::write( file, numEntries );
+					Binary::write( file, data, totalSize );
 				}
 
 			private:
+				uint32_t version = 000001;
 				void *data;
 				std::size_t numEntries;
 				std::size_t maxEntries;
 				std::size_t byteWidth;
 
-				const std::array<std::size_t, sizeof...(Types)+1> typeSizes{ sizeof(Key), sizeof(Types)... };
+				const std::array<std::size_t, sizeof...(Types)+1> typeSizes{ sizeof( Key ), sizeof( Types )... };
 				typedef std::tuple<typename make_ptr_t<Key>::type, typename make_ptr_t<Types>::type...> type;
 				type typePointers;
 
@@ -263,15 +304,15 @@ namespace Utilities
 
 				template<std::size_t I = 0, typename... Types>
 				inline typename std::enable_if<I == sizeof...(Types), void>::type
-					memcpyTuple(std::tuple<typename make_ptr_t<Types>::type...>& t1, std::tuple<typename make_ptr_t<Types>::type...>& t2)
+					memcpyTuple( std::tuple<typename make_ptr_t<Types>::type...>& t1, std::tuple<typename make_ptr_t<Types>::type...>& t2 )
 				{ }
 
 				template<std::size_t I = 0, class... Types>
 				inline typename std::enable_if < I < sizeof...(Types), void>::type
-					memcpyTuple(std::tuple<typename make_ptr_t<Types>::type...>& t1, std::tuple<typename make_ptr_t<Types>::type...>& t2)
+					memcpyTuple( std::tuple<typename make_ptr_t<Types>::type...>& t1, std::tuple<typename make_ptr_t<Types>::type...>& t2 )
 				{
-					memcpy(std::get<I>(t1), std::get<I>(t2), typeSizes[I] * numEntries);
-					memcpyTuple<I + 1, Types...>(t1, t2);
+					memcpy( std::get<I>( t1 ), std::get<I>( t2 ), typeSizes[I] * numEntries );
+					memcpyTuple<I + 1, Types...>( t1, t2 );
 				}
 
 			};
@@ -282,41 +323,41 @@ namespace Utilities
 
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				setValue(std::tuple<std::vector<Types>...>& tuple, const std::tuple<Types...>& t, std::size_t index)
+				setValue( std::tuple<std::vector<Types>...>& tuple, const std::tuple<Types...>& t, std::size_t index )
 			{ }
 
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				setValue(std::tuple<std::vector<Types>...>& tuple, const std::tuple<Types...>& t, std::size_t index)
+				setValue( std::tuple<std::vector<Types>...>& tuple, const std::tuple<Types...>& t, std::size_t index )
 			{
-				std::get<I>(tuple)[index] = std::get<I>(t);
-				setValue<I + 1, Types...>(tuple, t, index);
+				std::get<I>( tuple )[index] = std::get<I>( t );
+				setValue<I + 1, Types...>( tuple, t, index );
 			}
 
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				copyValue(std::tuple<std::vector<Types>...>& tuple, std::size_t to, std::size_t from)
+				copyValue( std::tuple<std::vector<Types>...>& tuple, std::size_t to, std::size_t from )
 			{ }
 
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				copyValue(std::tuple<std::vector<Types>...>& tuple, std::size_t to, std::size_t from)
+				copyValue( std::tuple<std::vector<Types>...>& tuple, std::size_t to, std::size_t from )
 			{
-				std::get<I>(tuple)[to] = std::move(std::get<I>(tuple)[from]);
-				copyValue<I + 1, Types...>(tuple, to, from);
+				std::get<I>( tuple )[to] = std::move( std::get<I>( tuple )[from] );
+				copyValue<I + 1, Types...>( tuple, to, from );
 			}
 
 			template<std::size_t I = 0, typename... Types>
 			inline typename std::enable_if<I == sizeof...(Types), void>::type
-				resizeVectorsInTuple(std::tuple<std::vector<Types>...>& tuple, std::size_t newSize)
+				resizeVectorsInTuple( std::tuple<std::vector<Types>...>& tuple, std::size_t newSize )
 			{ }
 
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...(Types), void>::type
-				resizeVectorsInTuple(std::tuple<std::vector<Types>...>& tuple, std::size_t newSize)
+				resizeVectorsInTuple( std::tuple<std::vector<Types>...>& tuple, std::size_t newSize )
 			{
-				std::get<I>(tuple).resize(newSize);
-				resizeVectorsInTuple<I + 1, Types...>(tuple, newSize);
+				std::get<I>( tuple ).resize( newSize );
+				resizeVectorsInTuple<I + 1, Types...>( tuple, newSize );
 			}
 
 
@@ -324,12 +365,11 @@ namespace Utilities
 
 
 			template<class Key, class KeyHash, class... Types>
-			class Sofa
-			{
+			class Sofa {
 			public:
-				Sofa(std::size_t size = 64) : numEntries(0), maxEntries(size)
+				Sofa( std::size_t size = 64 ) : numEntries( 0 ), maxEntries( size )
 				{
-					Allocate(maxEntries);
+					Allocate( maxEntries );
 				}
 
 				~Sofa()
@@ -344,87 +384,87 @@ namespace Utilities
 
 				inline void shrink_to_fit()
 				{
-					Allocate(numEntries);
+					Allocate( numEntries );
 				}
-				inline optional<std::size_t> find(const Key key)const
+				inline optional<std::size_t> find( const Key key )const
 				{
-					if (auto const find = map.find(key); find != map.end())
-						return {  find->second };
+					if ( auto const find = map.find( key ); find != map.end() )
+						return { find->second };
 					else
 						return std::nullopt;
 				}
 
 				inline std::size_t size()const { return numEntries; };
 
-				std::size_t add(const Key key)
+				std::size_t add( const Key key )
 				{
-					if (numEntries + 1 > maxEntries)
-						Allocate(maxEntries * 2);
+					if ( numEntries + 1 > maxEntries )
+						Allocate( maxEntries * 2 );
 					auto index = numEntries++;
-					std::get<0>(tvec)[index] = key;
+					std::get<0>( tvec )[index] = key;
 					return map[key] = index;
 				}
 
-				void add(const Key key, const Types... args)
+				void add( const Key key, const Types... args )
 				{
-					if (numEntries + 1 > maxEntries)
-						Allocate(maxEntries * 2);
+					if ( numEntries + 1 > maxEntries )
+						Allocate( maxEntries * 2 );
 					auto index = map[key] = numEntries++;
-					const auto tpl = std::make_tuple(key, args...);
-					setValue<0, Key, Types...>(tvec, tpl, index);
+					const auto tpl = std::make_tuple( key, args... );
+					setValue<0, Key, Types...>( tvec, tpl, index );
 				}
 
 				template<std::size_t N, class type>
-				inline void set(std::size_t index, type& t)
+				inline void set( std::size_t index, type& t )
 				{
-					std::get<N>(tvec)[index] = t;
+					std::get<N>( tvec )[index] = t;
 				}
 				template<std::size_t N, class type>
-				inline void set(std::size_t index, type&& t)
+				inline void set( std::size_t index, type&& t )
 				{
-					std::get<N>(tvec)[index] = t;
+					std::get<N>( tvec )[index] = t;
 				}
 
 				template<std::size_t N>
-				inline auto& get(std::size_t index)
+				inline auto& get( std::size_t index )
 				{
-					return std::get<N>(tvec)[index];
+					return std::get<N>( tvec )[index];
 				}
 				template<std::size_t N>
-				inline const auto& getConst(std::size_t index)const
+				inline const auto& getConst( std::size_t index )const
 				{
-					return std::get<N>(tvec)[index];
+					return std::get<N>( tvec )[index];
 				}
 
 
 				template<std::size_t N>
 				inline auto get()
 				{
-					return std::get<N>(tvec).data();
+					return std::get<N>( tvec ).data();
 				}
 
-				bool erase(const Key key)
+				bool erase( const Key key )
 				{
-					if (const auto find = map.find(key); find != map.end())
+					if ( const auto find = map.find( key ); find != map.end() )
 					{
-						erase(find->second);
+						erase( find->second );
 						return true;
 					}
 					return false;
 				}
 
 
-				void erase(std::size_t at)
+				void erase( std::size_t at )
 				{
 					auto last = --numEntries;
 
-					auto at_key = std::get<0>(tvec)[at];
-					auto last_key = std::get<0>(tvec)[last];
+					auto at_key = std::get<0>( tvec )[at];
+					auto last_key = std::get<0>( tvec )[last];
 
-					copyValue<0, Key, Types...>(tvec, at, last);
+					copyValue<0, Key, Types...>( tvec, at, last );
 
 					map[last_key] = at;
-					map.erase(at_key);
+					map.erase( at_key );
 				}
 
 
@@ -435,9 +475,9 @@ namespace Utilities
 				std::tuple<std::vector<Key>, std::vector<Types>...> tvec;
 				std::unordered_map<Key, std::size_t, KeyHash> map;
 
-				void Allocate(std::size_t newSize)
+				void Allocate( std::size_t newSize )
 				{
-					resizeVectorsInTuple(tvec, newSize);
+					resizeVectorsInTuple( tvec, newSize );
 					maxEntries = newSize;
 				}
 			};

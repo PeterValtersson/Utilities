@@ -19,6 +19,9 @@
     <Filter Include="ErrorHandling">
       <UniqueIdentifier>{6cb66676-2fc9-4cf0-9836-7e3fab9950e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FileInOutHelpers">
+      <UniqueIdentifier>{370e5709-0bc1-4940-beb0-1d5c0e2f9aeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\CompileTimeString.h">
@@ -57,6 +60,9 @@
     <ClInclude Include="..\Include\Time.h" />
     <ClInclude Include="..\Include\ErrorHandling.h">
       <Filter>ErrorHandling</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\FStreamHelpers.h">
+      <Filter>FileInOutHelpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
