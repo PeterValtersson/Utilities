@@ -247,7 +247,8 @@ namespace Utilities
 						map[std::get<0>( typePointers )[i]] = i;
 				}
 
-				int readFromFile( std::ifstream file )
+				template <class ST>
+				int readFromFile( ST& file )
 				{
 					std::size_t byteWidth;
 					Binary::read( file, version );
@@ -275,8 +276,8 @@ namespace Utilities
 
 
 				}
-
-				void writeToFile( std::ofstream file )
+				template <class ST>
+				void writeToFile( ST& file )
 				{
 					auto totalSize = GetMemoryUsage();
 					Binary::write( file, version );
