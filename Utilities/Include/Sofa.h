@@ -200,7 +200,6 @@ namespace Utilities
 					return false;
 				}
 
-
 				void erase(std::size_t at)
 				{
 					if at >= numEntries
@@ -221,6 +220,7 @@ namespace Utilities
 				{
 					return byteWidth * maxEntries;
 				}
+
 				void Allocate(std::size_t newSize)
 				{
 					std::size_t newmaxEntries = newSize;
@@ -237,6 +237,7 @@ namespace Utilities
 					maxEntries = newmaxEntries;
 					data = newData;
 				}
+
 				void Reinit(std::size_t newnumEntries)
 				{
 					numEntries = newnumEntries;
@@ -244,6 +245,7 @@ namespace Utilities
 					for (std::size_t i = 0; i < numEntries; i++)
 						map[std::get<0>(typePointers)[i]] = i;
 				}
+
 			private:
 				void *data;
 				std::size_t numEntries;
