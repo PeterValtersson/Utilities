@@ -18,15 +18,15 @@ namespace Utilities
 			return file;
 		}
 
-		template <class ST>
-		inline void write( ST& file, const char* value, size_t size )
+		template <class ST, class T>
+		inline void write( ST& file, const T* value, size_t size )
 		{
-			file.write( value, size );
+			file.write( (char*)value, size );
 		}
-		template <class ST>
-		inline void read( ST& file, char* value, size_t size )
+		template <class ST, class T>
+		inline void read( ST& file, T* value, size_t size )
 		{
-			file.read( value, size );
+			file.read( (char*)value, size );
 		}
 	}
 
