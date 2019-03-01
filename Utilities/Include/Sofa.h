@@ -109,7 +109,7 @@ namespace Utilities
 			template<class Key, class KeyHash, class... Types>
 			class Sofa {
 			public:
-				Sofa( std::size_t size = 64 ) : numEntries( 0 ), maxEntries( size ), byteWidth( 0 )
+				Sofa( std::size_t size = 64 ) : data(nullptr), numEntries( 0 ), maxEntries( size ), byteWidth( 0 )
 				{
 					for ( auto&& v : typeSizes )
 						byteWidth += v;
@@ -203,7 +203,7 @@ namespace Utilities
 
 				void erase( std::size_t at )
 				{
-					if at >= numEntries
+					if (at >= numEntries)
 					{
 					}
 					auto last = --numEntries;
@@ -250,12 +250,11 @@ namespace Utilities
 				template <class ST>
 				int readFromFile( ST& file )
 				{
-					std::size_t byteWidth;
 					Binary::read( file, version );
 
-					std::size_t byteWidth;
-					Binary::read( file, byteWidth );
-					if ( this->byteWidth != byteWidth )
+					std::size_t readByteWidth;
+					Binary::read( file, readByteWidth );
+					if ( this->byteWidth != readByteWidth )
 						return -1;
 
 					std::size_t totalSize;
@@ -274,7 +273,7 @@ namespace Utilities
 
 					Reinit(numEntires);
 
-
+					return 0;
 				}
 				template <class ST>
 				void writeToFile( ST& file )

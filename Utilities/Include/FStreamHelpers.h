@@ -15,7 +15,6 @@ namespace Utilities
 		inline void read( ST& file, T& value )
 		{
 			file.read( (char*)&value, sizeof( T ) );
-			return file;
 		}
 
 		template <class ST, class T>
