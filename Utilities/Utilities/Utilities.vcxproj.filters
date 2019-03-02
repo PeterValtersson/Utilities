@@ -67,7 +67,7 @@
       <Filter>FileInOutHelpers</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\TimeUtilities.h" />
-    <ClInclude Include="ChunkyAllocator.h">
+    <ClInclude Include="..\Include\ChunkyAllocator.h">
       <Filter>Allocators</Filter>
     </ClInclude>
   </ItemGroup>

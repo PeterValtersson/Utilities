@@ -35,7 +35,7 @@ namespace UtilitiesTests
 		{
 			Utilities::ConstexprString<4> asd("asd");
 			Assert::AreEqual(3ui64, asd.size());
-			Assert::AreEqual(2550621077u, Utilities::EnsureHash<"asd"_hash>::value);
+			Assert::AreEqual(3712466179u, Utilities::EnsureHash<"asd"_hash>::value);
 		}
 
 	};

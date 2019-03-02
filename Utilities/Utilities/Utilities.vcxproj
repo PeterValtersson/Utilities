@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\ChunkyAllocator.h" />
     <ClInclude Include="..\Include\CircularFIFO.h" />
     <ClInclude Include="..\Include\CompileTimeString.h" />
     <ClInclude Include="..\Include\Concurrent.h" />
@@ -156,7 +157,6 @@
     <ClInclude Include="..\Include\StringUtilities.h" />
     <ClInclude Include="..\Include\ThreadPool.h" />
     <ClInclude Include="..\Include\TimeUtilities.h" />
-    <ClInclude Include="ChunkyAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

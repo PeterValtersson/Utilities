@@ -168,6 +168,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AllocatorTests.cpp" />
     <ClCompile Include="MonadicOptionalTest.cpp" />
     <ClCompile Include="ProfilerTests.cpp" />
     <ClCompile Include="stdafx.cpp">
