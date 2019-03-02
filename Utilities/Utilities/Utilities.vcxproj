@@ -156,6 +156,7 @@
     <ClInclude Include="..\Include\StringUtilities.h" />
     <ClInclude Include="..\Include\ThreadPool.h" />
     <ClInclude Include="..\Include\TimeUtilities.h" />
+    <ClInclude Include="ChunkyAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

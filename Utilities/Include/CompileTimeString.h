@@ -64,7 +64,7 @@ namespace Utilities
 
 constexpr Utilities::HashValue operator "" _hash(const char* str, size_t size)
 {
-	return Utilities::hashString(str, size - 1);
+	return Utilities::hashString(str, size);
 }
 
 #endif //_UTILZ_COMPILE_TIME_STRING_H_

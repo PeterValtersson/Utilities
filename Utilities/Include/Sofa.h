@@ -221,7 +221,10 @@ namespace Utilities
 				{
 					return byteWidth * maxEntries;
 				}
-
+				std::size_t GetWriteToFileSize()const
+				{
+					return GetMemoryUsage() + sizeof( version ) + sizeof( byteWidth ) + sizeof( std::size_t ) + sizeof( numEntries );
+				}
 				void Allocate( std::size_t newSize )
 				{
 					std::size_t newmaxEntries = newSize;
@@ -278,6 +281,7 @@ namespace Utilities
 				template <class ST>
 				void writeToFile( ST& file )
 				{
+					//shrink_to_fit();
 					auto totalSize = GetMemoryUsage();
 					Binary::write( file, version );
 					Binary::write( file, byteWidth );
