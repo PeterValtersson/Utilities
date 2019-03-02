@@ -155,7 +155,7 @@
     <ClInclude Include="..\Include\Sofa.h" />
     <ClInclude Include="..\Include\StringUtilities.h" />
     <ClInclude Include="..\Include\ThreadPool.h" />
-    <ClInclude Include="..\Include\Time.h" />
+    <ClInclude Include="..\Include\TimeUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

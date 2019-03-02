@@ -57,13 +57,13 @@
     <ClInclude Include="..\Include\Profiler.h">
       <Filter>Profiler</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Time.h" />
     <ClInclude Include="..\Include\ErrorHandling.h">
       <Filter>ErrorHandling</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\FStreamHelpers.h">
       <Filter>FileInOutHelpers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\TimeUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
