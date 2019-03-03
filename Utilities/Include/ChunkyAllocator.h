@@ -16,8 +16,8 @@ namespace Utilities
 		struct InvalidHandle : public Utilities::Exception {
 			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
 		};
-		struct InvalidHandle : public Utilities::Exception {
-			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
+		struct OutOfMemory : public Utilities::Exception {
+			OutOfMemory(  ) : Utilities::Exception( "Ran out of memory when trying to allocate" ) { }
 		};
 		struct MemoryBlock {
 			void* data;
@@ -124,7 +124,7 @@ namespace Utilities
 			if ( walker == _end )
 			{
 				//_allocLock.unlock();
-				throw 1; // TODO
+				throw OutOfMemory();
 			}
 
 			// Given a valid allocation slot and number of blocks -- extract those blocks
