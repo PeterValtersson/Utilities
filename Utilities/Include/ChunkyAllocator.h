@@ -46,6 +46,7 @@ namespace Utilities
 			std::string strOccupancy( void );
 
 			bool isValid( Handle handle )const;
+			bool isUse( Handle handle )const;
 		private:
 			struct FreeChunk {
 				size_t blocks = 0;
@@ -389,6 +390,14 @@ namespace Utilities
 		inline bool ChunkyAllocator::isValid( Handle handle ) const
 		{
 			return handleToIndex.find( handle ) != handleToIndex.end();
+		}
+
+		inline bool ChunkyAllocator::isUse( Handle handle ) const
+		{
+			if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
+				throw InvalidHandle( "ChunkyAllocator::free" );
+			else
+				return  allocatedChunks[findIndex->second].inUse;
 		}
 
 		void ChunkyAllocator::setupfreeBlockList( void )
