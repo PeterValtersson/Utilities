@@ -11,61 +11,28 @@ namespace Utilities
 {
 	namespace Memory
 	{
-
-
+		struct MemoryBlock {
+			void* data;
+			size_t size;
+		};
+		using Handle = size_t;
 		class ChunkyAllocator {
 		public:
-			class ChunkInfo {
-			public:
-				friend ChunkyAllocator;
-				//void setUsedState( bool inUse ) { freeForDefrag = !inUse; }
-				ChunkInfo(  ) : allocator( nullptr ), handle( SIZE_MAX )
-				{
-
-				}
-				ChunkInfo( ChunkInfo&& other ) : allocator(other.allocator)
-				{
-					handle = other.handle;
-					other.handle = SIZE_MAX;
-				}
-				ChunkInfo& operator=( const ChunkInfo& other )
-				{
-					allocator = other.allocator;
-					handle = other.handle;
-					allocator->tallyUp( handle );
-					return *this;
-				}
-		
-				~ChunkInfo()
-				{
-					free();
-				}
-				void free()
-				{
-					if ( handle != SIZE_MAX )
-						allocator->free(handle);
-					handle = SIZE_MAX;
-				}
-				bool isValid()const { return handle != SIZE_MAX; }
-			protected:
-				ChunkInfo( ChunkyAllocator* allocator, size_t handle ) : allocator( allocator ), handle( handle ) { 
-					allocator->tallyUp(handle);
-				};
-			private:			
-				ChunkyAllocator* allocator;
-				size_t handle;
-			};
-
-			friend ChunkInfo;
 			ChunkyAllocator( uint32_t numblocks );
 			~ChunkyAllocator();
 
-			ChunkInfo allocate( std::size_t size );
+			Handle allocate( std::size_t size );
+			void free( Handle handle );
+			void tallyUp( Handle handle );
+			void tallyDown( Handle handle );
+			uint32_t tally( Handle handle )const;
+			MemoryBlock getData( Handle handle );
+			void returnData( Handle handle );
 
-			bool defrag( );
+			bool defrag();
 
 			static size_t blocksize( void ) { return _blocksize; }
-			//char* Data( uint32_t block ) { return  _pool + block * _blocksize; }
+			
 
 			size_t freeMemory( void ) const { return _numfreeblocks * _blocksize; }
 			size_t maxMemory( void ) const { return _numblocks * _blocksize; }
@@ -76,7 +43,7 @@ namespace Utilities
 			struct FreeChunk {
 				size_t blocks = 0;
 				FreeChunk * previous = nullptr;
-				FreeChunk* next = nullptr;	
+				FreeChunk* next = nullptr;
 			};
 
 			struct AllocatedChunkInfo {
@@ -90,10 +57,7 @@ namespace Utilities
 			ChunkyAllocator& operator=( const ChunkyAllocator& rhs ) = delete;
 
 			void setupfreeBlockList( void );
-			void free( size_t handle );
-			void tallyUp( size_t handle );
-			void tallyDown( size_t handle );
-			uint32_t tally( size_t handle )const;
+			
 		private:
 			char* _pool = nullptr;
 			static const size_t _blocksize = 512 * 1024;
@@ -104,7 +68,7 @@ namespace Utilities
 			FreeChunk* _root = &_rootChunk;
 			FreeChunk* _end = &_endChunk;
 
-			
+
 
 			std::vector<AllocatedChunkInfo> allocatedChunks;
 			std::map<size_t, size_t> handleToIndex;
@@ -128,7 +92,7 @@ namespace Utilities
 		}
 
 		// Returns the slot that was allocated at. If no suitable slot was found, throw
-		ChunkyAllocator::ChunkInfo ChunkyAllocator::allocate( std::size_t size )
+		Handle ChunkyAllocator::allocate( std::size_t size )
 		{
 			// This first part finds a suitable allocation slot
 
@@ -183,31 +147,28 @@ namespace Utilities
 			//walker->blocks
 			//return (reinterpret_cast<char*>(walker) - _pool) / _blocksize;
 
-	
+
 			walker->blocks = numberOfNeededblocks;
 
 			std::uniform_int_distribution<size_t> distribution( 0U, SIZE_MAX );
 			size_t handle = distribution( generator );
-			while ( handleToIndex.find(handle) != handleToIndex.end() )
+			while ( handleToIndex.find( handle ) != handleToIndex.end() )
 				handle = distribution( generator );
-			
-			
+
+
 			handleToIndex[handle] = allocatedChunks.size();
 			allocatedChunks.push_back( { walker, handle, false } );
 
-			return ChunkInfo( this, handle );
+			return handle;
 		}
 
 		// frees certain blocks by inserting them into the free block list.
-		void ChunkyAllocator::free( size_t handle )
+		void ChunkyAllocator::free( Handle handle )
 		{
 			//_allocLock.lock();
-			tallyDown( handle );
-			if ( tally( handle ) > 0 )
-				return;
 			auto index = handleToIndex[handle];
 			FreeChunk* returnChunk = allocatedChunks[index].chunk;
-	
+
 			// We must find where in the list to insert and properly update the blocks
 			// before and after those we are returning (if existing).
 			FreeChunk* before = _root;
@@ -247,31 +208,27 @@ namespace Utilities
 
 			_numfreeblocks += returnChunk->blocks;
 
-			allocatedChunks[index] = allocatedChunks.back();		
+			allocatedChunks[index] = allocatedChunks.back();
 			handleToIndex[allocatedChunks[index].handle] = index;
 			allocatedChunks.pop_back();
 			handleToIndex.erase( handle );
 
 			//_allocLock.unlock();
 		}
-		void ChunkyAllocator::tallyUp( size_t handle )
-		{ 
-			auto index = handleToIndex[handle];
-			++allocatedChunks[index].tally;
-		}
-		void ChunkyAllocator::tallyDown( size_t handle )
+		inline MemoryBlock ChunkyAllocator::getData( Handle handle )
 		{
-			auto index = handleToIndex[handle];
-			--allocatedChunks[index].tally;
+			auto index = handleToIndex.at( handle );
+			allocatedChunks[index].inUse = true;
+			return { (char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks - sizeof( size_t ) };
 		}
-		inline uint32_t ChunkyAllocator::tally( size_t handle ) const
+		inline void ChunkyAllocator::returnData( Handle handle )
 		{
-			auto index = handleToIndex.at(handle);
-			return allocatedChunks[index].tally;
+			auto index = handleToIndex.at( handle );
+			allocatedChunks[index].inUse = false;
 		}
 		// Performs one defragmentation iteration. Returns which index of the provided
 		// list was moved or -1 if none.
-		bool ChunkyAllocator::defrag( )
+		bool ChunkyAllocator::defrag()
 		{
 
 			//std::uniform_int_distribution<size_t> distribution( 0U, allocatedChunks.size() - 1U );
@@ -310,7 +267,7 @@ namespace Utilities
 					// Copy data into the free chunk (memmove supports overlaps, so even
 					// if the free chunk is just one block, we can still move 2 blocks)
 					memmove( free, allocatedChunks[i].chunk, allocatedChunks[i].chunk->blocks * _blocksize );
-					
+
 					// Move the pointer
 					allocatedChunks[i].chunk = free;
 
@@ -323,7 +280,7 @@ namespace Utilities
 					newfree->previous->next = newfree;
 					newfree->next->previous = newfree;
 
-				
+
 					// If the next free block comes immediately after, we merge
 					if ( newfree->next == reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(newfree) + newfree->blocks * _blocksize) )
 					{
@@ -335,7 +292,7 @@ namespace Utilities
 					return true;
 				}
 				// Found an allocation that comes after the free block and is the same size of the free space (defrag left)
-				else if( reinterpret_cast<char*>(free) + free->blocks * _blocksize < (char*)allocatedChunks[i].chunk && allocatedChunks[i].chunk->blocks == free->blocks)
+				else if ( reinterpret_cast<char*>(free) + free->blocks * _blocksize < (char*)allocatedChunks[i].chunk && allocatedChunks[i].chunk->blocks == free->blocks )
 				{
 					// Make a copy of the old free block before overwriting data
 					FreeChunk oldfree;

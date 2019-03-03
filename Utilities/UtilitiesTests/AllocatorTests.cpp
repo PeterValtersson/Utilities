@@ -18,7 +18,7 @@ namespace UtilitiesTests
 			auto m3 = allocator.allocate( 100 );
 			auto m4 = allocator.allocate( 100 );
 			Logger::WriteMessage( allocator.strOccupancy().c_str() );
-			m3.free();
+			allocator.free(m3);
 
 			Logger::WriteMessage(allocator.strOccupancy().c_str());
 		}
