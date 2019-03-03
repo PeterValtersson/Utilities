@@ -31,9 +31,7 @@ namespace Utilities
 
 			Handle allocate( std::size_t size );
 			void free( Handle handle );
-			void tallyUp( Handle handle );
-			void tallyDown( Handle handle );
-			uint32_t tally( Handle handle )const;
+	
 			MemoryBlock getData( Handle handle );
 			void returnData( Handle handle );
 
@@ -47,6 +45,7 @@ namespace Utilities
 
 			std::string strOccupancy( void );
 
+			bool isValid( Handle handle )const;
 		private:
 			struct FreeChunk {
 				size_t blocks = 0;
@@ -58,7 +57,6 @@ namespace Utilities
 				FreeChunk* chunk;
 				size_t handle;
 				bool inUse = false;
-				uint32_t tally = 0;
 			};
 		private:
 			ChunkyAllocator( const ChunkyAllocator& other ) = delete;
@@ -386,6 +384,11 @@ namespace Utilities
 			//OutputDebugStringA( "\n" );
 			ss << std::endl;
 			return ss.str();
+		}
+
+		inline bool ChunkyAllocator::isValid( Handle handle ) const
+		{
+			return handleToIndex.find( handle ) != handleToIndex.end();
 		}
 
 		void ChunkyAllocator::setupfreeBlockList( void )
