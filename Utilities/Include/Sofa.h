@@ -169,6 +169,11 @@ namespace Utilities
 				{
 					std::get<N>( typePointers )[index] = t;
 				}
+				template<std::size_t N, class type>
+				inline void set( std::size_t index, const type& t )
+				{
+					std::get<N>( typePointers )[index] = t;
+				}
 
 				template<std::size_t N>
 				inline auto& get( std::size_t index )
