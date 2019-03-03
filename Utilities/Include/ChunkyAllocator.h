@@ -11,7 +11,7 @@
 
 namespace Utilities
 {
-	namespace Memory
+	namespace Allocators
 	{
 		struct InvalidHandle : public Utilities::Exception {
 			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
