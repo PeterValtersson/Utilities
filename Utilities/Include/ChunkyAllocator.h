@@ -7,10 +7,18 @@
 //#include <stack>
 #include <random>
 #include <map>
+#include "ErrorHandling.h"
+
 namespace Utilities
 {
 	namespace Memory
 	{
+		struct InvalidHandle : public Utilities::Exception {
+			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
+		};
+		struct InvalidHandle : public Utilities::Exception {
+			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
+		};
 		struct MemoryBlock {
 			void* data;
 			size_t size;
@@ -165,66 +173,78 @@ namespace Utilities
 		// frees certain blocks by inserting them into the free block list.
 		void ChunkyAllocator::free( Handle handle )
 		{
-			//_allocLock.lock();
-			auto index = handleToIndex[handle];
-			FreeChunk* returnChunk = allocatedChunks[index].chunk;
-
-			// We must find where in the list to insert and properly update the blocks
-			// before and after those we are returning (if existing).
-			FreeChunk* before = _root;
-			while ( before->next != _end && before->next < returnChunk )
-			{
-				before = before->next;
-			}
-			FreeChunk* after = before->next;
-
-			// If we return blocks at the end of a chunk we merge it right away.
-			if ( (reinterpret_cast<char*>(before) + before->blocks * _blocksize) == reinterpret_cast<char*>(returnChunk) )
-			{
-				before->blocks += returnChunk->blocks;
-				returnChunk = before; // We do this to simplify potential two-way merge later
-			}
-			// Otherwise they must be linked together
+			if ( auto findIndex = handleToIndex.find(handle); findIndex == handleToIndex.end() )
+				throw InvalidHandle( "ChunkyAllocator::free" );
 			else
 			{
-				before->next = returnChunk;
-				returnChunk->previous = before;
+				auto index = findIndex->second;
+				FreeChunk* returnChunk = allocatedChunks[index].chunk;
+
+				// We must find where in the list to insert and properly update the blocks
+				// before and after those we are returning (if existing).
+				FreeChunk* before = _root;
+				while ( before->next != _end && before->next < returnChunk )
+				{
+					before = before->next;
+				}
+				FreeChunk* after = before->next;
+
+				// If we return blocks at the end of a chunk we merge it right away.
+				if ( (reinterpret_cast<char*>(before) + before->blocks * _blocksize) == reinterpret_cast<char*>(returnChunk) )
+				{
+					before->blocks += returnChunk->blocks;
+					returnChunk = before; // We do this to simplify potential two-way merge later
+				}
+				// Otherwise they must be linked together
+				else
+				{
+					before->next = returnChunk;
+					returnChunk->previous = before;
+				}
+
+				// If the end of the returned chunk coincides with the next free chunk we
+				// can merge that way as well.
+				if ( after != _end && (reinterpret_cast<char*>(returnChunk) + returnChunk->blocks * _blocksize) == reinterpret_cast<char*>(after) )
+				{
+					returnChunk->blocks += after->blocks;
+					returnChunk->next = after->next;
+					returnChunk->next->previous = returnChunk;
+				}
+				// Otherwise they must be linked together
+				else
+				{
+					returnChunk->next = after;
+					returnChunk->next->previous = returnChunk;
+				}
+
+				_numfreeblocks += returnChunk->blocks;
+
+				allocatedChunks[index] = allocatedChunks.back();
+				handleToIndex[allocatedChunks[index].handle] = index;
+				allocatedChunks.pop_back();
+				handleToIndex.erase( handle );
 			}
-
-			// If the end of the returned chunk coincides with the next free chunk we
-			// can merge that way as well.
-			if ( after != _end && (reinterpret_cast<char*>(returnChunk) + returnChunk->blocks * _blocksize) == reinterpret_cast<char*>(after) )
-			{
-				returnChunk->blocks += after->blocks;
-				returnChunk->next = after->next;
-				returnChunk->next->previous = returnChunk;
-			}
-			// Otherwise they must be linked together
-			else
-			{
-				returnChunk->next = after;
-				returnChunk->next->previous = returnChunk;
-			}
-
-			_numfreeblocks += returnChunk->blocks;
-
-			allocatedChunks[index] = allocatedChunks.back();
-			handleToIndex[allocatedChunks[index].handle] = index;
-			allocatedChunks.pop_back();
-			handleToIndex.erase( handle );
-
-			//_allocLock.unlock();
 		}
 		inline MemoryBlock ChunkyAllocator::getData( Handle handle )
 		{
-			auto index = handleToIndex.at( handle );
-			allocatedChunks[index].inUse = true;
-			return { (char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks - sizeof( size_t ) };
+			if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
+				throw InvalidHandle( "ChunkyAllocator::free" );
+			else
+			{
+				auto index = findIndex->second;
+				allocatedChunks[index].inUse = true;
+				return { (char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks - sizeof( size_t ) };
+			}
 		}
 		inline void ChunkyAllocator::returnData( Handle handle )
 		{
-			auto index = handleToIndex.at( handle );
-			allocatedChunks[index].inUse = false;
+			if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
+				throw InvalidHandle( "ChunkyAllocator::free" );
+			else
+			{
+				auto index = findIndex->second;
+				allocatedChunks[index].inUse = false;
+			}
 		}
 		// Performs one defragmentation iteration. Returns which index of the provided
 		// list was moved or -1 if none.
