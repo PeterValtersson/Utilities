@@ -33,6 +33,7 @@ namespace Utilities
 					allocator = other.allocator;
 					handle = other.handle;
 					allocator->tallyUp( handle );
+					return *this;
 				}
 		
 				~ChunkInfo()
