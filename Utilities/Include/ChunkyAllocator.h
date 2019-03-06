@@ -32,6 +32,12 @@ namespace Utilities
 			{
 				chunkyAllocator.tallyDown( handle );
 			}
+			ChunkyData( const ChunkyData& other ) : chunkyAllocator( other.chunkyAllocator ), handle( other.handle ), _data( other._data )
+			{
+				chunkyAllocator.tallyUp( handle );
+			}
+			ChunkyData& operator=( const ChunkyData& other ) = delete;
+
 			MemoryBlock& data() { return _data; }
 		private:
 			ChunkyAllocator & chunkyAllocator;
