@@ -23,22 +23,24 @@ namespace Utilities
 		};
 
 		using Handle = size_t;
+		struct ChunkyData {
+			ChunkyData( ChunkyAllocator& chunkyAllocator, Handle handle, MemoryBlock data ) : chunkyAllocator( chunkyAllocator ), handle( handle ), data( data )
+			{
+				chunkyAllocator.tallyUp( handle );
+			}
+			~ChunkyData()
+			{
+				chunkyAllocator.tallyDown( handle );
+			}
+		private:
+			ChunkyAllocator & chunkyAllocator;
+			Handle handle;
+			MemoryBlock data;
+		};
+
 		class ChunkyAllocator {
 		public:
-			struct ChunkyData {
-				ChunkyData( ChunkyAllocator& chunkyAllocator, Handle handle, MemoryBlock data ) : chunkyAllocator( chunkyAllocator ), handle( handle ), data( data )
-				{
-					chunkyAllocator.tallyUp( handle );
-				}
-				~ChunkyData()
-				{
-					chunkyAllocator.tallyDown( handle );
-				}
-			private:
-				ChunkyAllocator& chunkyAllocator;
-				Handle handle;
-				MemoryBlock data;
-			};
+		
 			friend struct ChunkyData;
 
 			ChunkyAllocator( uint32_t numblocks )
