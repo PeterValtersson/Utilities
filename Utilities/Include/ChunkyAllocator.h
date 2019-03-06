@@ -24,7 +24,7 @@ namespace Utilities
 
 		using Handle = size_t;
 		struct ChunkyData {
-			ChunkyData( ChunkyAllocator& chunkyAllocator, Handle handle, MemoryBlock data ) : chunkyAllocator( chunkyAllocator ), handle( handle ), data( data )
+			ChunkyData( ChunkyAllocator& chunkyAllocator, Handle handle, MemoryBlock data ) : chunkyAllocator( chunkyAllocator ), handle( handle ), _data( data )
 			{
 				chunkyAllocator.tallyUp( handle );
 			}
@@ -32,10 +32,11 @@ namespace Utilities
 			{
 				chunkyAllocator.tallyDown( handle );
 			}
+			MemoryBlock& data() { return _data; }
 		private:
 			ChunkyAllocator & chunkyAllocator;
 			Handle handle;
-			MemoryBlock data;
+			MemoryBlock _data;
 		};
 
 		class ChunkyAllocator {
