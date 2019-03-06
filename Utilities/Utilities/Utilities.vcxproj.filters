@@ -70,6 +70,9 @@
     <ClInclude Include="..\Include\ChunkyAllocator.h">
       <Filter>Allocators</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\MemoryBlock.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

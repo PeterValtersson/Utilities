@@ -11,7 +11,7 @@ namespace UtilitiesTests
 	public:
 		TEST_METHOD( AllocatorTests_Chunky )
 		{
-			Utilities::Memory::ChunkyAllocator allocator( 1000 );
+			Utilities::Allocators::ChunkyAllocator allocator( 1000 );
 			
 			auto m1 = allocator.allocate( 100 );
 			auto m2 = allocator.allocate( 10 );
