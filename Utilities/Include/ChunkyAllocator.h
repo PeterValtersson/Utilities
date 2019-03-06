@@ -38,7 +38,7 @@ namespace Utilities
 			}
 			ChunkyData& operator=( const ChunkyData& other ) = delete;
 
-			MemoryBlock& data() { return _data; }
+			inline MemoryBlock& data() { return _data; }
 		private:
 			ChunkyAllocator & chunkyAllocator;
 			Handle handle;
