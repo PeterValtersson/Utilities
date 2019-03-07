@@ -153,7 +153,6 @@
     <ClInclude Include="..\Include\MemoryBlock.h" />
     <ClInclude Include="..\Include\MonadicOptional.h" />
     <ClInclude Include="..\Include\PathHelpers.h" />
-    <ClInclude Include="..\Include\Profiler.h" />
     <ClInclude Include="..\Include\Sofa.h" />
     <ClInclude Include="..\Include\StringUtilities.h" />
     <ClInclude Include="..\Include\ThreadPool.h" />

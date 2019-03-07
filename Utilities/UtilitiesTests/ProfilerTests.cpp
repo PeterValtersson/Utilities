@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../Include/Profiler.h"
+#include <Profiler.h>
 #include <future>
 #include "../ProfileDLLTest/head.h"
 

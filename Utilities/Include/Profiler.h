@@ -1,7 +1,6 @@
 #ifndef _UTILITIES_PROFILER_H_
 #define _UTILITIES_PROFILER_H_
-#pragma once
-
+#ifdef _ENABLE_PROFILER_
 #include <string_view>
 #include <memory>
 #include <vector>
@@ -15,6 +14,7 @@
 #include <filesystem>
 #include <fstream>
 #include "TimeUtilities.h"
+#include <chrono>
 
 namespace Utilities
 {
@@ -366,6 +366,9 @@ namespace Utilities
 }
 
 #define Profile Utilities::Profiler_Start_Stop __FUNCTION__##_profile(Utilities::Profiler::get(), Utilities::EnsureHash<Utilities::hashString(__FUNCTION__)>::value, Utilities::Basename::functionName(__FUNCTION__), Utilities::Basename::fileName(__FILE__));
+#else
+#define Profile
+#endif
 #endif
 //
 //

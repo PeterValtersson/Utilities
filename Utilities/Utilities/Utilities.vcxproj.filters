@@ -13,9 +13,6 @@
     <Filter Include="Concurrency">
       <UniqueIdentifier>{0b339e02-a409-45ed-abfe-8d12f0b6d339}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Profiler">
-      <UniqueIdentifier>{66c7c9e6-214d-46ef-998e-87cab98cea73}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ErrorHandling">
       <UniqueIdentifier>{6cb66676-2fc9-4cf0-9836-7e3fab9950e2}</UniqueIdentifier>
     </Filter>
@@ -56,9 +53,6 @@
     </ClInclude>
     <ClInclude Include="..\Include\StringUtilities.h">
       <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Profiler.h">
-      <Filter>Profiler</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\ErrorHandling.h">
       <Filter>ErrorHandling</Filter>
