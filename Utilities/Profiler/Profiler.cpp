@@ -1,5 +1,5 @@
 #include <Profiler.h>
-
+#ifdef _ENABLE_PROFILER_
 #pragma data_seg (".SHAREDMEMORY")
 bool init = true;
 std::shared_ptr<Utilities::Profiler_Master> profile_master = nullptr;
@@ -13,3 +13,4 @@ std::shared_ptr<Utilities::Profiler_Master> Utilities::Profiler_Master::get()
 
 	return profile_master;
 }
+#endif
