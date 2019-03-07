@@ -32,7 +32,7 @@ namespace Utilities
 				{
 					chunkyAllocator.tallyUp( handle );
 				}
-				~ChunkyData()
+				virtual ~ChunkyData()
 				{
 					chunkyAllocator.tallyDown( handle );
 				}
