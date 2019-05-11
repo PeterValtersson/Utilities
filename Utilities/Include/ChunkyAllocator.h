@@ -166,7 +166,7 @@ namespace Utilities
 				}
 			}
 
-			void use_data( Handle handle, const std::function<void( const MemoryBlock )>& callback )
+			void use_data( Handle handle, const std::function<void( MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::getData" );
