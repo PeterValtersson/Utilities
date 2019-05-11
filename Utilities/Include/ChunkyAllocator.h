@@ -10,6 +10,7 @@
 #include "ErrorHandling.h"
 #include "MemoryBlock.h"
 #include <sstream>
+#include <functional>
 
 namespace Utilities
 {
@@ -23,7 +24,7 @@ namespace Utilities
 		};
 
 		using Handle = size_t;
-		
+
 
 		class ChunkyAllocator {
 		public:
@@ -106,7 +107,7 @@ namespace Utilities
 
 
 				handleToIndex[handle] = allocatedChunks.size();
-				allocatedChunks.push_back( { walker, handle, false } );
+				allocatedChunks.push_back( { walker, handle } );
 
 				return handle;
 			}
@@ -165,14 +166,14 @@ namespace Utilities
 				}
 			}
 
-			const MemoryBlock getData( Handle handle )
+			void use_data( Handle handle, const std::function<void( const MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::getData" );
 				else
 				{
 					auto index = findIndex->second;
-					return {(char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t ) };
+					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t ) } );
 				}
 			}
 
@@ -203,74 +204,73 @@ namespace Utilities
 				// Naïve defragmentation that just stuffs upcoming occupied blocks into the free one.
 				std::uniform_int_distribution<size_t> distribution( 0U, allocatedChunks.size() - 1U );
 				size_t i = distribution( generator );
-				if ( !allocatedChunks[i].inUse )
+
+				// Found an allocation that comes directly after the free block (defrag left)
+				if ( reinterpret_cast<char*>(free) + free->blocks * _blocksize == (char*)allocatedChunks[i].chunk )
 				{
-					// Found an allocation that comes directly after the free block (defrag left)
-					if ( reinterpret_cast<char*>(free) + free->blocks * _blocksize == (char*)allocatedChunks[i].chunk )
+					// Make a copy of the old free block before overwriting data
+					FreeChunk oldfree;
+					oldfree = *free;
+
+					// Copy data into the free chunk (memmove supports overlaps, so even
+					// if the free chunk is just one block, we can still move 2 blocks)
+					memmove( free, allocatedChunks[i].chunk, allocatedChunks[i].chunk->blocks * _blocksize );
+
+					// Move the pointer
+					allocatedChunks[i].chunk = free;
+
+					// Move start of free chunk to accomodate the newly inserted data and
+					// incorporate the newly freed slots when we're at it
+					FreeChunk* newfree = reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(free) + allocatedChunks[i].chunk->blocks * _blocksize);
+					newfree->blocks = oldfree.blocks;
+					newfree->previous = oldfree.previous;
+					newfree->next = oldfree.next;
+					newfree->previous->next = newfree;
+					newfree->next->previous = newfree;
+
+
+					// If the next free block comes immediately after, we merge
+					if ( newfree->next == reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(newfree) + newfree->blocks * _blocksize) )
 					{
-						// Make a copy of the old free block before overwriting data
-						FreeChunk oldfree;
-						oldfree = *free;
-
-						// Copy data into the free chunk (memmove supports overlaps, so even
-						// if the free chunk is just one block, we can still move 2 blocks)
-						memmove( free, allocatedChunks[i].chunk, allocatedChunks[i].chunk->blocks * _blocksize );
-
-						// Move the pointer
-						allocatedChunks[i].chunk = free;
-
-						// Move start of free chunk to accomodate the newly inserted data and
-						// incorporate the newly freed slots when we're at it
-						FreeChunk* newfree = reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(free) + allocatedChunks[i].chunk->blocks * _blocksize);
-						newfree->blocks = oldfree.blocks;
-						newfree->previous = oldfree.previous;
-						newfree->next = oldfree.next;
-						newfree->previous->next = newfree;
+						newfree->blocks += newfree->next->blocks;
+						newfree->next = newfree->next->next;
 						newfree->next->previous = newfree;
-
-
-						// If the next free block comes immediately after, we merge
-						if ( newfree->next == reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(newfree) + newfree->blocks * _blocksize) )
-						{
-							newfree->blocks += newfree->next->blocks;
-							newfree->next = newfree->next->next;
-							newfree->next->previous = newfree;
-						}
-						//	_allocLock.unlock();
-						return true;
 					}
-					// Found an allocation that comes after the free block and is the same size of the free space (defrag left)
-					else if ( reinterpret_cast<char*>(free) + free->blocks * _blocksize < (char*)allocatedChunks[i].chunk && allocatedChunks[i].chunk->blocks == free->blocks )
+					//	_allocLock.unlock();
+					return true;
+				}
+				// Found an allocation that comes after the free block and is the same size of the free space (defrag left)
+				else if ( reinterpret_cast<char*>(free) + free->blocks * _blocksize < (char*)allocatedChunks[i].chunk && allocatedChunks[i].chunk->blocks == free->blocks )
+				{
+					// Make a copy of the old free block before overwriting data
+					FreeChunk oldfree;
+					oldfree = *free;
+
+					// Copy data into the free chunk
+					memcpy( free, allocatedChunks[i].chunk, allocatedChunks[i].chunk->blocks * _blocksize );
+
+					// Move the pointer
+					allocatedChunks[i].chunk = free;
+
+					// Move start of free chunk to accomodate the newly inserted data and
+					// incorporate the newly freed slots when we're at it
+					FreeChunk* newfree = reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(free) + allocatedChunks[i].chunk->blocks * _blocksize);
+					newfree->blocks = oldfree.blocks;
+					newfree->previous = oldfree.previous;
+					newfree->next = oldfree.next;
+					newfree->previous->next = newfree;
+					newfree->next->previous = newfree;
+
+
+					// If the next free block comes immediately after, we merge
+					if ( newfree->next == reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(newfree) + newfree->blocks * _blocksize) )
 					{
-						// Make a copy of the old free block before overwriting data
-						FreeChunk oldfree;
-						oldfree = *free;
-
-						// Copy data into the free chunk
-						memcpy( free, allocatedChunks[i].chunk, allocatedChunks[i].chunk->blocks * _blocksize );
-
-						// Move the pointer
-						allocatedChunks[i].chunk = free;
-
-						// Move start of free chunk to accomodate the newly inserted data and
-						// incorporate the newly freed slots when we're at it
-						FreeChunk* newfree = reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(free) + allocatedChunks[i].chunk->blocks * _blocksize);
-						newfree->blocks = oldfree.blocks;
-						newfree->previous = oldfree.previous;
-						newfree->next = oldfree.next;
-						newfree->previous->next = newfree;
+						newfree->blocks += newfree->next->blocks;
+						newfree->next = newfree->next->next;
 						newfree->next->previous = newfree;
-
-
-						// If the next free block comes immediately after, we merge
-						if ( newfree->next == reinterpret_cast<FreeChunk*>(reinterpret_cast<char*>(newfree) + newfree->blocks * _blocksize) )
-						{
-							newfree->blocks += newfree->next->blocks;
-							newfree->next = newfree->next->next;
-							newfree->next->previous = newfree;
-						}
 					}
 				}
+
 
 				//	_allocLock.unlock();
 				return false;
@@ -325,13 +325,6 @@ namespace Utilities
 			{
 				return handleToIndex.find( handle ) != handleToIndex.end();
 			}
-			bool inUse( Handle handle )const
-			{
-				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
-					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::inUse" );
-				else
-					return  allocatedChunks[findIndex->second].inUse > 0;
-			}
 		private:
 			struct FreeChunk {
 				size_t blocks = 0;
@@ -342,20 +335,10 @@ namespace Utilities
 			struct AllocatedChunkInfo {
 				FreeChunk* chunk;
 				size_t handle;
-				uint32_t inUse = 0;
 			};
 		private:
 			ChunkyAllocator( const ChunkyAllocator& other ) = delete;
 			ChunkyAllocator& operator=( const ChunkyAllocator& rhs ) = delete;
-
-			void tallyUp( Handle handle )
-			{
-				allocatedChunks[handleToIndex[handle]].inUse++;
-			}
-			void tallyDown( Handle handle )
-			{
-				allocatedChunks[handleToIndex[handle]].inUse--;
-			}
 
 			void setupfreeBlockList( void )
 			{
