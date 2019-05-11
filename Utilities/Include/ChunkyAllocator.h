@@ -27,29 +27,6 @@ namespace Utilities
 
 		class ChunkyAllocator {
 		public:
-			struct ChunkyData {
-				ChunkyData( ChunkyAllocator& chunkyAllocator, Handle handle, MemoryBlock data ) : chunkyAllocator( chunkyAllocator ), handle( handle ), _data( data )
-				{
-					chunkyAllocator.tallyUp( handle );
-				}
-				virtual ~ChunkyData()
-				{
-					chunkyAllocator.tallyDown( handle );
-				}
-				ChunkyData( const ChunkyData& other ) : chunkyAllocator( other.chunkyAllocator ), handle( other.handle ), _data( other._data )
-				{
-					chunkyAllocator.tallyUp( handle );
-				}
-				ChunkyData& operator=( const ChunkyData& other ) = delete;
-
-				inline MemoryBlock& data() { return _data; }
-			private:
-				ChunkyAllocator & chunkyAllocator;
-				Handle handle;
-				MemoryBlock _data;
-			};
-			friend struct ChunkyData;
-
 			ChunkyAllocator( uint32_t numblocks )
 			{
 				_numfreeblocks = _numblocks = numblocks;
@@ -188,14 +165,14 @@ namespace Utilities
 				}
 			}
 
-			ChunkyData getData( Handle handle )
+			const MemoryBlock getData( Handle handle )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::getData" );
 				else
 				{
 					auto index = findIndex->second;
-					return { *this, handle, {(char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t ) } };
+					return {(char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t ) };
 				}
 			}
 
