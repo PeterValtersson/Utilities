@@ -151,6 +151,7 @@
     <ClInclude Include="..\Include\FStreamHelpers.h" />
     <ClInclude Include="..\Include\GUID.h" />
     <ClInclude Include="..\Include\MemoryBlock.h" />
+    <ClInclude Include="..\Include\Memory_Literals.h" />
     <ClInclude Include="..\Include\MonadicOptional.h" />
     <ClInclude Include="..\Include\PathHelpers.h" />
     <ClInclude Include="..\Include\Sofa.h" />

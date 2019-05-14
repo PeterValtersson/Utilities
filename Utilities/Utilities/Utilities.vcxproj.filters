@@ -19,7 +19,7 @@
     <Filter Include="FileInOutHelpers">
       <UniqueIdentifier>{370e5709-0bc1-4940-beb0-1d5c0e2f9aeb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Allocators">
+    <Filter Include="Memory">
       <UniqueIdentifier>{f0013a3b-2b09-439a-9109-340a08f70dc3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -62,10 +62,13 @@
     </ClInclude>
     <ClInclude Include="..\Include\TimeUtilities.h" />
     <ClInclude Include="..\Include\ChunkyAllocator.h">
-      <Filter>Allocators</Filter>
+      <Filter>Memory</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\MemoryBlock.h">
-      <Filter>Allocators</Filter>
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Memory_Literals.h">
+      <Filter>Memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

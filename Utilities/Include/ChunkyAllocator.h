@@ -11,6 +11,7 @@
 #include "MemoryBlock.h"
 #include <sstream>
 #include <functional>
+#include "Memory_Literals.h"
 
 namespace Utilities
 {
