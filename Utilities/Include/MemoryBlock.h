@@ -6,7 +6,8 @@ namespace Utilities
 	{
 		struct MemoryBlock {
 			void* data;
-			size_t size;
+			size_t used_size;
+			size_t total_size;
 		};
 
 

@@ -50,7 +50,7 @@ namespace Utilities
 				//_allocLock.lock();
 
 				FreeChunk* walker = _root->next;
-				auto actualSizeNeeded = size + sizeof( size_t );
+				auto actualSizeNeeded = size + sizeof( size_t )*2;
 				size_t numberOfNeededblocks = actualSizeNeeded / _blocksize;
 				if ( actualSizeNeeded % _blocksize )
 					numberOfNeededblocks++;
@@ -100,6 +100,7 @@ namespace Utilities
 
 
 				walker->blocks = numberOfNeededblocks;
+				walker->used_size = size;
 
 				std::uniform_int_distribution<size_t> distribution( 0U, SIZE_MAX );
 				size_t handle = distribution( generator );
@@ -167,14 +168,14 @@ namespace Utilities
 				}
 			}
 
-			void use_data( Handle handle, const std::function<void( MemoryBlock )>& callback )
+			void use_data( Handle handle, const std::function<void( const MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::getData" );
 				else
 				{
 					auto index = findIndex->second;
-					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t ), allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t ) } );
+					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t )*2, allocatedChunks[index].chunk->used_size, allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t )*2 } );
 				}
 			}
 
@@ -329,6 +330,7 @@ namespace Utilities
 		private:
 			struct FreeChunk {
 				size_t blocks = 0;
+				size_t used_size = 0;
 				FreeChunk * previous = nullptr;
 				FreeChunk* next = nullptr;
 			};
