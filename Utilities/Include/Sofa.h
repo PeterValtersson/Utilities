@@ -158,10 +158,14 @@ namespace Utilities
 
 				std::size_t add( const Key key )
 				{
+					if ( auto entry = find( key ); entry.has_value() )
+						return *entry;
+
 					if ( numEntries + 1 > maxEntries )
 						Allocate( maxEntries * 2 );
 					std::get<0>( typePointers )[numEntries] = key;
-					return map[key] = numEntries++;
+					std::size_t ret = map[key] = numEntries++;
+					return ret;
 				}
 
 				template<std::size_t N, class type>
