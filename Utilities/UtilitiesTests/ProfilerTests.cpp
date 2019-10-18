@@ -10,11 +10,11 @@ namespace UtilitiesTests
 {
 	void DoSomething()
 	{
-		Profile;
+		PROFILE;
 	}
 	void Entry()
 	{
-		Profile;
+		PROFILE;
 		DoSomething();
 		DoSomething();
 		DoSomething();
@@ -26,8 +26,7 @@ namespace UtilitiesTests
 	public:
 		TEST_METHOD(Profiler_Basic)
 		{
-			
-			Utilities::Profiler_Master::get();
+			PROFILER_INIT;
 			Entry();
 			auto handle = std::async(std::launch::async, []
 			{
@@ -46,9 +45,11 @@ namespace UtilitiesTests
 
 
 			handle.get();
+
+#ifdef _ENABLE_PROFILER_
 			Logger::WriteMessage(Utilities::Profiler_Master::get()->str().c_str());
 			Utilities::Profiler_Master::get()->createDotAndBat("Profiles", true);
-
+#endif
 		}
 
 

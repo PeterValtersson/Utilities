@@ -3,12 +3,12 @@
 
 void DoStuff2()
 {
-	Profile;
+	PROFILE;
 }
 
 void Main_Entry()
 {
-	Profile;
+	PROFILE;
 	DoStuff2();
 	DoStuff2();
 }

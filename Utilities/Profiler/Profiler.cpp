@@ -1,7 +1,6 @@
 #include <Profiler.h>
 #ifdef _ENABLE_PROFILER_
 #pragma data_seg (".SHAREDMEMORY")
-bool init = true;
 std::shared_ptr<Utilities::Profiler_Master> profile_master = nullptr;
 #pragma data_seg() 
 #pragma comment(linker,"/SECTION:.SHAREDMEMORY,RWS")

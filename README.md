@@ -11,3 +11,10 @@ A collection of utilities that I use in many of my projects.
 * A macro for creating bitflags of ENUMs
 * A threadpool
 * Some helpers for strings and paths.
+
+
+## Prerequisites
+Graphviz is needed for generation of tree structure.
+http://www.graphviz.org/download/
+
+Add C:\Program Files (x86)\Graphviz2.38\bin (or equivalent path) to Path Environment variable

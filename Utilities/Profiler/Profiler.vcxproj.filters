@@ -23,10 +23,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\Profiler.h">
+    <ClInclude Include="..\Include\Profile_Export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Profile_Export.h">
+    <ClInclude Include="..\Include\Profiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
