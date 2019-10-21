@@ -21,12 +21,18 @@
     <ClCompile Include="Profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Profiler_Master.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\Profile_Export.h">
+    <ClInclude Include="..\Include\Profiler\Profile_Export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Profiler.h">
+    <ClInclude Include="..\Include\Profiler\Profiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Profiler\Profiler_Master.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

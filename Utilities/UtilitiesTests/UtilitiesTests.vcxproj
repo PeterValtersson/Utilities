@@ -182,6 +182,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="GUIDTests.cpp" />
+    <ClCompile Include="StringTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProfileDLLTest\ProfileDLLTest.vcxproj">

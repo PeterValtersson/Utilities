@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include <Profiler.h>
+#include <Profiler/Profiler_Master.h>
 #include <future>
 #include "../ProfileDLLTest/head.h"
 
@@ -8,17 +8,17 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace UtilitiesTests
 {
-	void DoSomething()
+	void Calculate()
 	{
 		PROFILE;
 	}
-	void Entry()
+	void test_main()
 	{
 		PROFILE;
-		DoSomething();
-		DoSomething();
-		DoSomething();
-		DoSomething();
+		Calculate();
+		Calculate();
+		Calculate();
+		Calculate();
 	}
 	
 	TEST_CLASS(ProfilerTests)
@@ -26,12 +26,12 @@ namespace UtilitiesTests
 	public:
 		TEST_METHOD(Profiler_Basic)
 		{
-			PROFILER_INIT;
-			Entry();
+			Utilities::Profiler_Master::get();
+			test_main();
 			auto handle = std::async(std::launch::async, []
 			{
 				for (int i = 0; i < 100000; i++)
-					Entry();
+					test_main();
 				Main_Entry();
 			});
 
@@ -40,15 +40,15 @@ namespace UtilitiesTests
 
 
 			for (int i = 0; i < 100000; i++)
-				Entry();
+				test_main();
 
 
 
 			handle.get();
 
 #ifdef _ENABLE_PROFILER_
-			Logger::WriteMessage(Utilities::Profiler_Master::get()->str().c_str());
-			Utilities::Profiler_Master::get()->createDotAndBat("Profiles", true);
+			Logger::WriteMessage(Utilities::Profiler_Master::get()->to_str().c_str());
+			Utilities::Profiler_Master::get()->generate_tree("Profiles", true);
 #endif
 		}
 

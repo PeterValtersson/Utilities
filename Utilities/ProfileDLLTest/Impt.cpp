@@ -1,5 +1,5 @@
 #include "head.h"
-#include "../Include/Profiler.h"
+#include "../Include/Profiler/Profiler.h"
 
 void DoStuff2()
 {
