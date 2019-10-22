@@ -63,7 +63,7 @@ namespace Utilities
 
 
 		// Removed all folders from path execept the last two
-		constexpr const char* get_path_split_last2( const char* path )
+		constexpr const char* const get_path_split_last2( const char* const path )
 		{
 			const char* f2 = nullptr;
 			const char* f = nullptr;
@@ -78,20 +78,20 @@ namespace Utilities
 
 				++c;
 			}
-			if ( f2 )
-				return ++f2;
-			else if ( f )
-				return ++f;
-			else
+			if ( !f2 )
 				return path;
+			else if ( f2 )
+				return ++f2;
+			else
+				return ++f;
 		}
 
 		// Get Function/Method name with only closest namespace
-		constexpr const char* get_function_name_closest_namespace( const char* file )
+		constexpr const char* const get_function_name_closest_namespace( const char* const function_name )
 		{
 			const char* f2 = nullptr;
 			const char* f = nullptr;
-			const char* c = file;
+			const char* c = function_name;
 			while ( *c != '\0' )
 			{
 				if ( *c == ':' )
@@ -104,12 +104,12 @@ namespace Utilities
 
 				++c;
 			}
-			if ( f2 )
+			if ( !f2 )
+				return function_name;
+			else if ( f2 )
 				return ++f2;
-			else if ( f )
-				return ++f;
 			else
-				return file;
+				return ++f;
 		}
 	}
 }
