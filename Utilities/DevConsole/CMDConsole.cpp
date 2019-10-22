@@ -1,48 +1,49 @@
 
-#include <CMDConsole.h>
+#include <Console/CMDConsole.h>
 #include <Windows.h>
 #include <cstdarg>
 #include <iostream>
+using namespace std::chrono_literals;
+//
+//
+//void Utilities::CMDConsole::Run()
+//{
+//	char buffer[256];
+//	while (running)
+//	{
+//		Getline(buffer, 256);
+//		commands.InterpretCommand(this, buffer);
+//
+//		std::this_thread::sleep_for(500ms);
+//	}
+//}
 
-void Utilities::CMDConsole::Run()
+
+Utilities::CMDConsole::CMDConsole()noexcept : Console_Backend()
 {
-	using namespace std::chrono_literals;
-
-	char buffer[256];
-	while (running)
-	{
-		Getline(buffer, 256);
-		commands.InterpretCommand(this, buffer);
-
-		std::this_thread::sleep_for(500ms);
-	}
+	start();
 }
 
 
-Utilities::CMDConsole::CMDConsole()
+Utilities::CMDConsole::~CMDConsole()noexcept
 {
 }
+//
+//int Utilities::CMDConsole::Initialize()
+//{
+//	running = true;
+//	myThread = std::thread(&CMDConsole::Run, this);
+//
+//	return 0;
+//}
+//
+//void Utilities::CMDConsole::Shutdown()
+//{
+//	running = false;
+//	myThread.join();
+//}
 
-
-Utilities::CMDConsole::~CMDConsole()
-{
-}
-
-int Utilities::CMDConsole::Initialize()
-{
-	running = true;
-	myThread = std::thread(&CMDConsole::Run, this);
-
-	return 0;
-}
-
-void Utilities::CMDConsole::Shutdown()
-{
-	running = false;
-	myThread.join();
-}
-
-void Utilities::CMDConsole::Show()
+void Utilities::CMDConsole::show()noexcept
 {
 	if (AllocConsole())
 	{
@@ -51,60 +52,45 @@ void Utilities::CMDConsole::Show()
 		freopen("conout$", "w", stderr);
 	}
 
-	Print("<----||Console Initialized||---->\n\n");
+	print("<----||Console Initialized||---->\n\n");
 
 }
 
-void Utilities::CMDConsole::Hide()
+void Utilities::CMDConsole::hide()noexcept
 {
 	FreeConsole();
 }
 
-bool Utilities::CMDConsole::IsVisible()
+bool Utilities::CMDConsole::is_visible()noexcept
 {
 	return false;
 }
 
-void Utilities::CMDConsole::Toggle()
+void Utilities::CMDConsole::set_visible( bool visible )noexcept
 {
 }
 
-void Utilities::CMDConsole::BeginFrame()
-{
-}
 
-void Utilities::CMDConsole::Frame()
-{
-}
-
-void Utilities::CMDConsole::EndFrame()
-{
-}
-
-void Utilities::CMDConsole::Clear()
-{
-}
-
-void Utilities::CMDConsole::PrintChannel(const char * line, const char * channel, ...)
+void Utilities::CMDConsole::print_w_channel( std::string_view channel, std::string_view format_string, ...)noexcept
 {
 	va_list args;
-	va_start(args, line);
-	printf("%s: ", channel);
-	vprintf(line, args);
+	va_start(args, format_string.data() );
+	printf("%s: ", channel );
+	vprintf( format_string.data(), args);
 	printf("\n");
 	fflush(stdout);
 	va_end(args);
 }
 
-void Utilities::CMDConsole::Print(const char * line, ...)
+void Utilities::CMDConsole::print( std::string_view format_string, ...)noexcept
 {
 	va_list args;
-	va_start(args, line);
-	vprintf(line, args);
+	va_start(args, format_string.data() );
+	vprintf( format_string.data(), args);
 	printf("\n");
 	fflush(stdout);
 	va_end(args);
-}
+}/*
 void Utilities::CMDConsole::VPrint(const char * line, va_list args)
 {
 	vprintf(line, args);
@@ -117,38 +103,21 @@ void Utilities::CMDConsole::VPrint(const char* channel, const char * line, va_li
 	vprintf(line, args);
 	printf("\n");
 	fflush(stdout);
+}*/
+
+const std::string Utilities::CMDConsole::get_input()noexcept
+{
+	std::string input;
+	std::getline( std::cin, input );
+	return input;
 }
 
-void Utilities::CMDConsole::Getline(std::string& string)
-{
-	std::getline(std::cin, string);
-}
-
-size_t Utilities::CMDConsole::Getline(const char * buffer, size_t size)
-{
-	std::string in;
-	std::getline(std::cin, in);
-	_ASSERT(in.size() + 1 <= size);
-	memcpy((void*)buffer, in.c_str(), in.size());
-	memcpy((void*)(buffer + in.size()), "\0", 1);
-	return in.size();
-}
-
-int Utilities::CMDConsole::AddCommand(const DevConsole_Command & commandFunction, char * name, char * description)
-{
-	return commands.AddCommand(commandFunction, name, description);
-}
-
-int Utilities::CMDConsole::RemoveCommand(const char* name)
-{
-	return 0;
-}
-
-void Utilities::CMDConsole::AddFrameCallback(const std::function<void()>& frameCallback)
-{
-}
-
-void * Utilities::CMDConsole::GetContext()
-{
-	return nullptr;
-}
+//size_t Utilities::CMDConsole::Getline(const char * buffer, size_t size)
+//{
+//	std::string in;
+//	std::getline(std::cin, in);
+//	_ASSERT(in.size() + 1 <= size);
+//	memcpy((void*)buffer, in.c_str(), in.size());
+//	memcpy((void*)(buffer + in.size()), "\0", 1);
+//	return in.size();
+//}

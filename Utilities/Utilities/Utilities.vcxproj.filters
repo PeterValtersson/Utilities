@@ -71,7 +71,4 @@
       <Filter>Memory</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source.cpp" />
-  </ItemGroup>
 </Project>

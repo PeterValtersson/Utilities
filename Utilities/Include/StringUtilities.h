@@ -3,15 +3,27 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-
+#include <algorithm>
 namespace Utilities
 {
 	namespace String
 	{
-
+		template<class _CONT>
+		const _CONT split( const std::string_view str, std::string_view token = " " )
+		{
+			_CONT container;
+			size_t offset = 0;
+			for ( auto f = str.find( token, offset ); f != std::string::npos; f = str.find( " ", offset ) )
+			{
+				if ( str[f] != token )
+					container.insert( std::end( container ), str.substr( offset, f ).data() );
+				offset = f + 1;
+			}
+			return container;
+		}
 		inline void string_binary_write( std::ostream& out, const std::string& str )
 		{
-			uint32_t size = static_cast<uint32_t>( str.size() );
+			uint32_t size = static_cast<uint32_t>(str.size());
 			out.write( (char*)&size, sizeof( size ) );
 			out.write( str.c_str(), size );
 		}
@@ -46,7 +58,7 @@ namespace Utilities
 		inline std::string replaceAll( std::string str, const std::string& from, const std::string& to )
 		{
 			size_t start_pos = 0;
-			while ( ( start_pos = str.find( from, start_pos ) ) != std::string::npos )
+			while ( (start_pos = str.find( from, start_pos )) != std::string::npos )
 			{
 				str.replace( start_pos, from.length(), to );
 				start_pos += to.length(); // Handles case where 'to' is a substring of 'from'

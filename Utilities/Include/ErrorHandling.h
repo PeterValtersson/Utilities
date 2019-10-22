@@ -8,7 +8,7 @@ namespace Utilities
 	struct Exception : public std::exception {
 		Exception( std::string&& what ) : _what( what ) { }
 		Exception( std::string&& what, std::string&& file, uint32_t line ) : _what( what + "\nFile: \n" + file + ".\nLine: " + std::to_string( line ) + "." ) { }
-		virtual const char* what() const
+		virtual const char* what() const override
 		{
 			return _what.c_str();
 		}
