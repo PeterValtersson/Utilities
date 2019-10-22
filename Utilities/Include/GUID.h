@@ -17,7 +17,7 @@ namespace Utilities
 
 		struct Hasher
 		{
-			inline HashValue operator()(const GUID& g) const
+			inline StringHash operator()(const GUID& g) const
 			{
 				return g.id;
 			}
@@ -25,7 +25,7 @@ namespace Utilities
 
 
 		GUID() : id(0) {};
-		GUID(HashValue idi) : id(idi) { };
+		GUID(StringHash idi) : id(idi) { };
 		GUID(const std::string& str) : id(hashString(str.c_str(), uint32_t(str.size()))) { };
 		template<std::size_t N>
 		constexpr GUID(const char(&a)[N]) : id(hashString(a, N - 1)) { };
@@ -34,12 +34,12 @@ namespace Utilities
 		bool operator!=(const GUID& other) const { return id != other.id; }
 		bool operator==(const GUID& other) const { return id == other.id; }
 		GUID& operator=(const GUID& other) { this->id = other.id; return *this; }
-		constexpr operator HashValue() { return id; };
+		constexpr operator StringHash() { return id; };
 		GUID operator+(const GUID &other) const
 		{
 			return id ^ other.id;
 		}
-		HashValue id;
+		StringHash id;
 	};
 
 

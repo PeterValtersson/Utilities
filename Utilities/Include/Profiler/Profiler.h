@@ -17,7 +17,7 @@ namespace Utilities
 	public:
 		Profiler();
 		DECLSPEC_PROFILER static std::shared_ptr<Profiler> get();
-		DECLSPEC_PROFILER void start( HashValue hash, const char* str, const char* file )noexcept;
+		DECLSPEC_PROFILER void start( StringHash hash, const char* str, const char* file )noexcept;
 		DECLSPEC_PROFILER void stop() noexcept;
 		const std::string to_str( int tabDepth )const noexcept;
 		
@@ -46,7 +46,7 @@ namespace Utilities
 
 	class Profiler_Start_Stop {
 	public:
-		Profiler_Start_Stop( std::shared_ptr<Profiler> profiler, HashValue hash, const char* str, const char* file ) : profiler( profiler )
+		Profiler_Start_Stop( std::shared_ptr<Profiler> profiler, StringHash hash, const char* str, const char* file ) : profiler( profiler )
 		{
 			_ASSERT( profiler );
 			profiler->start( hash, str, file );
@@ -61,7 +61,7 @@ namespace Utilities
 }
 
 #ifdef _ENABLE_PROFILER_
-#define PROFILE Utilities::Profiler_Start_Stop __FUNCTION__##_profile(Utilities::Profiler::get(), Utilities::EnsureHash<Utilities::hashString(__FUNCTION__)>::value, Utilities::String::get_function_name_closest_namespace(__FUNCTION__), Utilities::String::get_path_split_last2(__FILE__));
+#define PROFILE Utilities::Profiler_Start_Stop __FUNCTION__##_profile(Utilities::Profiler::get(), Utilities::EnsureComplileTime<Utilities::hashString(__FUNCTION__)>::value, Utilities::String::get_function_name_closest_namespace(__FUNCTION__), Utilities::String::get_path_split_last2(__FILE__));
 #define PROFILER_INIT Utilities::Profiler_Master::get()
 #else
 #define PROFILE

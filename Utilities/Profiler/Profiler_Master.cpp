@@ -96,8 +96,8 @@ const int Utilities::Profiler_Master::generate_tree(const std::string& folder, b
 		if (ret == 0)
 		{
 			std::stringstream cmd;
-			cmd << "del " << strFilename << ".dot";
-			system(cmd.str().c_str());
+			cmd << "del /Q /F " << strFilename << ".dot";
+			ret = system(cmd.str().c_str());
 		}
 		return ret;
 	}

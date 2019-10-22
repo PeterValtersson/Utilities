@@ -6,18 +6,18 @@
 struct Utilities::Profiler::ProfileEntry {
 	ProfileEntry( const char* str ) : name( str ), file( "" ), timesCalled( 0 ), parent( nullptr ), hash( 0 ), timeSpent( 0 )
 	{};
-	ProfileEntry( const char* str, HashValue hash, const char* file, std::shared_ptr<ProfileEntry> parent ) : name( str ), hash( hash ), file( file ), timesCalled( 0 ), parent( parent ), timeSpent( 0 )
+	ProfileEntry( const char* str, StringHash hash, const char* file, std::shared_ptr<ProfileEntry> parent ) : name( str ), hash( hash ), file( file ), timesCalled( 0 ), parent( parent ), timeSpent( 0 )
 	{};
 	std::string name;
 	std::string file;
-	HashValue hash;
+	StringHash hash;
 	size_t timesCalled;
 	std::shared_ptr<ProfileEntry> parent;
 	std::shared_ptr<ProfileEntry> child;
 	std::shared_ptr<ProfileEntry> nextChild;
 	std::chrono::nanoseconds timeSpent;
 	std::chrono::high_resolution_clock::time_point start;
-	Utilities::optional<std::shared_ptr<ProfileEntry>> findEntry( HashValue hash )noexcept
+	Utilities::optional<std::shared_ptr<ProfileEntry>> findEntry( StringHash hash )noexcept
 	{
 		std::shared_ptr<ProfileEntry> walker;
 		walker = child;
@@ -44,7 +44,7 @@ DECLSPEC_PROFILER std::shared_ptr<Utilities::Profiler> Utilities::Profiler::get(
 	return profiler;
 }
 
-void Utilities::Profiler::start( HashValue hash, const char* str, const char* file )noexcept
+void Utilities::Profiler::start( StringHash hash, const char* str, const char* file )noexcept
 {
 	current = *current->findEntry( hash ).or_else_this( [&]
 	{
