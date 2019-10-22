@@ -26,7 +26,7 @@ namespace UtilitiesTests
 	public:
 		TEST_METHOD(Profiler_Basic)
 		{
-			Utilities::Profiler_Master::get();
+			auto master = Utilities::Profiler_Master::get();
 			test_main();
 			auto handle = std::async(std::launch::async, []
 			{
@@ -47,8 +47,8 @@ namespace UtilitiesTests
 			handle.get();
 
 #ifdef _ENABLE_PROFILER_
-			Logger::WriteMessage(Utilities::Profiler_Master::get()->to_str().c_str());
-			Utilities::Profiler_Master::get()->generate_tree("Profiles", true);
+			Logger::WriteMessage( master->to_str().c_str());
+			master->generate_tree("Profiles", true);
 #endif
 		}
 

@@ -4,32 +4,32 @@
 #include <MonadicOptional.h>
 
 struct Utilities::Profiler::ProfileEntry {
-		ProfileEntry( const char* str ) : name( str ), file( "" ), timesCalled( 0 ), parent( nullptr ), hash( 0 ), timeSpent( 0 )
-		{};
-		ProfileEntry( const char* str, HashValue hash, const char* file, std::shared_ptr<ProfileEntry> parent ) : name( str ), hash( hash ), file( file ), timesCalled( 0 ), parent( parent ), timeSpent( 0 )
-		{};
-		std::string name;
-		std::string file;
-		HashValue hash;
-		size_t timesCalled;
-		std::shared_ptr<ProfileEntry> parent;
-		std::shared_ptr<ProfileEntry> child;
-		std::shared_ptr<ProfileEntry> nextChild;
-		std::chrono::nanoseconds timeSpent;
-		std::chrono::high_resolution_clock::time_point start;
-		Utilities::optional<std::shared_ptr<ProfileEntry>> findEntry( HashValue hash )noexcept
-		{
-			std::shared_ptr<ProfileEntry> walker;
-			walker = child;
-			while ( walker && walker->hash != hash )
-				walker = walker->nextChild;
-			if ( walker )
-				return walker;
-			return std::nullopt;
-		}
-	};
+	ProfileEntry( const char* str ) : name( str ), file( "" ), timesCalled( 0 ), parent( nullptr ), hash( 0 ), timeSpent( 0 )
+	{};
+	ProfileEntry( const char* str, HashValue hash, const char* file, std::shared_ptr<ProfileEntry> parent ) : name( str ), hash( hash ), file( file ), timesCalled( 0 ), parent( parent ), timeSpent( 0 )
+	{};
+	std::string name;
+	std::string file;
+	HashValue hash;
+	size_t timesCalled;
+	std::shared_ptr<ProfileEntry> parent;
+	std::shared_ptr<ProfileEntry> child;
+	std::shared_ptr<ProfileEntry> nextChild;
+	std::chrono::nanoseconds timeSpent;
+	std::chrono::high_resolution_clock::time_point start;
+	Utilities::optional<std::shared_ptr<ProfileEntry>> findEntry( HashValue hash )noexcept
+	{
+		std::shared_ptr<ProfileEntry> walker;
+		walker = child;
+		while ( walker && walker->hash != hash )
+			walker = walker->nextChild;
+		if ( walker )
+			return walker;
+		return std::nullopt;
+	}
+};
 
-Utilities::Profiler::Profiler() : root(std::make_shared<ProfileEntry>( "Root" )), current(root)
+Utilities::Profiler::Profiler() : root( std::make_shared<ProfileEntry>( "Root" ) ), current( root )
 {
 
 }
@@ -44,14 +44,14 @@ DECLSPEC_PROFILER std::shared_ptr<Utilities::Profiler> Utilities::Profiler::get(
 	return profiler;
 }
 
-void Utilities::Profiler::start(HashValue hash, const char* str, const char* file)noexcept
+void Utilities::Profiler::start( HashValue hash, const char* str, const char* file )noexcept
 {
-	current = *current->findEntry(hash).or_else_this([&]
-		{
-			auto newChild = std::make_shared<ProfileEntry>(str, hash, file, current);
-			addChild(current, newChild);
-			return newChild;
-		});
+	current = *current->findEntry( hash ).or_else_this( [&]
+	{
+		auto newChild = std::make_shared<ProfileEntry>( str, hash, file, current );
+		addChild( newChild );
+		return newChild;
+	} );
 
 	current->timesCalled++;
 	current->start = std::chrono::high_resolution_clock::now();
@@ -64,13 +64,13 @@ void Utilities::Profiler::stop() noexcept
 	current = current->parent;
 }
 
-const std::string Utilities::Profiler::to_str(int tabDepth)const noexcept
+const std::string Utilities::Profiler::to_str( int tabDepth )const noexcept
 {
 	std::stringstream ss;
 	auto walker = root->child;
-	while (walker)
+	while ( walker )
 	{
-		to_str(ss, walker, tabDepth);
+		to_str( ss, walker, tabDepth );
 		walker = walker->nextChild;
 	}
 	return ss.str();
@@ -141,7 +141,7 @@ void Utilities::Profiler::generate_tree( std::stringstream& ss, std::shared_ptr<
 	auto walker = node->child;
 	while ( walker )
 	{
-		generate_tree( ss, walker);
+		generate_tree( ss, walker );
 		ss << "\"" << node << "\":port1 -> \"" << walker << "\":port1" << std::endl;
 		walker = walker->nextChild;
 	}
