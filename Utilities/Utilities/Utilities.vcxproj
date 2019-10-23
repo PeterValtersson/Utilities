@@ -142,22 +142,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\ChunkyAllocator.h" />
-    <ClInclude Include="..\Include\CircularFIFO.h" />
-    <ClInclude Include="..\Include\CompileTimeString.h" />
-    <ClInclude Include="..\Include\Concurrent.h" />
-    <ClInclude Include="..\Include\ErrorHandling.h" />
-    <ClInclude Include="..\Include\Flags.h" />
-    <ClInclude Include="..\Include\FStreamHelpers.h" />
-    <ClInclude Include="..\Include\GUID.h" />
-    <ClInclude Include="..\Include\MemoryBlock.h" />
-    <ClInclude Include="..\Include\Memory_Literals.h" />
-    <ClInclude Include="..\Include\MonadicOptional.h" />
-    <ClInclude Include="..\Include\PathHelpers.h" />
-    <ClInclude Include="..\Include\Sofa.h" />
-    <ClInclude Include="..\Include\StringUtilities.h" />
-    <ClInclude Include="..\Include\ThreadPool.h" />
-    <ClInclude Include="..\Include\TimeUtilities.h" />
+    <ClInclude Include="..\Include\Utilities\CompileTimeString.h" />
+    <ClInclude Include="..\Include\Utilities\Concurrent.h" />
+    <ClInclude Include="..\Include\Utilities\ErrorHandling.h" />
+    <ClInclude Include="..\Include\Utilities\Flags.h" />
+    <ClInclude Include="..\Include\Utilities\FStreamHelpers.h" />
+    <ClInclude Include="..\Include\Utilities\GUID.h" />
+    <ClInclude Include="..\Include\Utilities\Memory\ChunkyAllocator.h" />
+    <ClInclude Include="..\Include\Utilities\Memory\MemoryBlock.h" />
+    <ClInclude Include="..\Include\Utilities\Memory\Memory_Literals.h" />
+    <ClInclude Include="..\Include\Utilities\Memory\Sofa.h" />
+    <ClInclude Include="..\Include\Utilities\MonadicOptional.h" />
+    <ClInclude Include="..\Include\Utilities\PathHelpers.h" />
+    <ClInclude Include="..\Include\Utilities\StringUtilities.h" />
+    <ClInclude Include="..\Include\Utilities\ThreadPool.h" />
+    <ClInclude Include="..\Include\Utilities\TimeUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

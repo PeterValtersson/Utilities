@@ -1,9 +1,9 @@
 #ifndef SE_DEV_CONSOLE_CONSOLE_H_
 #define SE_DEV_CONSOLE_CONSOLE_H_
 #include <string_view>
-#include <Console/Commands.h>
+#include <Utilities/Console/Commands.h>
 #include <memory>
-#include <Console/Console_Export.h>
+#include <Utilities/Console/Console_Export.h>
 
 namespace Utilities
 {

@@ -1,6 +1,6 @@
 #ifndef SE_DEV_CONSOLE_CMD_CONSOLE_H_
 #define SE_DEV_CONSOLE_CMD_CONSOLE_H_
-#include <Console/Console.h>
+#include <Utilities/Console/Console.h>
 #include <thread>
 namespace Utilities
 {

@@ -4,9 +4,6 @@
     <Filter Include="CompileTimeGUID">
       <UniqueIdentifier>{b9344cf4-7d84-48ac-b9f5-39602374e0db}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SofA">
-      <UniqueIdentifier>{46a5bc21-a0de-4e5e-a6c3-46e7bf7294a4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Other">
       <UniqueIdentifier>{e82ba3f4-256f-4e30-9383-fe33422b25df}</UniqueIdentifier>
     </Filter>
@@ -24,51 +21,50 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\CompileTimeString.h">
+    <ClInclude Include="..\Include\Utilities\Memory\Memory_Literals.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\Memory\MemoryBlock.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\Memory\Sofa.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\Memory\ChunkyAllocator.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\GUID.h">
       <Filter>CompileTimeGUID</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\GUID.h">
+    <ClInclude Include="..\Include\Utilities\CompileTimeString.h">
       <Filter>CompileTimeGUID</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Sofa.h">
-      <Filter>SofA</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Flags.h">
-      <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\PathHelpers.h">
-      <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\ThreadPool.h">
-      <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\CircularFIFO.h">
-      <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\MonadicOptional.h">
-      <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Concurrent.h">
+    <ClInclude Include="..\Include\Utilities\Concurrent.h">
       <Filter>Concurrency</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\StringUtilities.h">
-      <Filter>Other</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\ErrorHandling.h">
+    <ClInclude Include="..\Include\Utilities\ErrorHandling.h">
       <Filter>ErrorHandling</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\FStreamHelpers.h">
+    <ClInclude Include="..\Include\Utilities\FStreamHelpers.h">
       <Filter>FileInOutHelpers</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\TimeUtilities.h" />
-    <ClInclude Include="..\Include\ChunkyAllocator.h">
-      <Filter>Memory</Filter>
+    <ClInclude Include="..\Include\Utilities\PathHelpers.h">
+      <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\MemoryBlock.h">
-      <Filter>Memory</Filter>
+    <ClInclude Include="..\Include\Utilities\StringUtilities.h">
+      <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Memory_Literals.h">
-      <Filter>Memory</Filter>
+    <ClInclude Include="..\Include\Utilities\ThreadPool.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\TimeUtilities.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\MonadicOptional.h">
+      <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\Flags.h">
+      <Filter>Other</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../Include/MonadicOptional.h"
+#include <Utilities/MonadicOptional.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

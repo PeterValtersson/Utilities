@@ -4,8 +4,8 @@
 #include <string_view>
 #include <memory>
 #include <vector>
-#include "../CompileTimeString.h"
-#include "../StringUtilities.h"
+#include <Utilities/CompileTimeString.h>
+#include <Utilities/StringUtilities.h>
 #include <sstream>
 #include "Profile_Export.h"
 #include <chrono>
@@ -13,14 +13,14 @@ namespace Utilities
 {
 	/****************************** Profiler ************************************/
 	// One created for each thread.
-	class Profiler {
+	class Profiler{
 	public:
 		Profiler();
 		DECLSPEC_PROFILER static std::shared_ptr<Profiler> get();
 		DECLSPEC_PROFILER void start( StringHash hash, const char* str, const char* file )noexcept;
 		DECLSPEC_PROFILER void stop() noexcept;
 		const std::string to_str( int tabDepth )const noexcept;
-		
+
 		const std::string generate_tree()const noexcept;
 	private:
 		/**************************** ProfileEntry *******************************/
@@ -44,7 +44,7 @@ namespace Utilities
 		void to_str( std::stringstream& ss, const std::shared_ptr<ProfileEntry> entry, const int tabDepth )const noexcept;
 	};
 
-	class Profiler_Start_Stop {
+	class Profiler_Start_Stop{
 	public:
 		Profiler_Start_Stop( std::shared_ptr<Profiler> profiler, StringHash hash, const char* str, const char* file ) : profiler( profiler )
 		{

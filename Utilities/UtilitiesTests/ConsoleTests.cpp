@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../Include/Console/Console.h"
+#include <Utilities/Console/Console.h>
 #include <thread>
 #include <cstdarg>
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

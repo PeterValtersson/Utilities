@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../Include/StringUtilities.h"
+#include <Utilities/StringUtilities.h>
 #include <vector>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -69,5 +69,13 @@ namespace UtilitiesTests
 			Assert::AreEqual<std::string>( "Test", splits[0] );
 			Assert::AreEqual<std::string>( "asd", splits[1] );
 		}
+		/*TEST_METHOD( string_2_wstring )
+		{
+			Assert::AreEqual<std::wstring>( L"Test", Utilities::String::string_2_wstring( "Test" ) );
+		}
+		TEST_METHOD( wstring_2_string )
+		{
+			Assert::AreEqual<std::string>( "Test", Utilities::String::wstring_2_string( L"Test" ) );
+		}*/
 	};
 }

@@ -146,9 +146,9 @@
     <ClCompile Include="Profiler_Master.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\Profiler\Profiler.h" />
-    <ClInclude Include="..\Include\Profiler\Profiler_Master.h" />
-    <ClInclude Include="..\Include\Profiler\Profile_Export.h" />
+    <ClInclude Include="..\Include\Utilities\Profiler\Profiler.h" />
+    <ClInclude Include="..\Include\Utilities\Profiler\Profiler_Master.h" />
+    <ClInclude Include="..\Include\Utilities\Profiler\Profile_Export.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

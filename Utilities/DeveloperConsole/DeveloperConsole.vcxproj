@@ -150,9 +150,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\Console\Commands.h" />
-    <ClInclude Include="..\Include\Console\Console.h" />
-    <ClInclude Include="..\Include\Console\Console_Export.h" />
+    <ClInclude Include="..\Include\Utilities\Console\Commands.h" />
+    <ClInclude Include="..\Include\Utilities\Console\Console.h" />
+    <ClInclude Include="..\Include\Utilities\Console\Console_Export.h" />
     <ClInclude Include="CMDConsole.h" />
   </ItemGroup>
   <ItemGroup>

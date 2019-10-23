@@ -5,54 +5,35 @@
 #include <iomanip>
 #include <algorithm>
 #include <vector>
+#include <codecvt>
 
 namespace Utilities
 {
 	namespace String
 	{
 		template<class _Container = std::vector<std::string>>
-		const _Container split( const std::string_view str, std::string_view token = " " )
+		void split( const std::string_view str, _Container& container, std::string_view token = " " )
 		{
-			_Container container;
 			std::size_t current, offset = 0;
-		
-			for ( current = str.find( token ); current != std::string::npos; current = str.find( token, offset ))
+			for ( current = str.find( token ); current != std::string::npos; current = str.find( token, offset ) )
 			{
-				if (current != offset )
+				if ( current != offset )
 					container.insert( container.end(), std::string( str.substr( offset, current - offset ) ) );
-				offset = current + 1;			
+				offset = current + 1;
 			}
 			if ( offset != str.size() )
 				container.insert( container.end(), std::string( str.substr( offset, current - offset ) ) );
+		}
+
+		template<class _Container = std::vector<std::string>>
+		inline const _Container split( const std::string_view str, std::string_view token = " " )
+		{
+			_Container container;
+			split( str, container, token );
 			return container;
 		}
-		inline void string_binary_write( std::ostream& out, const std::string& str )
-		{
-			uint32_t size = static_cast<uint32_t>(str.size());
-			out.write( (char*)&size, sizeof( size ) );
-			out.write( str.c_str(), size );
-		}
-		inline void string_binary_read( std::istream& in, std::string& str )
-		{
-			uint32_t size = 0;
-			in.read( (char*)&size, sizeof( size ) );
-			char buffer[512];
-			in.read( buffer, size );
-			str = std::string( buffer, size );
-		}
-		namespace Binary_Operators
-		{
-			inline std::ostream& operator<<( std::ostream& out, const std::string& str )
-			{
-				string_binary_write( out, str );
-				return out;
-			}
-			inline std::istream& operator>>( std::istream& in, std::string& str )
-			{
-				string_binary_read( in, str );
-				return in;
-			}
-		}
+
+		
 		inline std::string tabs( int numTabs, std::string_view c = "\t" )
 		{
 			std::string tabs;
@@ -128,6 +109,27 @@ namespace Utilities
 			else
 				return ++f;
 		}
+
+		//inline std::wstring utf8_2_utf16( std::string_view str )
+		//{
+		//	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+		//	return conv.from_bytes( str.data() );
+		//}
+
+		//inline std::string utf16_2_utf8( std::wstring_view str )
+		//{
+		//	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+		//	return conv.to_bytes( str.data() );
+		//}
+		//inline std::wstring string_2_wstring( std::string_view str )
+		//{
+		//	return utf8_2_utf16( str );
+		//}
+		//inline std::string wstring_2_string( std::wstring_view str )
+		//{
+		//	Multi
+		//	return utf16_2_utf8( str );
+		//}
 	}
 }
 

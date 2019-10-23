@@ -2,7 +2,7 @@
 #define _UTILITIES_MEMORYBLOCK_H_
 namespace Utilities
 {
-	namespace Allocators
+	namespace Memory
 	{
 		struct MemoryBlock {
 			void* data;

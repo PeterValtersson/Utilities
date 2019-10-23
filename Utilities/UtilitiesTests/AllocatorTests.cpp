@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "../Include/ChunkyAllocator.h"
+#include <Utilities/Memory/ChunkyAllocator.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -11,7 +11,7 @@ namespace UtilitiesTests
 	public:
 		TEST_METHOD( AllocatorTests_Chunky )
 		{
-			Utilities::Allocators::ChunkyAllocator allocator( 1000 );
+			Utilities::Memory::ChunkyAllocator allocator( 1000 );
 			
 			auto m1 = allocator.allocate( 100 );
 			auto m2 = allocator.allocate( 10 );

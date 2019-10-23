@@ -1,9 +1,9 @@
 #pragma once
-#include "Profile_Export.h"
-#include "Profiler.h"
+#include <Utilities/Profiler/Profile_Export.h>
+#include <Utilities/Profiler/Profiler.h>
 #include <memory>
 #include <thread>
-#include "Concurrent.h"
+#include <Utilities/Concurrent.h>
 
 namespace Utilities
 {

@@ -18,13 +18,13 @@
     <ClInclude Include="CMDConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Console\Console.h">
+    <ClInclude Include="..\Include\Utilities\Console\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Console\Console_Export.h">
+    <ClInclude Include="..\Include\Utilities\Console\Console_Export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Console\Commands.h">
+    <ClInclude Include="..\Include\Utilities\Console\Commands.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

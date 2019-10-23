@@ -1,9 +1,9 @@
-#include <Profiler/Profiler.h>
-#include <Profiler/Profiler_Master.h>
-#include <StringUtilities.h>
-#include <MonadicOptional.h>
+#include <Utilities/Profiler/Profiler.h>
+#include <Utilities/Profiler/Profiler_Master.h>
+#include <Utilities/StringUtilities.h>
+#include <Utilities/MonadicOptional.h>
 
-struct Utilities::Profiler::ProfileEntry {
+struct Utilities::Profiler::ProfileEntry{
 	ProfileEntry( const char* str ) : name( str ), file( "" ), timesCalled( 0 ), parent( nullptr ), hash( 0 ), timeSpent( 0 )
 	{};
 	ProfileEntry( const char* str, StringHash hash, const char* file, std::shared_ptr<ProfileEntry> parent ) : name( str ), hash( hash ), file( file ), timesCalled( 0 ), parent( parent ), timeSpent( 0 )
@@ -110,19 +110,19 @@ void Utilities::Profiler::generate_tree( std::stringstream& ss, std::shared_ptr<
 	ss << "label = <<table border=\"0\" cellspacing = \"0\">" << std::endl;
 	double div = 0.0;
 	if ( node->parent && node->parent->hash != 0 )
-		div = ( (double)node->timeSpent.count() / node->parent->timeSpent.count() );
+		div = ((double)node->timeSpent.count() / node->parent->timeSpent.count());
 	ss << "<tr><td port=\"port1\" border=\"1\" bgcolor = \"#"
-		<< String::charToHex( uint8_t( 150 * div ) ) << String::charToHex( 50 ) << String::charToHex( uint8_t( 50 * ( 1.0 - div ) ) ) << "\">" << std::endl;
+		<< String::charToHex( uint8_t( 150 * div ) ) << String::charToHex( 50 ) << String::charToHex( uint8_t( 50 * (1.0 - div) ) ) << "\">" << std::endl;
 	ss << "<font color=\"white\">" << node->file << ": " << String::replaceAll( String::replaceAll( node->name, "<", "\\<" ), ">", "\\>" ) << "</font></td></tr>\n" << std::endl;
 
 	ss << "<tr><td border=\"1\">" << "Times Called: " << node->timesCalled << "</td></tr>" << std::endl;
-	ss << "<tr><td border=\"1\">" << "Time Spent(IC): " << std::chrono::duration_cast<timeunit_chrono>( node->timeSpent ).count() << " " << timeunit_str;
+	ss << "<tr><td border=\"1\">" << "Time Spent(IC): " << std::chrono::duration_cast<timeunit_chrono>(node->timeSpent).count() << " " << timeunit_str;
 	if ( node->parent && node->parent->hash != 0 )
 		ss << " " << div * 100 << " % of parents.</td></tr>" << std::endl;
 	else
 		ss << "</td></tr>" << std::endl;
 
-	ss << "<tr><td border=\"1\">" << "Time Spent(avg): " << std::chrono::duration_cast<timeunit_chrono>( node->timeSpent ).count() / double( node->timesCalled ) << " " << timeunit_str << "</td></tr>" << std::endl;
+	ss << "<tr><td border=\"1\">" << "Time Spent(avg): " << std::chrono::duration_cast<timeunit_chrono>(node->timeSpent).count() / double( node->timesCalled ) << " " << timeunit_str << "</td></tr>" << std::endl;
 
 	if ( node->child )
 	{
@@ -133,7 +133,7 @@ void Utilities::Profiler::generate_tree( std::stringstream& ss, std::shared_ptr<
 			timeEC -= walker->timeSpent;
 			walker = walker->nextChild;
 		}
-		ss << "<tr><td border=\"1\">" << "Time Spent(EC): " << std::chrono::duration_cast<timeunit_chrono>( timeEC ).count() << " " << timeunit_str << "</td></tr>" << std::endl;
+		ss << "<tr><td border=\"1\">" << "Time Spent(EC): " << std::chrono::duration_cast<timeunit_chrono>(timeEC).count() << " " << timeunit_str << "</td></tr>" << std::endl;
 	}
 
 	ss << "</table>>]" << std::endl;
@@ -153,8 +153,8 @@ void Utilities::Profiler::generate_tree( std::stringstream& ss, std::shared_ptr<
 void Utilities::Profiler::to_str( std::stringstream& ss, std::shared_ptr<ProfileEntry> entry, int tabDepth )const noexcept
 {
 	ss << String::tabs( tabDepth ) << entry->name << ": Times called: " << entry->timesCalled
-		<< " Time spent: " << std::chrono::duration_cast<std::chrono::nanoseconds>( entry->timeSpent ).count()
-		<< " Average: " << std::chrono::duration_cast<std::chrono::nanoseconds>( entry->timeSpent ).count() / entry->timesCalled << std::endl;
+		<< " Time spent: " << std::chrono::duration_cast<std::chrono::nanoseconds>(entry->timeSpent).count()
+		<< " Average: " << std::chrono::duration_cast<std::chrono::nanoseconds>(entry->timeSpent).count() / entry->timesCalled << std::endl;
 	auto walker = entry->child;
 	while ( walker )
 	{

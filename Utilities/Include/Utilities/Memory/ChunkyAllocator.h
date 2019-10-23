@@ -7,7 +7,7 @@
 //#include <stack>
 #include <random>
 #include <map>
-#include "ErrorHandling.h"
+#include <Utilities/ErrorHandling.h>
 #include "MemoryBlock.h"
 #include <sstream>
 #include <functional>
@@ -15,7 +15,7 @@
 
 namespace Utilities
 {
-	namespace Allocators
+	namespace Memory
 	{
 		struct InvalidHandle : public Utilities::Exception {
 			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
@@ -116,7 +116,7 @@ namespace Utilities
 			void free( Handle handle )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
-					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::free" );
+					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::free" );
 				else
 				{
 					auto index = findIndex->second;
@@ -171,7 +171,7 @@ namespace Utilities
 			void use_data( Handle handle, const std::function<void( const MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
-					throw InvalidHandle( "Utilities::Allocators::ChunkyAllocator::getData" );
+					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::getData" );
 				else
 				{
 					auto index = findIndex->second;

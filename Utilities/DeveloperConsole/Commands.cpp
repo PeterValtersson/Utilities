@@ -1,10 +1,10 @@
-#include <Console/Commands.h>
+#include <Utilities/Console/Commands.h>
 #include <Windows.h>
 #include <cstdarg>
-#include <Console/Console.h>
+#include <Utilities/Console/Console.h>
 #include <algorithm>
 #include <string>
-#include <StringUtilities.h>
+#include <Utilities/StringUtilities.h>
 
 const size_t hash_string( std::string_view str )
 {
