@@ -1,11 +1,13 @@
-#ifndef SE_DEV_CONSOLE_ICONSOLE_BACKEND_H_
-#define SE_DEV_CONSOLE_ICONSOLE_BACKEND_H_
+#ifndef SE_DEV_CONSOLE_CONSOLE_H_
+#define SE_DEV_CONSOLE_CONSOLE_H_
 #include <string_view>
-#include "Commands.h"
+#include <Console/Commands.h>
+#include <memory>
+#include <Console/Console_Export.h>
+
 namespace Utilities
 {
-	
-	class Console_Backend {
+	class Console {
 	public:
 		template<class T>
 		struct Default_Converter{
@@ -15,14 +17,12 @@ namespace Utilities
 			}
 		};
 
-		virtual ~Console_Backend()noexcept
+		virtual ~Console()noexcept
 		{};
 
 		virtual void show()noexcept = 0;
 		virtual void hide()noexcept = 0;
 		virtual bool is_visible()noexcept = 0;
-
-		virtual void set_visible( bool visible )noexcept = 0;
 
 		/**
 		* @brief	Some helpers when drawing the console. You may use all or none.
@@ -63,7 +63,7 @@ namespace Utilities
 		*
 		* Example code:
 		* @code
-		* console->add_command([](Console_Backend& backend, const std::vector<const std::string>& args)
+		* console->add_command([](Console& backend, const std::vector<const std::string>& args)
 		* {
 		*  backend.print("Hello World!");
 		* },
@@ -80,14 +80,23 @@ namespace Utilities
 			commands.remove_command( name );
 		}
 	protected:
-		Console_Backend()noexcept
+		Console()noexcept : running( true )
 		{}
-		Console_Backend( const Console_Backend& other ) = delete;
-		Console_Backend( const Console_Backend&& other ) = delete;
-		Console_Backend& operator=( const Console_Backend& other ) = delete;
+		Console( const Console& other ) = delete;
+		Console( const Console&& other ) = delete;
+		Console& operator=( const Console& other ) = delete;
 
+		virtual void run()
+		{
+			while ( running )
+				commands.parse_and_execute_command( this, get_input() );
+		}
+		bool running;
 		Commands commands;
 	};
+
+
+	DECLSPEC_CONSOLE std::shared_ptr<Console> create_cmd_console();
 }
 
 #endif

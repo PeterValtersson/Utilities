@@ -1,24 +1,14 @@
-#ifndef SE_DEV_CONSOLE_CONSOLE_H_
-#define SE_DEV_CONSOLE_CONSOLE_H_
+#ifndef SE_DEV_CONSOLE_COMMANDS_H_
+#define SE_DEV_CONSOLE_COMMANDS_H_
 
 #include <map>
 #include <functional>
 #include <string>
 namespace Utilities
 {
-	/**
-	*
-	* @brief This is a class that you can use for a command console.
-	*
-	* @details Initialize console with Console::Initialize and give it a backend.
-	*
-	* @sa IConsoleBackend
-	*
-	**/
+	class Console;
 
-	class Console_Backend;
-
-	typedef std::function<void( Console_Backend & backend, const std::vector<const std::string> & args )> Command_Lambda;
+	typedef std::function<void( Console* const console, const std::vector<std::string> & args )> Command_Lambda;
 	class Commands{
 	public:
 		struct Command_Structure{
@@ -46,7 +36,7 @@ namespace Utilities
 		*
 		* Example code:
 		* @code
-		* console->add_command([](Console_Backend& backend, const std::vector<const std::string>& args)
+		* console->add_command([](Console& backend, const std::vector<const std::string>& args)
 		* {
 		*  backend.print("Hello World!");
 		* },
@@ -57,16 +47,11 @@ namespace Utilities
 		void add_command( const std::string& name, const std::string& description, const Command_Lambda& lambda );
 		void remove_command( std::string_view name );
 
-		void parse_and_execute_command( std::string_view command_line_to_parse )noexcept;
+		void parse_and_execute_command( Console* const console, std::string_view command_line_to_parse )noexcept;
 
-		const std::map<size_t, Command_Structure> get_commands();
+		const std::map<size_t, Command_Structure>& get_commands();
 	private:
-
-
 		std::map<size_t, Command_Structure> commands;
-
-
-		void ParseCommandString( char* command, int* argc, char** argv );
 	};
 
 }

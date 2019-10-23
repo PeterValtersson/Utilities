@@ -4,19 +4,21 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <vector>
+
 namespace Utilities
 {
 	namespace String
 	{
-		template<class _CONT>
-		const _CONT split( const std::string_view str, std::string_view token = " " )
+		template<class _Container = std::vector<std::string>>
+		const _Container split( const std::string_view str, std::string_view token = " " )
 		{
-			_CONT container;
+			_Container container;
 			size_t offset = 0;
 			for ( auto f = str.find( token, offset ); f != std::string::npos; f = str.find( " ", offset ) )
 			{
-				if ( str[f] != token )
-					container.insert( std::end( container ), str.substr( offset, f ).data() );
+				if ( f != offset )
+					container.insert( container.end(), std::string( str.substr( offset, f - offset ) ) );
 				offset = f + 1;
 			}
 			return container;

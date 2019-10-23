@@ -1,7 +1,6 @@
 #ifndef SE_DEV_CONSOLE_CMD_CONSOLE_H_
 #define SE_DEV_CONSOLE_CMD_CONSOLE_H_
-#include <Console/Console_Backend.h>
-#include <mutex>
+#include <Console/Console.h>
 #include <thread>
 namespace Utilities
 {
@@ -12,7 +11,7 @@ namespace Utilities
 	* @warning Show/Hide functions may not function as intended.
 	*
 	**/
-	class CMDConsole : public Console_Backend
+	class CMDConsole : public Console
 	{
 	public:
 		CMDConsole()noexcept;
@@ -21,8 +20,7 @@ namespace Utilities
 		void show()noexcept override;
 		void hide()noexcept override;
 		bool is_visible()noexcept  override;
-		void set_visible( bool visible )noexcept  override;
-	
+
 		void clear()noexcept  override;
 
 
@@ -33,12 +31,8 @@ namespace Utilities
 
 		const std::string get_input()noexcept override;
 	private:
-		void Run();
-		bool running;
-
-		std::thread myThread;
-
-		Commands commands;
+		std::thread myThread;	
+		FILE* stream;
 	};
 }
 #endif //SE_DEV_CONSOLE_CMD_CONSOLE_H_
