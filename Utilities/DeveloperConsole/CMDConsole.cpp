@@ -47,9 +47,8 @@ void Utilities::CMDConsole::clear() noexcept
 
 void Utilities::CMDConsole::print_w_channel( std::string_view channel, std::string_view format_string, ...)noexcept
 {
-	auto s = format_string.data();
 	va_list args;
-	va_start(args, s );
+	va_start(args, format_string );
 	printf("%s: ", channel.data() );
 	vprintf( format_string.data(), args);
 	printf("\n");
@@ -59,9 +58,8 @@ void Utilities::CMDConsole::print_w_channel( std::string_view channel, std::stri
 
 void Utilities::CMDConsole::print( std::string_view format_string, ...)noexcept
 {
-	auto s = format_string.data();
 	va_list args;
-	va_start(args, s );
+	va_start(args, format_string );
 	vprintf( format_string.data(), args);
 	printf("\n");
 	fflush(stdout);

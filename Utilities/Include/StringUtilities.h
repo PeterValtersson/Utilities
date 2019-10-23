@@ -14,13 +14,16 @@ namespace Utilities
 		const _Container split( const std::string_view str, std::string_view token = " " )
 		{
 			_Container container;
-			size_t offset = 0;
-			for ( auto f = str.find( token, offset ); f != std::string::npos; f = str.find( " ", offset ) )
+			std::size_t current, offset = 0;
+		
+			for ( current = str.find( token ); current != std::string::npos; current = str.find( token, offset ))
 			{
-				if ( f != offset )
-					container.insert( container.end(), std::string( str.substr( offset, f - offset ) ) );
-				offset = f + 1;
+				if (current != offset )
+					container.insert( container.end(), std::string( str.substr( offset, current - offset ) ) );
+				offset = current + 1;			
 			}
+			if ( offset != str.size() )
+				container.insert( container.end(), std::string( str.substr( offset, current - offset ) ) );
 			return container;
 		}
 		inline void string_binary_write( std::ostream& out, const std::string& str )

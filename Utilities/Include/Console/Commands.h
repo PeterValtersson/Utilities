@@ -4,11 +4,14 @@
 #include <map>
 #include <functional>
 #include <string>
+#include <Console/Console_Export.h>
+
 namespace Utilities
 {
 	class Console;
 
-	typedef std::function<void( Console* const console, const std::vector<std::string> & args )> Command_Lambda;
+	using Args = const std::vector<std::string>&;
+	using Command_Lambda = std::function<void( Console* const console, Args args )>;
 	class Commands{
 	public:
 		struct Command_Structure{
@@ -19,8 +22,8 @@ namespace Utilities
 
 		static const int MAX_ARGUMENTS = 20;
 
-		Commands();
-		~Commands();
+		DECLSPEC_CONSOLE Commands();
+		DECLSPEC_CONSOLE ~Commands();
 
 		/**
 		* @brief	Add a command that can be called from the console.
@@ -44,12 +47,12 @@ namespace Utilities
 		* "prints \"Hello World!\" to the console");
 		* @endcode
 		*/
-		void add_command( const std::string& name, const std::string& description, const Command_Lambda& lambda );
-		void remove_command( std::string_view name );
+		DECLSPEC_CONSOLE void add_command( const std::string& name, const std::string& description, const Command_Lambda& lambda );
+		DECLSPEC_CONSOLE void remove_command( std::string_view name );
 
-		void parse_and_execute_command( Console* const console, std::string_view command_line_to_parse )noexcept;
+		DECLSPEC_CONSOLE void parse_and_execute_command( Console* const console, std::string_view command_line_to_parse )noexcept;
 
-		const std::map<size_t, Command_Structure>& get_commands();
+		DECLSPEC_CONSOLE const std::map<size_t, Command_Structure>& get_commands();
 	private:
 		std::map<size_t, Command_Structure> commands;
 	};

@@ -173,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AllocatorTests.cpp" />
+    <ClCompile Include="ConsoleTests.cpp" />
     <ClCompile Include="MonadicOptionalTest.cpp" />
     <ClCompile Include="ProfilerTests.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -185,6 +186,9 @@
     <ClCompile Include="StringTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DeveloperConsole\DeveloperConsole.vcxproj">
+      <Project>{d7351e83-14ab-4cf0-9323-35f85179e939}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\ProfileDLLTest\ProfileDLLTest.vcxproj">
       <Project>{e499d478-7a85-463e-934a-57ae94880b29}</Project>
     </ProjectReference>
