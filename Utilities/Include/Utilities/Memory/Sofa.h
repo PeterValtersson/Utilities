@@ -12,17 +12,30 @@ namespace Utilities
 {
 	namespace Memory
 	{
+		template<class T>
+		struct make_ptr_t{
+			typedef T* type;
+		};
 
-		template<class Key, class KeyHash, class... Types>
-		class SofA{
+		template <class Key, class KeyHash, bool Enable, typename... Types>
+		class SofA_Imp;
+
+
+		template <class Key, class KeyHash, typename... Types>
+		class SofA_Imp<Key, KeyHash, true, Types...>{
 		public:
-			SofA( std::size_t size = 64 ) : data( nullptr ), numEntries( 0 ), maxEntries( size ), byteWidth( 0 )
+			constexpr static size_t num_types = sizeof...(Types);
+			constexpr static size_t num_types_p_key = sizeof...(Types) + 1;
+			typedef std::tuple<typename make_ptr_t<Types>::type...> type_ptrs;
+			typedef std::tuple<typename make_ptr_t<Key>::type, typename make_ptr_t<Types>::type...> type_ptrs_p_key;
+
+			SofA_Imp( std::size_t size = 64 ) : data( nullptr ), numEntries( 0 ), maxEntries( size ), byteWidth( 0 )
 			{
 				for ( auto&& v : typeSizes )
 					byteWidth += v;
 				Allocate( maxEntries );
 			}
-			~SofA()
+			~SofA_Imp()
 			{
 				operator delete(data);
 			}
@@ -89,6 +102,8 @@ namespace Utilities
 				std::get<N>( typePointers )[index] = t;
 			}
 
+
+
 			template<std::size_t N>
 			inline auto& get( std::size_t index )
 			{
@@ -148,7 +163,7 @@ namespace Utilities
 			{
 				std::size_t newmaxEntries = newSize;
 				void* newData = operator new(newmaxEntries * byteWidth);
-				type newTypePointers;
+				type_ptrs_p_key newTypePointers;
 
 				std::get<0>( newTypePointers ) = (Key*)newData;
 				setupPointers<1, Key, Types...>( newTypePointers, newmaxEntries );
@@ -209,14 +224,64 @@ namespace Utilities
 				Binary_Stream::write( file, data, totalSize );
 			}
 
+			class Entry_Ref{
+			public:
+				friend class SofA_Imp;
+				template<std::size_t N>
+				inline auto& get()
+				{
+					return *std::get<N>( ptrs );
+				}
+				bool operator==( const Entry_Ref& r )const
+				{
+					return equal( r.ptrs );
+				}
+			private:
+				Entry_Ref( type_ptrs_p_key& tp, size_t index )
+				{
+					init_test_ptrs<0>( ptrs, tp, index );
+				}
+
+				type_ptrs_p_key ptrs;
+
+				template<std::size_t I = 0>
+				inline typename std::enable_if<I == num_types_p_key, void>::type
+					init_test_ptrs( type_ptrs_p_key& ptrs, type_ptrs_p_key& tp, std::size_t from )
+				{}
+				template<std::size_t I = 0>
+				inline typename std::enable_if < I < num_types_p_key, void>::type
+					init_test_ptrs( type_ptrs_p_key & ptrs, type_ptrs_p_key & tp, std::size_t from )
+				{
+					std::get<I>( ptrs ) = &std::get<I>( tp )[from];
+					init_test_ptrs<I + 1>( ptrs, tp, from );
+				}
+
+				template<std::size_t I = 0>
+				inline typename std::enable_if<I == num_types_p_key, bool>::type
+					equal( type_ptrs_p_key& tp )const
+				{
+					return true;
+				}
+				template<std::size_t I = 0>
+				inline typename std::enable_if < I < num_types_p_key, bool>::type
+					equal( type_ptrs_p_key & r )const
+				{
+					return *std::get<I>( ptrs ) == *std::get<I>( r ) && equal<I + 1>( r );
+				}
+			};
+
+			const Entry_Ref get_entry( size_t index )
+			{
+				return { typePointers, index };
+			}
 		private:
-				// Parameter pack pointer converter
-			template<class T> struct make_ptr_t{
+			// Parameter pack pointer converter
+
+
+			/*template<class T>
+			struct make_ptr_t<T*>{
 				typedef T* type;
-			};
-			template<class T> struct make_ptr_t<T*>{
-				typedef T* type;
-			};
+			};*/
 
 
 			uint32_t version = 000001;
@@ -226,13 +291,13 @@ namespace Utilities
 			std::size_t byteWidth;
 
 			const std::array<std::size_t, sizeof...(Types) + 1> typeSizes{ sizeof( Key ), sizeof( Types )... };
-			typedef std::tuple<typename make_ptr_t<Key>::type, typename make_ptr_t<Types>::type...> type;
-			type typePointers;
+
+			type_ptrs_p_key typePointers;
 
 			std::unordered_map<Key, std::size_t, KeyHash> map;
 
 
-			
+
 
 			// Goes through the tuple and sets up the pointers for each attribute in the one allocation block. ( The stop recursion template)
 			template<std::size_t I = 0, typename... Types>
@@ -335,6 +400,11 @@ namespace Utilities
 			}
 
 		};
+
+		template <class Key, class KeyHash, typename... Types>
+		using SofA = SofA_Imp<Key, KeyHash, std::conjunction<std::is_trivially_copyable<Types>...>::value, Types...>;
+
+
 
 		template<class Key, class KeyHash, class... Types>
 		class SofV{

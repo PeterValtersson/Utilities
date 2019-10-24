@@ -35,9 +35,6 @@
     <ClCompile Include="ProfilerTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AllocatorTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StringTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -17,19 +17,21 @@ namespace Utilities
 {
 	namespace Memory
 	{
-		struct InvalidHandle : public Utilities::Exception {
-			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where ) { }
+		struct InvalidHandle : public Utilities::Exception{
+			InvalidHandle( const std::string& where ) : Utilities::Exception( "Invalid handle in: " + where )
+			{}
 		};
-		struct OutOfMemory : public Utilities::Exception {
-			OutOfMemory() : Utilities::Exception( "Ran out of memory when trying to allocate" ) { }
+		struct OutOfMemory : public Utilities::Exception{
+			OutOfMemory() : Utilities::Exception( "Ran out of memory when trying to allocate" )
+			{}
 		};
 
 		using Handle = size_t;
 
 
-		class ChunkyAllocator {
+		class ChunkyAllocator{
 		public:
-			ChunkyAllocator( uint32_t numblocks )
+			ChunkyAllocator( const uint32_t numblocks )
 			{
 				_numfreeblocks = _numblocks = numblocks;
 				_pool = new char[_numblocks * _blocksize];
@@ -43,14 +45,14 @@ namespace Utilities
 			}
 
 
-			Handle allocate( std::size_t size )
+			const Handle allocate( const std::size_t size )
 			{
 				// This first part finds a suitable allocation slot
 
 				//_allocLock.lock();
 
 				FreeChunk* walker = _root->next;
-				auto actualSizeNeeded = size + sizeof( size_t )*2;
+				auto actualSizeNeeded = size + sizeof( size_t ) * 2;
 				size_t numberOfNeededblocks = actualSizeNeeded / _blocksize;
 				if ( actualSizeNeeded % _blocksize )
 					numberOfNeededblocks++;
@@ -113,7 +115,7 @@ namespace Utilities
 
 				return handle;
 			}
-			void free( Handle handle )
+			void free( const Handle handle )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::free" );
@@ -168,18 +170,18 @@ namespace Utilities
 				}
 			}
 
-			void use_data( Handle handle, const std::function<void( const MemoryBlock )>& callback )
+			void use_data( const Handle handle, const std::function<void( const MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::getData" );
 				else
 				{
 					auto index = findIndex->second;
-					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t )*2, allocatedChunks[index].chunk->used_size, allocatedChunks[index].chunk->blocks*_blocksize - sizeof( size_t )*2 } );
+					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t ) * 2, allocatedChunks[index].chunk->used_size, allocatedChunks[index].chunk->blocks * _blocksize - sizeof( size_t ) * 2 } );
 				}
 			}
 
-			bool defrag()
+			const bool defrag()
 			{
 
 				//std::uniform_int_distribution<size_t> distribution( 0U, allocatedChunks.size() - 1U );
@@ -278,13 +280,22 @@ namespace Utilities
 				return false;
 			}
 
-			static size_t blocksize( void ) { return _blocksize; }
+			static const size_t blocksize( void )
+			{
+				return _blocksize;
+			}
 
 
-			size_t freeMemory( void ) const { return _numfreeblocks * _blocksize; }
-			size_t maxMemory( void ) const { return _numblocks * _blocksize; }
+			const size_t freeMemory( void ) const
+			{
+				return _numfreeblocks * _blocksize;
+			}
+			const size_t maxMemory( void ) const
+			{
+				return _numblocks * _blocksize;
+			}
 
-			std::string strOccupancy( void )
+			const std::string strOccupancy( void )
 			{
 				std::stringstream ss;
 				if ( _numblocks == 0 )
@@ -323,19 +334,19 @@ namespace Utilities
 			}
 
 
-			bool isValid( Handle handle )const
+			const bool isValid( const Handle handle )const
 			{
 				return handleToIndex.find( handle ) != handleToIndex.end();
 			}
 		private:
-			struct FreeChunk {
+			struct FreeChunk{
 				size_t blocks = 0;
 				size_t used_size = 0;
-				FreeChunk * previous = nullptr;
+				FreeChunk* previous = nullptr;
 				FreeChunk* next = nullptr;
 			};
 
-			struct AllocatedChunkInfo {
+			struct AllocatedChunkInfo{
 				FreeChunk* chunk;
 				size_t handle;
 			};
