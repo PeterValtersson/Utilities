@@ -169,18 +169,18 @@ namespace Utilities
 					map[std::get<0>( typePointers )[i]] = i;
 			}
 
-			template <class ST>
-			int readFromFile( ST& file )
+
+			int readFromFile( std::istream& file )
 			{
-				Binary::read( file, version );
+				Binary_Stream::read( file, version );
 
 				std::size_t readByteWidth;
-				Binary::read( file, readByteWidth );
+				Binary_Stream::read( file, readByteWidth );
 				if ( this->byteWidth != readByteWidth )
 					return -1;
 
 				std::size_t totalSize;
-				Binary::read( file, totalSize );
+				Binary_Stream::read( file, totalSize );
 
 				if ( totalSize % byteWidth != 0 )
 					return -2;
@@ -189,24 +189,24 @@ namespace Utilities
 				Allocate( maxEntries );
 
 				std::size_t numEntires;
-				Binary::read( file, numEntires );
+				Binary_Stream::read( file, numEntires );
 
-				Binary::read( file, data, totalSize );
+				Binary_Stream::read( file, data, totalSize );
 
 				Reinit( numEntires );
 
 				return 0;
 			}
-			template <class ST>
-			void writeToFile( ST& file )
+
+			void writeToFile( std::ostream& file )
 			{
 				//shrink_to_fit();
 				auto totalSize = GetMemoryUsage();
-				Binary::write( file, version );
-				Binary::write( file, byteWidth );
-				Binary::write( file, totalSize );
-				Binary::write( file, numEntries );
-				Binary::write( file, data, totalSize );
+				Binary_Stream::write( file, version );
+				Binary_Stream::write( file, byteWidth );
+				Binary_Stream::write( file, totalSize );
+				Binary_Stream::write( file, numEntries );
+				Binary_Stream::write( file, data, totalSize );
 			}
 
 		private:
