@@ -210,6 +210,15 @@ namespace Utilities
 			}
 
 		private:
+				// Parameter pack pointer converter
+			template<class T> struct make_ptr_t{
+				typedef T* type;
+			};
+			template<class T> struct make_ptr_t<T*>{
+				typedef T* type;
+			};
+
+
 			uint32_t version = 000001;
 			void* data;
 			std::size_t numEntries;
@@ -223,14 +232,7 @@ namespace Utilities
 			std::unordered_map<Key, std::size_t, KeyHash> map;
 
 
-				// Parameter pack pointer converter
-			template<class T> struct make_ptr_t{
-				typedef T* type;
-			};
-			template<class T> struct make_ptr_t<T*>{
-				typedef T* type;
-			};
-
+			
 
 			// Goes through the tuple and sets up the pointers for each attribute in the one allocation block. ( The stop recursion template)
 			template<std::size_t I = 0, typename... Types>

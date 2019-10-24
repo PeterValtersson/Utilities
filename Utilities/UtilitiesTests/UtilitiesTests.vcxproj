@@ -174,6 +174,7 @@
   <ItemGroup>
     <ClCompile Include="AllocatorTests.cpp" />
     <ClCompile Include="ConsoleTests.cpp" />
+    <ClCompile Include="MemoriesTests.cpp" />
     <ClCompile Include="MonadicOptionalTest.cpp" />
     <ClCompile Include="ProfilerTests.cpp" />
     <ClCompile Include="stdafx.cpp">
