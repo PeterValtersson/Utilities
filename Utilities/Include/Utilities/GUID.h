@@ -12,15 +12,12 @@ namespace Utilities
 				return lhs.id < rhs.id;
 			}
 		};
-
 		struct Hasher{
 			constexpr StringHash operator()( const GUID& g ) const
 			{
 				return g.id;
 			}
 		};
-
-
 		GUID() : id( 0 )
 		{};
 		GUID( const StringHash idi )noexcept : id( idi )

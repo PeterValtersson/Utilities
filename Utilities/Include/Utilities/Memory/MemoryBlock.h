@@ -30,6 +30,11 @@ namespace Utilities
 			{
 				stream.read( (char*)data, used_size );
 			}
+			template<class T>
+			const T& peek()const
+			{
+				return *(T*)data;
+			}
 		private:
 			void* const data;
 
