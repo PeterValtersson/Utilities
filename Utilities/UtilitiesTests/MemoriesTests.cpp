@@ -16,6 +16,11 @@ public:
 	TEST_METHOD( Sofa_Create )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
+			Utilities::GUID> s;
+	}
+	TEST_METHOD( Sofa_Create )
+	{
+		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
 			double> s;
 		s.add( "First", 1, 2.3 );

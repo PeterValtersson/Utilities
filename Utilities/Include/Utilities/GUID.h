@@ -30,10 +30,6 @@ namespace Utilities
 		template<std::size_t N>
 		constexpr GUID( const char( &a )[N] )noexcept : id( hashString( a ) )
 		{};
-		GUID( const GUID& other )noexcept : id( other.id )
-		{}
-		GUID( const GUID&& other )noexcept : id( other.id )
-		{}
 		constexpr bool operator!=( const GUID& other )const noexcept
 		{
 			return id != other.id;
@@ -41,10 +37,6 @@ namespace Utilities
 		constexpr bool operator==( const GUID& other )const noexcept
 		{
 			return id == other.id;
-		}
-		constexpr GUID& operator=( const GUID& other )noexcept
-		{
-			this->id = other.id; return *this;
 		}
 		GUID& operator=( std::string_view str )noexcept
 		{
