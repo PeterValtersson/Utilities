@@ -11,12 +11,13 @@ namespace fs = std::filesystem;
 
 namespace UtilitiesTests
 {
-	TEST_CLASS( MemoryTests ){
+	TEST_CLASS( MemoryTests ) {
 public:
-	TEST_METHOD( Sofa_Create )
+	TEST_METHOD( Sofa_Create_GUID )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			Utilities::GUID> s;
+		s.add( "First", "test" );
 	}
 	TEST_METHOD( Sofa_Create )
 	{
@@ -107,18 +108,18 @@ public:
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
 			bool> s;
-		
-		for ( int i = 0; i < 100000; i++ )
+
+		for (int i = 0; i < 100000; i++)
 		{
 			s.add( i, i, i % 2 );
 		}
 
-		for ( int i = 0; i < 100000; i++ )
+		for (int i = 0; i < 100000; i++)
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
-			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>( )[i].id );
+			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
 			Assert::AreEqual( i, s.peek<1>()[i] );
-			Assert::AreEqual<bool>( i%2, s.peek<2>()[i] );
+			Assert::AreEqual<bool>( i % 2, s.peek<2>()[i] );
 		}
 	}
 	TEST_METHOD( Sofa_Add_Many_Resize_After )
@@ -127,12 +128,12 @@ public:
 			int,
 			bool> s;
 
-		for ( int i = 0; i < 100000; i++ )
+		for (int i = 0; i < 100000; i++)
 		{
 			s.add( i, i, i % 2 );
 		}
 		s.Allocate( 200000 );
-		for ( int i = 0; i < 100000; i++ )
+		for (int i = 0; i < 100000; i++)
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -147,12 +148,12 @@ public:
 			bool> s;
 
 		s.Allocate( 100000 );
-		for ( int i = 0; i < 100000; i++ )
+		for (int i = 0; i < 100000; i++)
 		{
 			s.add( i, i, i % 2 );
 		}
 
-		for ( int i = 0; i < 100000; i++ )
+		for (int i = 0; i < 100000; i++)
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -167,14 +168,14 @@ public:
 			bool> s;
 
 		s.Allocate( 100000 );
-		for ( int i = 0; i < 50000; i++ )
+		for (int i = 0; i < 50000; i++)
 		{
 			s.add( i, i, i % 2 );
 		}
 
 		s.shrink_to_fit();
 		Assert::AreEqual( 50000ui64, s.MaxEntries() );
-		for ( int i = 0; i < 50000; i++ )
+		for (int i = 0; i < 50000; i++)
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -185,7 +186,7 @@ public:
 	}
 	TEST_METHOD( SofA_File_Write_Read )
 	{
-		if ( fs::exists( "test.f" ) )
+		if (fs::exists( "test.f" ))
 			fs::remove( "test.f" );
 		{
 			Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
@@ -193,7 +194,7 @@ public:
 				bool> s;
 
 			s.Allocate( 100000 );
-			for ( int i = 0; i < 100000; i++ )
+			for (int i = 0; i < 100000; i++)
 			{
 				s.add( i, i, i % 2 );
 			}
@@ -211,7 +212,7 @@ public:
 			Assert::IsTrue( f.is_open() );
 			s.readFromFile( f );
 			Assert::AreEqual( 100000ui64, s.MaxEntries() );
-			for ( int i = 0; i < 100000; i++ )
+			for (int i = 0; i < 100000; i++)
 			{
 				Assert::IsTrue( s.find( i ).has_value() );
 				Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -223,21 +224,21 @@ public:
 	};
 
 
-	TEST_CLASS( AllocatorTests ){
-	public:
-		TEST_METHOD( allocate )
-		{
-			Utilities::Memory::ChunkyAllocator allocator( 1000 );
+	TEST_CLASS( AllocatorTests ) {
+public:
+	TEST_METHOD( allocate )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
 
-			auto m1 = allocator.allocate( 100 );
-			auto m2 = allocator.allocate( 10 );
-			auto m3 = allocator.allocate( 100 );
-			auto m4 = allocator.allocate( 100 );
-			Logger::WriteMessage( allocator.strOccupancy().c_str() );
-			allocator.free( m3 );
+		auto m1 = allocator.allocate( 100 );
+		auto m2 = allocator.allocate( 10 );
+		auto m3 = allocator.allocate( 100 );
+		auto m4 = allocator.allocate( 100 );
+		Logger::WriteMessage( allocator.strOccupancy().c_str() );
+		allocator.free( m3 );
 
-			Logger::WriteMessage( allocator.strOccupancy().c_str() );
-		}
+		Logger::WriteMessage( allocator.strOccupancy().c_str() );
+	}
 
 
 	};

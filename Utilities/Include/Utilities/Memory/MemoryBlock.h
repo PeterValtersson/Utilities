@@ -1,5 +1,6 @@
 #ifndef _UTILITIES_MEMORYBLOCK_H_
 #define _UTILITIES_MEMORYBLOCK_H_
+#include <fstream>
 namespace Utilities
 {
 	namespace Memory
