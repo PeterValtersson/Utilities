@@ -31,7 +31,7 @@ namespace Utilities
 
 		class ChunkyAllocator{
 		public:
-			ChunkyAllocator( const uint32_t numblocks )
+			ChunkyAllocator( const size_t numblocks )
 			{
 				_numfreeblocks = _numblocks = numblocks;
 				_pool = new char[_numblocks * _blocksize];
