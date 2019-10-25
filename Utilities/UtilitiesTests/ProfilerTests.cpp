@@ -11,6 +11,9 @@ namespace UtilitiesTests
 	void Calculate()
 	{
 		PROFILE;
+		{
+			PROFILE_N( Test );
+		}
 	}
 	void test_main()
 	{
