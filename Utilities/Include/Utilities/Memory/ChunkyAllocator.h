@@ -31,13 +31,27 @@ namespace Utilities
 
 		class ChunkyAllocator{
 		public:
-			ChunkyAllocator( const size_t numblocks )
+			ChunkyAllocator( const size_t numblocks )noexcept
 			{
 				_numfreeblocks = _numblocks = numblocks;
 				_pool = new char[_numblocks * _blocksize];
 
 				// Make blocks form a linked list (all of them at startup)
 				setupfreeBlockList();
+			}
+			ChunkyAllocator( ChunkyAllocator&& other )noexcept
+			{
+				_numblocks = other._numblocks;
+				_numfreeblocks = other._numfreeblocks;
+				_pool = other._pool; other._pool = nullptr;
+				_rootChunk = std::move( other._rootChunk );
+				_endChunk = std::move( other._endChunk );
+				_root = &_rootChunk;
+				_end = &_endChunk;
+
+				allocatedChunks = std::move( other.allocatedChunks );
+				handleToIndex = std::move( other.handleToIndex );
+				allocatedChunks = std::move( other.allocatedChunks );
 			}
 			~ChunkyAllocator()
 			{
