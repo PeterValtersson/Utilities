@@ -63,17 +63,17 @@ namespace Utilities
 				map.clear();
 			}
 
-			inline size_t MaxEntries()const
+			inline size_t MaxEntries()const noexcept
 			{
 				return maxEntries;
 			}
 
 			/*@brief Shrinks the block to exactly fit the number of entries.*/
-			inline void shrink_to_fit()
+			inline void shrink_to_fit() noexcept
 			{
 				Allocate( numEntries );
 			}
-			inline optional<std::size_t> find( const Key key )const
+			inline optional<std::size_t> find( const Key key )const noexcept
 			{
 				if ( auto const find = map.find( key ); find != map.end() )
 					return { find->second };
@@ -81,12 +81,12 @@ namespace Utilities
 					return std::nullopt;
 			}
 
-			inline std::size_t size()const
+			inline std::size_t size()const noexcept
 			{
 				return numEntries;
 			};
 
-			void add( const Key key, const typename char_conv<Types>::type... args )
+			void add( const Key key, const typename char_conv<Types>::type... args )noexcept
 			{
 				if ( numEntries + 1 > maxEntries )
 					Allocate( maxEntries * 2 );
@@ -94,7 +94,7 @@ namespace Utilities
 				setValue( typePointers, std::make_tuple( key, args... ), index );
 			}
 
-			std::size_t add( const Key key )
+			std::size_t add( const Key key )noexcept
 			{
 				if ( auto entry = find( key ); entry.has_value() )
 					return *entry;
@@ -107,12 +107,12 @@ namespace Utilities
 			}
 
 			template<std::size_t N, class type>
-			inline void set( std::size_t index, const type&& t )
+			inline void set( std::size_t index, const type&& t )noexcept
 			{
 				std::get<N>( typePointers )[index] = t;
 			}
 			template<std::size_t N, class type>
-			inline void set( std::size_t index, const type& t )
+			inline void set( std::size_t index, const type& t )noexcept
 			{
 				std::get<N>( typePointers )[index] = t;
 			}
@@ -120,27 +120,27 @@ namespace Utilities
 
 
 			template<std::size_t N>
-			inline auto& get( std::size_t index )
+			inline auto& get( std::size_t index ) noexcept
 			{
 				return std::get<N>( typePointers )[index];
 			}
 			template<std::size_t N>
-			inline const auto& peek( std::size_t index )const
+			inline const auto& peek( std::size_t index )const noexcept
 			{
 				return std::get<N>( typePointers )[index];
 			}
 			template<std::size_t N>
-			inline auto& get()
+			constexpr inline auto& get()noexcept
 			{
 				return std::get<N>( typePointers );
 			}
 			template<std::size_t N>
-			inline const auto& peek()const
+			constexpr inline const auto& peek()const noexcept
 			{
 				return std::get<N>( typePointers );
 			}
 
-			bool erase( const Key key )
+			bool erase( const Key key )noexcept
 			{
 				if ( const auto find = map.find( key ); find != map.end() )
 				{
@@ -150,7 +150,7 @@ namespace Utilities
 				return false;
 			}
 
-			void erase( std::size_t at )
+			void erase( std::size_t at )noexcept
 			{
 				if ( at >= numEntries )
 				{
@@ -166,15 +166,15 @@ namespace Utilities
 				map.erase( at_key );
 			}
 
-			std::size_t GetMemoryUsage()const
+			std::size_t GetMemoryUsage()const noexcept
 			{
 				return byteWidth * maxEntries;
 			}
-			std::size_t GetWriteToFileSize()const
+			std::size_t GetWriteToFileSize()const noexcept
 			{
 				return GetMemoryUsage() + sizeof( version ) + sizeof( byteWidth ) + sizeof( std::size_t ) + sizeof( numEntries );
 			}
-			void Allocate( std::size_t newSize )
+			void Allocate( std::size_t newSize )noexcept
 			{
 				std::size_t newmaxEntries = newSize;
 				void* newData = operator new(newmaxEntries * byteWidth);
@@ -191,7 +191,7 @@ namespace Utilities
 				data = newData;
 			}
 
-			void Reinit( std::size_t newnumEntries )
+			void Reinit( std::size_t newnumEntries )noexcept
 			{
 				numEntries = newnumEntries;
 				map.clear();
@@ -200,7 +200,7 @@ namespace Utilities
 			}
 
 
-			int readFromFile( std::istream& file )
+			int readFromFile( std::istream& file )noexcept
 			{
 				Binary_Stream::read( file, version );
 
@@ -228,7 +228,7 @@ namespace Utilities
 				return 0;
 			}
 
-			void writeToFile( std::ostream& file )
+			void writeToFile( std::ostream& file )noexcept
 			{
 				//shrink_to_fit();
 				auto totalSize = GetMemoryUsage();
@@ -243,16 +243,16 @@ namespace Utilities
 			public:
 				friend class SofA_Imp;
 				template<std::size_t N>
-				inline auto& get()
+				inline auto& get()noexcept
 				{
 					return *std::get<N>( ptrs );
 				}
-				bool operator==( const Entry_Ref& r )const
+				bool operator==( const Entry_Ref& r )const noexcept
 				{
 					return equal( r.ptrs );
 				}
 			private:
-				Entry_Ref( type_ptrs_p_key& tp, size_t index )
+				Entry_Ref( type_ptrs_p_key& tp, size_t index )noexcept
 				{
 					init_test_ptrs<0>( ptrs, tp, index );
 				}
@@ -285,7 +285,7 @@ namespace Utilities
 				}
 			};
 
-			const Entry_Ref get_entry( size_t index )
+			const Entry_Ref get_entry( size_t index )noexcept
 			{
 				return { typePointers, index };
 			}
