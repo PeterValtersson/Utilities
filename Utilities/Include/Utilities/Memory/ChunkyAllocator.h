@@ -295,7 +295,7 @@ namespace Utilities
 				return false;
 			}
 
-			static const size_t blocksize( void )
+			constexpr static size_t blocksize( void )
 			{
 				return _blocksize;
 			}
@@ -395,7 +395,7 @@ namespace Utilities
 
 		private:
 			char* _pool = nullptr;
-			static const size_t _blocksize = 512 * 1024;
+			constexpr static size_t _blocksize = 512 * 1024;
 			size_t _numblocks = 0;
 			size_t _numfreeblocks = 0;
 
