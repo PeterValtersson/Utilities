@@ -7,13 +7,17 @@
 #include <Utilities/MonadicOptional.h>
 #include <fstream>
 #include <Utilities/FStreamHelpers.h>
-
+#include <string_view>
 namespace Utilities
 {
 	namespace Memory
 	{
 		template<class T>
-		struct make_ptr_t {
+		struct make_ptr_t{
+			typedef T* type;
+		};
+		template<class T>
+		struct make_ptr_t<T*>{
 			typedef T* type;
 		};
 
@@ -22,16 +26,28 @@ namespace Utilities
 
 
 		template <class Key, class KeyHash, typename... Types>
-		class SofA_Imp<Key, KeyHash, true, Types...> {
+		class SofA_Imp<Key, KeyHash, true, Types...>{
 		public:
 			constexpr static size_t num_types = sizeof...(Types);
 			constexpr static size_t num_types_p_key = sizeof...(Types) + 1;
-			typedef std::tuple<Key, Types...> Types_Tuple;
+			template<class T>
+			struct char_conv{
+				typedef T type;
+			};
+			template<size_t N>
+			struct char_conv<char[N]>{
+				typedef std::string_view type;
+			};
+			template<size_t N>
+			struct char_conv<wchar_t[N]>{
+				typedef std::wstring_view type;
+			};
+			typedef std::tuple<const Key, const typename char_conv<Types>::type...> Types_Tuple;
 			typedef std::tuple<typename make_ptr_t<Key>::type, typename make_ptr_t<Types>::type...> type_ptrs_p_key;
 
 			SofA_Imp( std::size_t size = 64 ) : data( nullptr ), numEntries( 0 ), maxEntries( size ), byteWidth( 0 )
 			{
-				for (auto&& v : typeSizes)
+				for ( auto&& v : typeSizes )
 					byteWidth += v;
 				Allocate( maxEntries );
 			}
@@ -59,7 +75,7 @@ namespace Utilities
 			}
 			inline optional<std::size_t> find( const Key key )const
 			{
-				if (auto const find = map.find( key ); find != map.end())
+				if ( auto const find = map.find( key ); find != map.end() )
 					return { find->second };
 				else
 					return std::nullopt;
@@ -70,21 +86,20 @@ namespace Utilities
 				return numEntries;
 			};
 
-			void add( const Key key, const Types... args )
+			void add( const Key key, const typename char_conv<Types>::type... args )
 			{
-				if (numEntries + 1 > maxEntries)
+				if ( numEntries + 1 > maxEntries )
 					Allocate( maxEntries * 2 );
 				auto index = map[key] = numEntries++;
-				const auto tpl = std::make_tuple( key, args... );
-				setValue( typePointers, tpl, index );
+				setValue( typePointers, std::make_tuple( key, args... ), index );
 			}
 
 			std::size_t add( const Key key )
 			{
-				if (auto entry = find( key ); entry.has_value())
+				if ( auto entry = find( key ); entry.has_value() )
 					return *entry;
 
-				if (numEntries + 1 > maxEntries)
+				if ( numEntries + 1 > maxEntries )
 					Allocate( maxEntries * 2 );
 				std::get<0>( typePointers )[numEntries] = key;
 				std::size_t ret = map[key] = numEntries++;
@@ -127,7 +142,7 @@ namespace Utilities
 
 			bool erase( const Key key )
 			{
-				if (const auto find = map.find( key ); find != map.end())
+				if ( const auto find = map.find( key ); find != map.end() )
 				{
 					erase( find->second );
 					return true;
@@ -137,7 +152,7 @@ namespace Utilities
 
 			void erase( std::size_t at )
 			{
-				if (at >= numEntries)
+				if ( at >= numEntries )
 				{
 				}
 				auto last = --numEntries;
@@ -180,7 +195,7 @@ namespace Utilities
 			{
 				numEntries = newnumEntries;
 				map.clear();
-				for (std::size_t i = 0; i < numEntries; i++)
+				for ( std::size_t i = 0; i < numEntries; i++ )
 					map[std::get<0>( typePointers )[i]] = i;
 			}
 
@@ -191,13 +206,13 @@ namespace Utilities
 
 				std::size_t readByteWidth;
 				Binary_Stream::read( file, readByteWidth );
-				if (this->byteWidth != readByteWidth)
+				if ( this->byteWidth != readByteWidth )
 					return -1;
 
 				std::size_t totalSize;
 				Binary_Stream::read( file, totalSize );
 
-				if (totalSize % byteWidth != 0)
+				if ( totalSize % byteWidth != 0 )
 					return -2;
 
 				maxEntries = totalSize / byteWidth;
@@ -224,7 +239,7 @@ namespace Utilities
 				Binary_Stream::write( file, data, totalSize );
 			}
 
-			class Entry_Ref {
+			class Entry_Ref{
 			public:
 				friend class SofA_Imp;
 				template<std::size_t N>
@@ -278,10 +293,6 @@ namespace Utilities
 			// Parameter pack pointer converter
 
 
-			/*template<class T>
-			struct make_ptr_t<T*>{
-				typedef T* type;
-			};*/
 
 
 			uint32_t version = 000001;
@@ -351,11 +362,28 @@ namespace Utilities
 			|int*	|123	|321	|1		| 1337	|2		|4		|8	|
 			|bool*	|true	|false	|true	| false	|true	|false	|true
 			*/
+			template<class T>
+			void copy_help( T& t, const T& t2 )
+			{
+				t = t2;
+			}
+			template<size_t N>
+			void copy_help( char( &t )[N], std::string_view t2 )
+			{
+				memcpy( &t, t2.data(), t2.size() + 1 );
+				//t2.copy( (char*)&t, t2.size() + 1 );
+			}
+			template<size_t N>
+			void copy_help( wchar_t( &t )[N], std::wstring_view t2 )
+			{
+				memcpy( &t, t2.data(), (t2.size() + 1) * sizeof( wchar_t ) );
+				//t2.copy( (char*)&t, t2.size() + 1 );
+			}
 			template<std::size_t I = 0>
 			inline typename std::enable_if < I < num_types_p_key, void>::type
 				setValue( type_ptrs_p_key & tp, const Types_Tuple & t, std::size_t index )
 			{
-				std::get<I>( tp )[index] = std::get<I>( t );
+				copy_help( std::get<I>( tp )[index], std::get<I>( t ) );
 				setValue<I + 1>( tp, t, index );
 			}
 
@@ -407,7 +435,7 @@ namespace Utilities
 
 
 		template<class Key, class KeyHash, class... Types>
-		class SofV {
+		class SofV{
 		public:
 			SofV( std::size_t size = 64 ) : numEntries( 0 ), maxEntries( size )
 			{
@@ -430,7 +458,7 @@ namespace Utilities
 			}
 			inline optional<std::size_t> find( const Key key )const
 			{
-				if (auto const find = map.find( key ); find != map.end())
+				if ( auto const find = map.find( key ); find != map.end() )
 					return { find->second };
 				else
 					return std::nullopt;
@@ -443,7 +471,7 @@ namespace Utilities
 
 			std::size_t add( const Key key )
 			{
-				if (numEntries + 1 > maxEntries)
+				if ( numEntries + 1 > maxEntries )
 					Allocate( maxEntries * 2 );
 				auto index = numEntries++;
 				std::get<0>( tvec )[index] = key;
@@ -452,7 +480,7 @@ namespace Utilities
 
 			void add( const Key key, const Types... args )
 			{
-				if (numEntries + 1 > maxEntries)
+				if ( numEntries + 1 > maxEntries )
 					Allocate( maxEntries * 2 );
 				auto index = map[key] = numEntries++;
 				const auto tpl = std::make_tuple( key, args... );
@@ -490,7 +518,7 @@ namespace Utilities
 
 			bool erase( const Key key )
 			{
-				if (const auto find = map.find( key ); find != map.end())
+				if ( const auto find = map.find( key ); find != map.end() )
 				{
 					erase( find->second );
 					return true;

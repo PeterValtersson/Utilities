@@ -9,6 +9,8 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace fs = std::filesystem;
 
+
+
 namespace UtilitiesTests
 {
 	TEST_CLASS( MemoryTests ) {
@@ -18,6 +20,21 @@ public:
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			Utilities::GUID> s;
 		s.add( "First", "test" );
+	}
+	
+	TEST_METHOD( Sofa_Create_CHAR_ARRAY )
+	{
+		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
+			char[128]> s;
+		s.add( "First", "test" );
+		Assert::AreEqual( "test", s.get<1>( 0 ) );
+	}
+	TEST_METHOD( Sofa_Create_WCHAR_ARRAY )
+	{
+		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
+			wchar_t[128]> s;
+		s.add( "First", L"test" );
+		Assert::AreEqual( L"test", s.get<1>( 0 ) );
 	}
 	TEST_METHOD( Sofa_Create )
 	{
