@@ -13,30 +13,30 @@ namespace fs = std::filesystem;
 
 namespace UtilitiesTests
 {
-	TEST_CLASS( MemoryTests ) {
+	TEST_CLASS( SofA ) {
 public:
-	TEST_METHOD( Sofa_Create_GUID )
+	TEST_METHOD( Create_GUID )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			Utilities::GUID> s;
 		s.add( "First", "test" );
 	}
 	
-	TEST_METHOD( Sofa_Create_CHAR_ARRAY )
+	TEST_METHOD( Create_CHAR_ARRAY )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			char[128]> s;
 		s.add( "First", "test" );
 		Assert::AreEqual( "test", s.get<1>( 0 ) );
 	}
-	TEST_METHOD( Sofa_Create_WCHAR_ARRAY )
+	TEST_METHOD( Create_WCHAR_ARRAY )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			wchar_t[128]> s;
 		s.add( "First", L"test" );
 		Assert::AreEqual( L"test", s.get<1>( 0 ) );
 	}
-	TEST_METHOD( Sofa_Create )
+	TEST_METHOD( Create )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -55,7 +55,7 @@ public:
 		Assert::AreEqual( 1, refs.get<1>() );
 		Assert::AreEqual( 2.3, refs.get<2>() );
 	}
-	TEST_METHOD( Sofa_3_Delete_First )
+	TEST_METHOD( Create_3_Delete_First )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -78,7 +78,7 @@ public:
 		Assert::AreEqual( 2.2, s.peek<2>( 1 ) );
 
 	}
-	TEST_METHOD( Sofa_3_Delete_Mid )
+	TEST_METHOD( Create_3_Delete_Mid )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -99,7 +99,7 @@ public:
 		Assert::AreEqual( 3, s.peek<1>( 1 ) );
 		Assert::AreEqual( 3.3, s.peek<2>( 1 ) );
 	}
-	TEST_METHOD( Sofa_3_Delete_Last )
+	TEST_METHOD( Create_3_Delete_Last )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -120,7 +120,7 @@ public:
 		Assert::AreEqual( 2, s.peek<1>( 1 ) );
 		Assert::AreEqual( 2.2, s.peek<2>( 1 ) );
 	}
-	TEST_METHOD( Sofa_Add_Many )
+	TEST_METHOD( Add_Many )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -139,7 +139,7 @@ public:
 			Assert::AreEqual<bool>( i % 2, s.peek<2>()[i] );
 		}
 	}
-	TEST_METHOD( Sofa_Add_Many_Resize_After )
+	TEST_METHOD( Add_Many_Resize_After )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -158,7 +158,7 @@ public:
 			Assert::AreEqual<bool>( i % 2, s.peek<2>()[i] );
 		}
 	}
-	TEST_METHOD( Sofa_Add_Many_With_Resize )
+	TEST_METHOD( Add_Many_With_Resize )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -178,7 +178,7 @@ public:
 			Assert::AreEqual<bool>( i % 2, s.peek<2>()[i] );
 		}
 	}
-	TEST_METHOD( SofA_ShrinkToFit )
+	TEST_METHOD( ShrinkToFit )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
@@ -201,7 +201,7 @@ public:
 		}
 
 	}
-	TEST_METHOD( SofA_File_Write_Read )
+	TEST_METHOD( File_Write_Read )
 	{
 		if (fs::exists( "test.f" ))
 			fs::remove( "test.f" );
@@ -242,21 +242,29 @@ public:
 
 
 	TEST_CLASS( AllocatorTests ) {
-public:
-	TEST_METHOD( allocate )
-	{
-		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+	public:
+		TEST_METHOD( allocate )
+		{
+			Utilities::Memory::ChunkyAllocator allocator( 1000 );
 
-		auto m1 = allocator.allocate( 100 );
-		auto m2 = allocator.allocate( 10 );
-		auto m3 = allocator.allocate( 100 );
-		auto m4 = allocator.allocate( 100 );
-		Logger::WriteMessage( allocator.strOccupancy().c_str() );
-		allocator.free( m3 );
+			auto m1 = allocator.allocate( 100 );
+			auto m2 = allocator.allocate( 10 );
+			auto m3 = allocator.allocate( 100 );
+			auto m4 = allocator.allocate( 100 );
+			Logger::WriteMessage( allocator.strOccupancy().c_str() );
+			allocator.free( m3 );
 
-		Logger::WriteMessage( allocator.strOccupancy().c_str() );
-	}
-
+			Logger::WriteMessage( allocator.strOccupancy().c_str() );
+		}
+	};
+	TEST_CLASS( MemoryTests ) {
+	public:
+		TEST_METHOD( Memory_Literals )
+		{
+			Assert::AreEqual<size_t>( 1024, 1_kb, L"_kb wrong" );
+			Assert::AreEqual<size_t>( 1024*1024, 1_mb, L"_kb wrong" );
+			Assert::AreEqual<size_t>( 1024*1024*1024, 1_gb, L"_kb wrong" );
+		}
 
 	};
 }
