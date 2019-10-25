@@ -7,7 +7,7 @@ namespace Utilities
 	class Concurrent {
 	public:
 		template<class F, typename... Param>
-		void operator()(F const& f, Param... args)
+		inline void operator()(F const& f, Param... args)
 		{
 			std::lock_guard<std::mutex> lg(lock);
 			f(obj, std::forward<Param>(args)...);
