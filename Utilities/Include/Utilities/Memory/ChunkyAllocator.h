@@ -39,6 +39,7 @@ namespace Utilities
 				// Make blocks form a linked list (all of them at startup)
 				setupfreeBlockList();
 			}
+
 			ChunkyAllocator( ChunkyAllocator&& other )noexcept
 			{
 				_numblocks = other._numblocks;
