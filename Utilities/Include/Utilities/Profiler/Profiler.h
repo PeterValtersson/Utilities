@@ -66,5 +66,6 @@ namespace Utilities
 #define PROFILER_INIT Utilities::Profiler_Master::get()
 #else
 #define PROFILE
+#define PROFILE_N(name)
 #endif
 #endif
