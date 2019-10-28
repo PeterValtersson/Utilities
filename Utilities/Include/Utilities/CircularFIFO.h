@@ -13,20 +13,20 @@ namespace Utilities
 		CircularFiFo() : tail(0), head(0) {};
 		~CircularFiFo() {};
 
-		inline bool isFull() const
+		bool isFull() const
 		{
 			auto index = tail.load();
 			auto next_tail = (index + 1) % Capacity;
 			return (next_tail == head.load());
 		}
 
-		inline bool isEmpty() const
+		bool isEmpty() const
 		{
 			return (head.load() == tail.load());
 		}
 
 		//Consumer only
-		inline Element& top()
+		Element& top()
 		{
 			const auto current_head = head.load();
 			//if (current_head == tail.load())
@@ -37,7 +37,7 @@ namespace Utilities
 		}
 
 		//Consumer only
-		inline bool pop()
+		bool pop()
 		{
 			const auto current_head = head.load();
 			if (current_head == tail.load())
@@ -48,7 +48,7 @@ namespace Utilities
 		}
 
 		// Producer only
-		inline bool push(const Element& item)
+		bool push(const Element& item)
 		{
 			auto current_tail = tail.load();
 			auto current_head = head.load();
@@ -64,7 +64,7 @@ namespace Utilities
 		}
 
 		// Producer only
-		inline bool push(Element&& item)
+		bool push(Element&& item)
 		{
 			auto current_tail = tail.load();
 			auto current_head = head.load();
