@@ -41,7 +41,26 @@ namespace Utilities
 
 		};
 
+		class ConstMemoryBlock {
+		public:
+			ConstMemoryBlock( const void* const data, const size_t used, const size_t total ) : data( data ), used_size( used ), total_size( total )
+			{}
+			const size_t used_size;
+			const size_t total_size;
 
+			void write_to_stream( std::ostream& stream )const
+			{
+				stream.write( (char*)data, used_size );
+			}
+			template<class T>
+			const T& peek()const
+			{
+				return *(T*)data;
+			}
+		private:
+			const void* const data;
+
+		};
 
 	}
 }

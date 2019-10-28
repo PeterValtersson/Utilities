@@ -188,7 +188,18 @@ namespace Utilities
 			void use_data( const Handle handle, const std::function<void( const MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
-					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::getData" );
+					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::use_data" );
+				else
+				{
+					auto index = findIndex->second;
+					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t ) * 2, allocatedChunks[index].chunk->used_size, allocatedChunks[index].chunk->blocks * _blocksize - sizeof( size_t ) * 2 } );
+				}
+			}
+
+			void peek_data( const Handle handle, const std::function<void( const ConstMemoryBlock )>& callback )
+			{
+				if (auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end())
+					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::peek_data" );
 				else
 				{
 					auto index = findIndex->second;
