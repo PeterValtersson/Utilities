@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 
 namespace UtilitiesTests
 {
-	TEST_CLASS( SofA ) {
+	TEST_CLASS( SofA ){
 public:
 	TEST_METHOD( Create_GUID )
 	{
@@ -21,7 +21,7 @@ public:
 			Utilities::GUID> s;
 		s.add( "First", "test" );
 	}
-	
+
 	TEST_METHOD( Create_CHAR_ARRAY )
 	{
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
@@ -126,12 +126,12 @@ public:
 			int,
 			bool> s;
 
-		for (int i = 0; i < 100000; i++)
+		for ( int i = 0; i < 100000; i++ )
 		{
 			s.add( i, i, i % 2 );
 		}
 
-		for (int i = 0; i < 100000; i++)
+		for ( int i = 0; i < 100000; i++ )
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -145,12 +145,12 @@ public:
 			int,
 			bool> s;
 
-		for (int i = 0; i < 100000; i++)
+		for ( int i = 0; i < 100000; i++ )
 		{
 			s.add( i, i, i % 2 );
 		}
 		s.Allocate( 200000 );
-		for (int i = 0; i < 100000; i++)
+		for ( int i = 0; i < 100000; i++ )
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -165,12 +165,12 @@ public:
 			bool> s;
 
 		s.Allocate( 100000 );
-		for (int i = 0; i < 100000; i++)
+		for ( int i = 0; i < 100000; i++ )
 		{
 			s.add( i, i, i % 2 );
 		}
 
-		for (int i = 0; i < 100000; i++)
+		for ( int i = 0; i < 100000; i++ )
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -185,14 +185,14 @@ public:
 			bool> s;
 
 		s.Allocate( 100000 );
-		for (int i = 0; i < 50000; i++)
+		for ( int i = 0; i < 50000; i++ )
 		{
 			s.add( i, i, i % 2 );
 		}
 
 		s.shrink_to_fit();
 		Assert::AreEqual( 50000ui64, s.MaxEntries() );
-		for (int i = 0; i < 50000; i++)
+		for ( int i = 0; i < 50000; i++ )
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
 			Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -203,7 +203,7 @@ public:
 	}
 	TEST_METHOD( File_Write_Read )
 	{
-		if (fs::exists( "test.f" ))
+		if ( fs::exists( "test.f" ) )
 			fs::remove( "test.f" );
 		{
 			Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
@@ -211,7 +211,7 @@ public:
 				bool> s;
 
 			s.Allocate( 100000 );
-			for (int i = 0; i < 100000; i++)
+			for ( int i = 0; i < 100000; i++ )
 			{
 				s.add( i, i, i % 2 );
 			}
@@ -229,7 +229,7 @@ public:
 			Assert::IsTrue( f.is_open() );
 			s.readFromFile( f );
 			Assert::AreEqual( 100000ui64, s.MaxEntries() );
-			for (int i = 0; i < 100000; i++)
+			for ( int i = 0; i < 100000; i++ )
 			{
 				Assert::IsTrue( s.find( i ).has_value() );
 				Assert::AreEqual<Utilities::StringHash>( i, s.peek<0>()[i].id );
@@ -241,30 +241,89 @@ public:
 	};
 
 
-	TEST_CLASS( AllocatorTests ) {
-	public:
-		TEST_METHOD( allocate )
+	TEST_CLASS( AllocatorTests ){
+public:
+	TEST_METHOD( allocate )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+
+		auto m1 = allocator.allocate( 100 );
+		auto m2 = allocator.allocate( 10 );
+		auto m3 = allocator.allocate( 100 );
+		auto m4 = allocator.allocate( 100 );
+		Logger::WriteMessage( allocator.strOccupancy().c_str() );
+		allocator.free( m3 );
+
+		Logger::WriteMessage( allocator.strOccupancy().c_str() );
+	}
+	TEST_METHOD( peek )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+		int v = 1337;
+		auto h = allocator.allocate( sizeof( v ) );
+		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
-			Utilities::Memory::ChunkyAllocator allocator( 1000 );
+			Assert::AreEqual<size_t>( sizeof(v), m.used_size );
+		} );
+	}
+	TEST_METHOD( use_data_write )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+		int v = 1337;
+		decltype(v) v2 = 1338;
+		auto h = allocator.allocate( sizeof( v ) );
+		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		{
+			m.write( v );
+		} );
+		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
+		{
+			Assert::AreEqual<size_t>( sizeof( v ), m.peek<decltype(v)>() );
+		} );
 
-			auto m1 = allocator.allocate( 100 );
-			auto m2 = allocator.allocate( 10 );
-			auto m3 = allocator.allocate( 100 );
-			auto m4 = allocator.allocate( 100 );
-			Logger::WriteMessage( allocator.strOccupancy().c_str() );
-			allocator.free( m3 );
-
-			Logger::WriteMessage( allocator.strOccupancy().c_str() );
-		}
+		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		{
+			m.write( v2 );
+		} );
+		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
+		{
+			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
+		} );
+	}
+	TEST_METHOD( use_data_write_larger )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+		int v = 1337;
+		long int v2 = 1338;
+		auto h = allocator.allocate( sizeof(v) );
+		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		{
+			m.write( v );
+		} );
+		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		{
+			char d;
+			m.write( &d, Utilities::Memory::ChunkyAllocator::blocksize() + 1 );
+			Assert::AreEqual<size_t>( sizeof( v2 ), m.get_used_size() );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.get_total_size() );
+			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
+		} );
+		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
+		{
+			Assert::AreEqual<size_t>( sizeof( v2 ), m.used_size );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.total_size );
+			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
+		} );
+	}
 	};
-	TEST_CLASS( MemoryTests ) {
-	public:
-		TEST_METHOD( Memory_Literals )
-		{
-			Assert::AreEqual<size_t>( 1024, 1_kb, L"_kb wrong" );
-			Assert::AreEqual<size_t>( 1024*1024, 1_mb, L"_kb wrong" );
-			Assert::AreEqual<size_t>( 1024*1024*1024, 1_gb, L"_kb wrong" );
-		}
+	TEST_CLASS( MemoryTests ){
+public:
+	TEST_METHOD( Memory_Literals )
+	{
+		Assert::AreEqual<size_t>( 1024, 1_kb, L"_kb wrong" );
+		Assert::AreEqual<size_t>( 1024 * 1024, 1_mb, L"_kb wrong" );
+		Assert::AreEqual<size_t>( 1024 * 1024 * 1024, 1_gb, L"_kb wrong" );
+	}
 
 	};
 }
