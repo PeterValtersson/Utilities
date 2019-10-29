@@ -4,14 +4,16 @@
 #include <memory>
 #include <thread>
 #include <Utilities/Concurrent.h>
-
 namespace Utilities
 {
+	class Profiler_Master;
 	/******************************** Profiler_Master *********************************/
 		// Only one is created accross all DLLs and Threads.
 		// Creates and handles the Profilers for each individual thread.
 	class Profiler_Master {
-	public:
+	public:		
+		Profiler_Master()
+		{}
 		DECLSPEC_PROFILER static std::shared_ptr<Profiler_Master> get()noexcept;
 		std::shared_ptr<Profiler> get_profiler( std::thread::id threadID )noexcept;
 		~Profiler_Master()
@@ -28,8 +30,7 @@ namespace Utilities
 		};
 		
 		Utilities::Concurrent<std::vector<ID_Profiler_Pair>> profilers;
-		Profiler_Master()
-		{}
+
 	};
 
 }
