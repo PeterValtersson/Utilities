@@ -86,12 +86,13 @@ namespace Utilities
 				return numEntries;
 			};
 
-			void add( const Key key, const typename char_conv<Types>::type... args )noexcept
+			std::size_t add( const Key key, const typename char_conv<Types>::type... args )noexcept
 			{
 				if ( numEntries + 1 > maxEntries )
 					Allocate( maxEntries * 2 );
 				auto index = map[key] = numEntries++;
 				setValue( typePointers, std::make_tuple( key, args... ), index );
+				return index;
 			}
 
 			std::size_t add( const Key key )noexcept
@@ -106,13 +107,13 @@ namespace Utilities
 				return ret;
 			}
 
-			template<std::size_t N, class type>
-			inline void set( std::size_t index, const type&& t )noexcept
+			template<std::size_t N>
+			inline void set( std::size_t index, const typename std::tuple_element<N, Types_Tuple>::type&& t )noexcept
 			{
 				std::get<N>( typePointers )[index] = t;
 			}
-			template<std::size_t N, class type>
-			inline void set( std::size_t index, const type& t )noexcept
+			template<std::size_t N>
+			inline void set( std::size_t index, const typename std::tuple_element<N, Types_Tuple>::type& t )noexcept
 			{
 				std::get<N>( typePointers )[index] = t;
 			}
@@ -153,8 +154,7 @@ namespace Utilities
 			void erase( std::size_t at )noexcept
 			{
 				if ( at >= numEntries )
-				{
-				}
+					return;
 				auto last = --numEntries;
 
 				auto at_key = std::get<0>( typePointers )[at];

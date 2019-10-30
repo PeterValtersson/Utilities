@@ -6,13 +6,19 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include <Utilities/GUID.h>
 #include <filesystem>
 #include <Utilities/Memory/ChunkyAllocator.h>
-
+#include <Utilities/Concurrent.h>
 namespace fs = std::filesystem;
 
 
 
 namespace UtilitiesTests
 {
+	int test( int& i )
+	{
+		i = 5;
+		return i;
+	}
+
 	TEST_CLASS( SofA ){
 public:
 	TEST_METHOD( Create_GUID )
@@ -54,6 +60,15 @@ public:
 		Assert::AreEqual<Utilities::StringHash>( "First"_hash, refs.get<0>().id );
 		Assert::AreEqual( 1, refs.get<1>() );
 		Assert::AreEqual( 2.3, refs.get<2>() );
+	}
+	TEST_METHOD( set )
+	{
+		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
+			int,
+			double> s;
+		auto i = s.add( "First", 1, 2.3 );
+		s.set<1>( i, 1337 );
+		Assert::AreEqual( 1337, s.get<1>( i ) );
 	}
 	TEST_METHOD( Create_3_Delete_First )
 	{
@@ -104,10 +119,9 @@ public:
 		Utilities::Memory::SofA<Utilities::GUID, Utilities::GUID::Hasher,
 			int,
 			double> s;
-		s.add( "One", 1, 1.1 );
+		auto i = s.add( "One", 1, 1.1 );
 		s.add( "Two", 2, 2.2 );
 		s.add( "Three", 3, 3.3 );
-
 		Assert::AreEqual( 3ui64, s.size() );
 		s.erase( "Three" );
 		Assert::AreEqual( 2ui64, s.size() );
@@ -337,5 +351,42 @@ public:
 		Assert::AreEqual<size_t>( 1024 * 1024 * 1024, 1_gb, L"_kb wrong" );
 	}
 
+
+	};
+
+	TEST_CLASS( Concurrent ){
+	public:
+		TEST_METHOD( No_Return )
+		{
+			Utilities::Concurrent<int> ci;
+			ci( []( int& i )
+			{
+				i = 1;
+			} );
+		}
+		TEST_METHOD( Return )
+		{
+			Utilities::Concurrent<int> ci;
+			auto i =ci( []( int& i )
+			{
+				i = 1;
+				return i;
+			} );
+			Assert::AreEqual( 1, i );
+
+			Utilities::Concurrent<size_t> cs;
+			auto s = cs( []( size_t& i )
+			{
+				i = 1337;
+				return i;
+			} );
+			Assert::AreEqual<size_t>( 1337, s );
+		}
+		TEST_METHOD( Return_Function )
+		{
+			Utilities::Concurrent<int> ci;
+			auto i = ci( &test );
+			Assert::AreEqual( 5, i );
+		}
 	};
 }

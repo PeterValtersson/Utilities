@@ -11,10 +11,17 @@ namespace Utilities
 		Concurrent( T&& t ) : obj( std::move(t) )
 		{}
 		template<class F, typename... Param>
-		inline void operator()( F const& f, Param... args )
+		inline auto operator()( F const& f, Param... args ) -> typename std::enable_if<std::is_void<typename std::result_of<F(T&, Param...)>::type>::value, void>::type
 		{
 			std::lock_guard<std::mutex> lg( lock );
 			f( obj, std::forward<Param>( args )... );
+		}
+
+		template<class F, typename... Param>
+		inline auto operator()( F const& f, Param... args ) -> typename std::enable_if<!std::is_void<typename std::result_of<F( T&, Param... )>::type>::value, typename  std::result_of<F( T&, Param... )>::type>::type
+		{
+			std::lock_guard<std::mutex> lg( lock );
+			return f( obj, std::forward<Param>( args )... );
 		}
 	private:
 		std::mutex lock;
