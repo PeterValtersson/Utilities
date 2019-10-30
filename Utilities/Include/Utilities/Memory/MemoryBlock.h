@@ -11,7 +11,7 @@ namespace Utilities
 		public:
 			MemoryBlock( void* const data, size_t& used, const size_t total, const std::function<MemoryBlock(size_t)>& realloc_callback ) : data( data ), used_size( used ), total_size( total ), realloc_callback( realloc_callback )
 			{}
-			void realloc( const MemoryBlock& o )
+			inline void realloc( const MemoryBlock& o )
 			{
 				new (this) MemoryBlock( o.data, o.used_size, o.total_size, o.realloc_callback );
 			}
@@ -47,11 +47,11 @@ namespace Utilities
 			{
 				return *(T*const)data;
 			}
-			const size_t get_used_size()const
+			inline const size_t get_used_size()const
 			{
 				return used_size;
 			}
-			const size_t get_total_size()const
+			inline const size_t get_total_size()const
 			{
 				return total_size;
 			}
@@ -69,7 +69,7 @@ namespace Utilities
 			const size_t used_size;
 			const size_t total_size;
 
-			void write_to_stream( std::ostream& stream )const
+			inline void write_to_stream( std::ostream& stream )const
 			{
 				stream.write( (char*)data, used_size );
 			}
