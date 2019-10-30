@@ -354,6 +354,18 @@ public:
 
 	};
 
+	class Test		{
+		Utilities::Concurrent<int> ci = 1;
+	public:
+		int op()const
+		{
+			return ci( []( const int& i )->const int&
+			{
+				return i;
+			} );
+		}
+	};
+
 	TEST_CLASS( Concurrent ){
 	public:
 		TEST_METHOD( No_Return )
@@ -387,6 +399,11 @@ public:
 			Utilities::Concurrent<int> ci;
 			auto i = ci( &test );
 			Assert::AreEqual( 5, i );
+		}
+		TEST_METHOD( Const )
+		{
+			Test t;
+			Assert::AreEqual( 1, t.op() );
 		}
 	};
 }
