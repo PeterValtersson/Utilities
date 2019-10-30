@@ -11,27 +11,26 @@ namespace Utilities
 		public:
 			MemoryBlock( void* const data, size_t& used, const size_t total, const std::function<MemoryBlock(size_t)>& realloc_callback ) : data( data ), used_size( used ), total_size( total ), realloc_callback( realloc_callback )
 			{}
-			MemoryBlock& operator=( const MemoryBlock& o )
+			void realloc( const MemoryBlock& o )
 			{
 				new (this) MemoryBlock( o.data, o.used_size, o.total_size, o.realloc_callback );
-				return *this;
 			}
 			template<class T, typename = std::enable_if<std::is_trivially_copyable<T>::value>>
-			inline void write( const T& v )const
+			inline void write( const T& v )
 			{
 				write( &v, sizeof( T ) );
 			}
 
-			void write( const void* const data, const size_t size )const
+			void write( const void* const data, const size_t size )
 			{
 				if ( total_size < size )
-					*this = realloc_callback( size );
+					realloc( realloc_callback( size ) );
 				used_size = size <= total_size ? size : total_size;
 				memcpy( this->data, data, used_size );
 			}
 
 			template<class T, typename = std::enable_if<std::is_trivially_copyable<T>::value>>
-			inline void operator=( const T& v )const
+			inline void operator=( const T& v )
 			{
 				write( v );
 			}

@@ -272,16 +272,16 @@ public:
 		int v = 1337;
 		decltype(v) v2 = 1338;
 		auto h = allocator.allocate( sizeof( v ) );
-		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
 			m.write( v );
 		} );
 		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
-			Assert::AreEqual<size_t>( sizeof( v ), m.peek<decltype(v)>() );
+			Assert::AreEqual( v, m.peek<decltype(v)>() );
 		} );
 
-		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
 			m.write( v2 );
 		} );
@@ -296,24 +296,24 @@ public:
 		int v = 1337;
 		long int v2 = 1338;
 		auto h = allocator.allocate( sizeof(v) );
-		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		char* d = new char[Utilities::Memory::ChunkyAllocator::blocksize() + 1];
+		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
 			m.write( v );
 		} );
-		allocator.use_data( h, [=]( const Utilities::Memory::MemoryBlock m )
+		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
-			char d;
-			m.write( &d, Utilities::Memory::ChunkyAllocator::blocksize() + 1 );
-			Assert::AreEqual<size_t>( sizeof( v2 ), m.get_used_size() );
-			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.get_total_size() );
-			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
+			
+			m.write( d, Utilities::Memory::ChunkyAllocator::blocksize() + 1 );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.get_used_size() );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize()*2 - sizeof( size_t ) * 2, m.get_total_size() );
 		} );
 		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
-			Assert::AreEqual<size_t>( sizeof( v2 ), m.used_size );
-			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.total_size );
-			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.used_size );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() * 2 - sizeof( size_t ) * 2, m.total_size );
 		} );
+		delete[] d;
 	}
 	};
 	TEST_CLASS( MemoryTests ){

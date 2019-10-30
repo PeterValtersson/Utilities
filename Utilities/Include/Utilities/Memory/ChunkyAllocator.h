@@ -67,9 +67,7 @@ namespace Utilities
 
 				FreeChunk* walker = _root->next;
 				auto actualSizeNeeded = size + sizeof( size_t ) * 2;
-				size_t numberOfNeededblocks = actualSizeNeeded / _blocksize;
-				if ( actualSizeNeeded % _blocksize )
-					numberOfNeededblocks++;
+				size_t numberOfNeededblocks = actualSizeNeeded / _blocksize + ((actualSizeNeeded % _blocksize) > 0);
 
 				// Keep trying until we find a free chunk with enough blocks in.
 				while ( walker != _end )
@@ -191,15 +189,15 @@ namespace Utilities
 				}
 			}
 
-			void use_data( const Handle handle, const std::function<void( const MemoryBlock )>& callback )
+			void use_data( const Handle handle, const std::function<void( MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::use_data" );
 				else
 				{
 					auto chunk = allocatedChunks[findIndex->second].chunk;
-					std::function<const MemoryBlock( size_t )> realloc_callback;
-					realloc_callback = [&]( size_t size )->const MemoryBlock // Might want to switch to using a general allocator interface instead and use this instead.
+					std::function<MemoryBlock( size_t )> realloc_callback;
+					realloc_callback = [&]( size_t size )->MemoryBlock // Might want to switch to using a general allocator interface instead and use this instead.
 					{
 
 						free( handle );
