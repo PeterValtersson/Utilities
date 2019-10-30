@@ -229,7 +229,7 @@ namespace Utilities
 				}
 			}
 
-			void write_data( const Handle handle, const char* const data, const size_t size )
+			void write_data( const Handle handle, const void* const data, const size_t size )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::use_data" );

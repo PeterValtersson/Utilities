@@ -315,6 +315,18 @@ public:
 		} );
 		delete[] d;
 	}
+
+	TEST_METHOD( write_data )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+		int v = 1337;
+		auto h = allocator.allocate( sizeof( v ) );
+		allocator.write_data( h, &v, sizeof( v ) );
+		allocator.peek_data( h, [=]( Utilities::Memory::ConstMemoryBlock m )
+		{
+			Assert::AreEqual( v, m.peek<decltype(v)>() );
+		} );
+	}
 	};
 	TEST_CLASS( MemoryTests ){
 public:
