@@ -26,7 +26,7 @@ namespace Utilities
 			{}
 		};
 
-		using Handle = size_t;
+		typedef size_t Handle;
 		constexpr Handle null_handle = std::numeric_limits<Handle>::max();
 
 		class ChunkyAllocator{
