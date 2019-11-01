@@ -52,7 +52,8 @@ namespace Utilities
 		}
 
 		// Producer only
-		virtual bool push( const Element& item )
+		//template<typename = std::enable_if<std::is_copy_constructible<Element>::value, void>>
+		bool push( const Element& item )
 		{
 			auto current_tail = tail.load();
 			auto current_head = head.load();
@@ -92,16 +93,16 @@ namespace Utilities
 	class CircularFiFo_Multiple_Producers : public CircularFiFo<Element, size>{
 	public:
 
-		virtual bool push( const Element& item )override
+		/*virtual auto push( const Element& item )override -> std::enable_if<std::is_copy_assignable<Element>::value, bool>::type
 		{
 			std::lock_guard<std::mutex> lg( lock );
 			return CircularFiFo<Element, size>::push( item );
-		}
+		}*/
 
 		virtual bool push( Element&& item )override
 		{
 			std::lock_guard<std::mutex> lg( lock );
-			return CircularFiFo<Element, size>::push( item );
+			return CircularFiFo<Element, size>::push( std::move( item ) );
 		}
 	private:
 		std::mutex lock;
