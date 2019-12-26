@@ -26,8 +26,8 @@ namespace Utilities
 			{}
 		};
 
-		using Handle = size_t;
-
+		typedef size_t Handle;
+		constexpr Handle null_handle = std::numeric_limits<Handle>::max();
 
 		class ChunkyAllocator{
 		public:
@@ -59,8 +59,7 @@ namespace Utilities
 				delete[] _pool;
 			}
 
-
-			const Handle allocate( const std::size_t size )
+			const size_t _allocate( const size_t size, const Handle handle = null_handle )
 			{
 				// This first part finds a suitable allocation slot
 
@@ -68,9 +67,7 @@ namespace Utilities
 
 				FreeChunk* walker = _root->next;
 				auto actualSizeNeeded = size + sizeof( size_t ) * 2;
-				size_t numberOfNeededblocks = actualSizeNeeded / _blocksize;
-				if ( actualSizeNeeded % _blocksize )
-					numberOfNeededblocks++;
+				size_t numberOfNeededblocks = actualSizeNeeded / _blocksize + ((actualSizeNeeded % _blocksize) > 0);
 
 				// Keep trying until we find a free chunk with enough blocks in.
 				while ( walker != _end )
@@ -119,14 +116,21 @@ namespace Utilities
 				walker->blocks = numberOfNeededblocks;
 				walker->used_size = size;
 
-				std::uniform_int_distribution<size_t> distribution( 0U, SIZE_MAX );
+				allocatedChunks.push_back( { walker, handle } );
+				return allocatedChunks.size() - 1;
+			}
+			const Handle allocate( const std::size_t size )
+			{
+				const auto index = _allocate( size );
+
+				std::uniform_int_distribution<size_t> distribution( 0U, SIZE_MAX - 1 );
 				size_t handle = distribution( generator );
 				while ( handleToIndex.find( handle ) != handleToIndex.end() )
 					handle = distribution( generator );
 
 
-				handleToIndex[handle] = allocatedChunks.size();
-				allocatedChunks.push_back( { walker, handle } );
+				handleToIndex[handle] = index;
+				allocatedChunks.back().handle = handle;
 
 				return handle;
 			}
@@ -185,10 +189,39 @@ namespace Utilities
 				}
 			}
 
-			void use_data( const Handle handle, const std::function<void( const MemoryBlock )>& callback )
+			void use_data( const Handle handle, const std::function<void( MemoryBlock )>& callback )
 			{
 				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
 					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::use_data" );
+				else
+				{
+					auto chunk = allocatedChunks[findIndex->second].chunk;
+					std::function<MemoryBlock( size_t )> realloc_callback;
+					realloc_callback = [&]( size_t size )->MemoryBlock // Might want to switch to using a general allocator interface instead and use this instead.
+					{
+
+						free( handle );
+						const auto index = _allocate( size, handle );
+						handleToIndex[handle] = index;
+						allocatedChunks.back().handle = handle;
+						auto chunk = allocatedChunks[index].chunk;
+
+						return  MemoryBlock( (char*)chunk + sizeof( size_t ) * 2,
+											 chunk->used_size,
+											 chunk->blocks * _blocksize - sizeof( size_t ) * 2,
+											 realloc_callback );
+					};
+					callback( MemoryBlock( (char*)chunk + sizeof( size_t ) * 2,
+										   chunk->used_size,
+										   chunk->blocks * _blocksize - sizeof( size_t ) * 2,
+										   realloc_callback ) );
+				}
+			}
+
+			void peek_data( const Handle handle, const std::function<void( const ConstMemoryBlock )>& callback )const
+			{
+				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
+					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::peek_data" );
 				else
 				{
 					auto index = findIndex->second;
@@ -196,14 +229,33 @@ namespace Utilities
 				}
 			}
 
-			void peek_data( const Handle handle, const std::function<void( const ConstMemoryBlock )>& callback )
+			void write_data( const Handle handle, const void* const data, const size_t size )
 			{
-				if (auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end())
-					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::peek_data" );
+				if ( auto findIndex = handleToIndex.find( handle ); findIndex == handleToIndex.end() )
+					throw InvalidHandle( "Utilities::Memory::ChunkyAllocator::use_data" );
 				else
 				{
-					auto index = findIndex->second;
-					callback( { (char*)allocatedChunks[index].chunk + sizeof( size_t ) * 2, allocatedChunks[index].chunk->used_size, allocatedChunks[index].chunk->blocks * _blocksize - sizeof( size_t ) * 2 } );
+					auto chunk = allocatedChunks[findIndex->second].chunk;
+					std::function<const MemoryBlock( size_t )> realloc_callback;
+					realloc_callback = [&]( size_t size )->const MemoryBlock // Might want to switch to using a general allocator interface instead and use this instead.
+					{
+
+						free( handle );
+						const auto index = _allocate( size, handle );
+						handleToIndex[handle] = index;
+						allocatedChunks.back().handle = handle;
+						auto chunk = allocatedChunks[index].chunk;
+
+						return  MemoryBlock( (char*)chunk + sizeof( size_t ) * 2,
+											 chunk->used_size,
+											 chunk->blocks * _blocksize - sizeof( size_t ) * 2,
+											 realloc_callback );
+					};
+					MemoryBlock m( (char*)chunk + sizeof( size_t ) * 2,
+								   chunk->used_size,
+								   chunk->blocks * _blocksize - sizeof( size_t ) * 2,
+								   realloc_callback );
+					m.write( data, size );
 				}
 			}
 
@@ -374,7 +426,7 @@ namespace Utilities
 
 			struct AllocatedChunkInfo{
 				FreeChunk* chunk;
-				size_t handle;
+				Handle handle;
 			};
 		private:
 			ChunkyAllocator( const ChunkyAllocator& other ) = delete;

@@ -39,7 +39,7 @@ DECLSPEC_PROFILER std::shared_ptr<Utilities::Profiler> Utilities::Profiler::get(
 	thread_local static std::shared_ptr<Profiler> profiler;
 	if ( !profiler )
 	{
-		profiler = Profiler_Master::get()->get_profiler( std::this_thread::get_id() );
+		profiler = Profiler_Master::get().get_profiler( std::this_thread::get_id() );
 	}
 	return profiler;
 }

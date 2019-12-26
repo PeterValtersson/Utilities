@@ -11,10 +11,10 @@ static std::shared_ptr<Utilities::Profiler_Master> profile_master;
 #pragma data_seg() 
 #pragma comment(linker,"/SECTION:.SHAREDMEMORY,RWS")
 
-std::shared_ptr<Utilities::Profiler_Master> Utilities::Profiler_Master::get()noexcept
+Utilities::Profiler_Master& Utilities::Profiler_Master::get()noexcept
 {
 	if ( !profile_master )
-		profile_master = std::make_shared<Profiler_Master>();
+		profile_master = std::make_unique<Profiler_Master>();
 
 	return profile_master;
 }
