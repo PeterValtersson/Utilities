@@ -67,5 +67,6 @@ namespace Utilities
 #else
 #define PROFILE
 #define PROFILE_N(name)
+#define PROFILER_INIT
 #endif
 #endif

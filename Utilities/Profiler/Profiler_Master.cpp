@@ -6,10 +6,10 @@
 #include <fstream>
 #include <Utilities/MonadicOptional.h>
 
-//#pragma data_seg (".SHAREDMEMORY")
+#pragma data_seg (".SHAREDMEMORY")
 static std::shared_ptr<Utilities::Profiler_Master> profile_master;
-//#pragma data_seg() 
-//#pragma comment(linker,"/SECTION:.SHAREDMEMORY,RWS")
+#pragma data_seg() 
+#pragma comment(linker,"/SECTION:.SHAREDMEMORY,RWS")
 
 std::shared_ptr<Utilities::Profiler_Master> Utilities::Profiler_Master::get()noexcept
 {
@@ -91,12 +91,12 @@ const int Utilities::Profiler_Master::generate_tree( const std::string& folder, 
 	if ( convertDotToPdf )
 	{
 		std::stringstream cmd;
-		cmd << "dot -Tpdf " << strFilename << ".dot" << " -o " << strFilename << ".pdf";
+		cmd << "dot -Tpdf \"" << strFilename << ".dot\" -o \"" << strFilename << ".pdf\"";
 		int ret = system( cmd.str().c_str() );
 		if ( ret == 0 )
 		{
 			std::stringstream cmd;
-			cmd << "del /Q /F " << strFilename << ".dot";
+			cmd << "del /Q /F \"" << strFilename << ".dot\"";
 			ret = system( cmd.str().c_str() );
 		}
 		return ret;
