@@ -14,7 +14,7 @@ namespace Utilities
 	public:		
 		Profiler_Master()
 		{}
-		DECLSPEC_PROFILER static Profiler_Master& get()noexcept;
+		DECLSPEC_PROFILER static std::shared_ptr<Utilities::Profiler_Master> get()noexcept;
 		std::shared_ptr<Profiler> get_profiler( std::thread::id threadID )noexcept;
 		~Profiler_Master()
 		{}
