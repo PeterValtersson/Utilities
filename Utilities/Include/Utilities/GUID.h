@@ -18,7 +18,7 @@ namespace Utilities
 				return g.id;
 			}
 		};
-		GUID() : id( 0 )
+		constexpr GUID() : id( 0 )
 		{};
 		GUID( const StringHash idi )noexcept : id( idi )
 		{};
@@ -47,10 +47,12 @@ namespace Utilities
 		{
 			return id ^ other.id;
 		}
+		bool is_valid()const noexcept 
+		{
+			return id > 0;
+		}
 		StringHash id;
 	};
-
-
 }
 
 
