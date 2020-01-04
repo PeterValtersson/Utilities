@@ -304,6 +304,33 @@ public:
 			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
 		} );
 	}
+
+	TEST_METHOD( use_data_multiple )
+	{
+		Utilities::Memory::ChunkyAllocator allocator( 1000 );
+		auto h = allocator.allocate( sizeof( int ) );
+		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
+		{
+			m = 1337;
+		} );
+
+		auto h2 = allocator.allocate( sizeof( int ) );
+		allocator.use_data( h2, [=]( Utilities::Memory::MemoryBlock m )
+		{
+			m = 1333;
+		} );
+		
+		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
+		{
+			Assert::AreEqual( 1337, m.peek<int>() );
+		} );
+
+		allocator.use_data( h2, [=]( Utilities::Memory::MemoryBlock m )
+		{
+			Assert::AreEqual( 1333, m.peek<int>() );
+		} );
+	}
+
 	TEST_METHOD( use_data_write_larger )
 	{
 		Utilities::Memory::ChunkyAllocator allocator( 1000 );
