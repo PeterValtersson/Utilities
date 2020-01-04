@@ -51,6 +51,10 @@ namespace Utilities
 		{
 			return id > 0;
 		}
+		std::string to_string()const
+		{
+			return std::to_string( id );
+		}
 		StringHash id;
 	};
 }
