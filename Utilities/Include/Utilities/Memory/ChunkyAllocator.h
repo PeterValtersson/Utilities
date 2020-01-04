@@ -50,6 +50,8 @@ namespace Utilities
 				_root = &_rootChunk;
 				_end = &_endChunk;
 
+				setupfreeBlockList();
+
 				allocatedChunks = std::move( other.allocatedChunks );
 				handleToIndex = std::move( other.handleToIndex );
 				allocatedChunks = std::move( other.allocatedChunks );
