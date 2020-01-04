@@ -6,6 +6,18 @@ namespace Utilities
 {
 	namespace Binary_Stream
 	{
+		struct membuf : std::streambuf
+		{
+			membuf(char* begin, char* end) {
+				this->setg(begin, begin, end);
+			}
+		};
+		template<class _Stream = std::ostream>
+		_Stream create_stream_from_data(const void* const data, const size_t size)
+		{
+			membuf buf((char*)data, (char*)data + size);
+			return _Stream( &buf );
+		}
 		template <class _Stream, class _StringType = char, class _Size_Type = uint32_t>
 		void write_string_w_size( _Stream& out_stream, std::basic_string_view<_StringType> str )
 		{
