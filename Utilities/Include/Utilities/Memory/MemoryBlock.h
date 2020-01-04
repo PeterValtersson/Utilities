@@ -2,18 +2,19 @@
 #define _UTILITIES_MEMORYBLOCK_H_
 #include <fstream>
 #include <functional>
+#include <Utilities/FStreamHelpers.h>
 
 namespace Utilities
 {
 	namespace Memory
 	{
-		class MemoryBlock{
+		class MemoryBlock {
 		public:
-			MemoryBlock( void* const data, size_t& used, const size_t total, const std::function<MemoryBlock(size_t)>& realloc_callback ) : data( data ), used_size( used ), total_size( total ), realloc_callback( realloc_callback )
+			MemoryBlock( void* const data, size_t& used, const size_t total, const std::function<MemoryBlock( size_t )>& realloc_callback ) : data( data ), used_size( used ), total_size( total ), realloc_callback( realloc_callback )
 			{}
 			inline void realloc( const MemoryBlock& o )
 			{
-				new (this) MemoryBlock( o.data, o.used_size, o.total_size, o.realloc_callback );
+				new ( this ) MemoryBlock( o.data, o.used_size, o.total_size, o.realloc_callback );
 			}
 			template<class T, typename = std::enable_if<std::is_trivially_copyable<T>::value>>
 			inline void write( const T& v )
@@ -45,7 +46,7 @@ namespace Utilities
 			template<class T>
 			inline const auto peek()const
 			{
-				return *(T*const)data;
+				return *(T* const)data;
 			}
 			inline const size_t get_used_size()const
 			{
@@ -76,7 +77,15 @@ namespace Utilities
 			template<class T>
 			inline const T& peek()const
 			{
-				return *((const T*const)data);
+				return *( (const T* const)data );
+			}
+			inline const char* const get_char()const
+			{
+				return (const char* const)data;
+			}
+			std::istream get_stream()const
+			{
+				return Binary_Stream::create_stream_from_data<std::istream>( data, total_size );
 			}
 		private:
 			const void* const data;
