@@ -11,7 +11,10 @@ A collection of utilities that I use in many of my projects.
 * A macro for creating bitflags of ENUMs
 * A threadpool
 * Some helpers for strings and paths.
-
+* Some helpers for concurrent memory
+* Monadic optional
+* Base error exception
+* Some memory allocators
 
 ## Prerequisites
 Graphviz is needed for generation of tree structure.
