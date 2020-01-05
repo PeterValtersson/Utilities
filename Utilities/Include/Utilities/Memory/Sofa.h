@@ -228,7 +228,7 @@ namespace Utilities
 				return 0;
 			}
 
-			void writeToFile( std::ostream& file )noexcept
+			void writeToFile( std::ostream& file )const noexcept
 			{
 				//shrink_to_fit();
 				auto totalSize = get_memory_usage();
