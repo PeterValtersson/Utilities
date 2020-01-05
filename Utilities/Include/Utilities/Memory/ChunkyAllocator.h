@@ -12,7 +12,8 @@
 #include <sstream>
 #include <functional>
 #include "Memory_Literals.h"
-
+#undef max
+#undef min
 namespace Utilities
 {
 	namespace Memory
