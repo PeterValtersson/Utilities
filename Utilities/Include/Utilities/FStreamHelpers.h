@@ -6,22 +6,24 @@ namespace Utilities
 {
 	namespace Binary_Stream
 	{
-		struct membuf : std::streambuf
-		{
-			membuf(char* begin, char* end) {
-				this->setg(begin, begin, end);
+		template<class _Stream = std::istream>
+		struct membuf : std::streambuf {
+			_Stream stream;
+			membuf( char* begin, char* end ) : stream(this)
+			{
+				this->setg( begin, begin, end );
 			}
 		};
-		template<class _Stream = std::ostream>
-		_Stream create_stream_from_data(const void* const data, const size_t size)
+
+		template<class _Stream = std::istream>
+		membuf<_Stream> create_stream_from_data( const void* const data, const size_t size )
 		{
-			membuf buf((char*)data, (char*)data + size);
-			return _Stream( &buf );
+			return membuf( (char*)data, (char*)data + size );	
 		}
 		template <class _Stream, class _StringType = char, class _Size_Type = uint32_t>
 		void write_string_w_size( _Stream& out_stream, std::basic_string_view<_StringType> str )
 		{
-			_Size_Type size = static_cast<_Size_Type>(str.size());
+			_Size_Type size = static_cast<_Size_Type>( str.size() );
 			out_stream.write( (char*)&size, sizeof( size ) );
 			out_stream.write( str.data(), size * sizeof( _StringType ) );
 		}
@@ -71,12 +73,12 @@ namespace Utilities
 		}
 
 		template <class ST, class T>
-		inline void write( ST& file, const T * const value, const size_t size )
+		inline void write( ST& file, const T* const value, const size_t size )
 		{
 			file.write( (char*)value, size );
 		}
 		template <class ST, class T>
-		inline void read( ST& file, T * const value, const size_t size )
+		inline void read( ST& file, T* const value, const size_t size )
 		{
 			file.read( (char*)value, size );
 		}

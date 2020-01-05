@@ -83,10 +83,7 @@ namespace Utilities
 			{
 				return (const char* const)data;
 			}
-			std::istream get_stream()const
-			{
-				return Binary_Stream::create_stream_from_data<std::istream>( data, total_size );
-			}
+	
 		private:
 			const void* const data;
 
