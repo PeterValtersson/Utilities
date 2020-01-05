@@ -5,8 +5,13 @@
 #include <iomanip>
 #include <algorithm>
 #include <vector>
+
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #include <codecvt>
 
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 namespace Utilities
 {
 	namespace String
@@ -110,17 +115,17 @@ namespace Utilities
 				return ++f;
 		}
 
-		//inline std::wstring utf8_2_utf16( std::string_view str )
-		//{
-		//	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-		//	return conv.from_bytes( str.data() );
-		//}
+		inline std::wstring utf8_2_utf16( std::string_view str )
+		{
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+			return conv.from_bytes( str.data() );
+		}
 
-		//inline std::string utf16_2_utf8( std::wstring_view str )
-		//{
-		//	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-		//	return conv.to_bytes( str.data() );
-		//}
+		inline std::string utf16_2_utf8( std::wstring_view str )
+		{
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+			return conv.to_bytes( str.data() );
+		}
 		//inline std::wstring string_2_wstring( std::string_view str )
 		//{
 		//	return utf8_2_utf16( str );
