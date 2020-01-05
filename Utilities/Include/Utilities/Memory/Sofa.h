@@ -49,7 +49,7 @@ namespace Utilities
 			{
 				for ( auto&& v : typeSizes )
 					byteWidth += v;
-				Allocate( maxEntries );
+				allocate( maxEntries );
 			}
 			~SofA_Imp()
 			{
@@ -71,7 +71,7 @@ namespace Utilities
 			/*@brief Shrinks the block to exactly fit the number of entries.*/
 			inline void shrink_to_fit() noexcept
 			{
-				Allocate( numEntries );
+				allocate( numEntries );
 			}
 			inline optional<std::size_t> find( const Key key )const noexcept
 			{
@@ -89,7 +89,7 @@ namespace Utilities
 			std::size_t add( const Key key, const typename char_conv<Types>::type... args )noexcept
 			{
 				if ( numEntries + 1 > maxEntries )
-					Allocate( maxEntries * 2 );
+					allocate( maxEntries * 2 );
 				auto index = map[key] = numEntries++;
 				setValue( typePointers, std::make_tuple( key, args... ), index );
 				return index;
@@ -101,7 +101,7 @@ namespace Utilities
 					return *entry;
 
 				if ( numEntries + 1 > maxEntries )
-					Allocate( maxEntries * 2 );
+					allocate( maxEntries * 2 );
 				std::get<0>( typePointers )[numEntries] = key;
 				std::size_t ret = map[key] = numEntries++;
 				return ret;
@@ -166,15 +166,15 @@ namespace Utilities
 				map.erase( at_key );
 			}
 
-			std::size_t GetMemoryUsage()const noexcept
+			std::size_t get_memory_usage()const noexcept
 			{
 				return byteWidth * maxEntries;
 			}
 			std::size_t GetWriteToFileSize()const noexcept
 			{
-				return GetMemoryUsage() + sizeof( version ) + sizeof( byteWidth ) + sizeof( std::size_t ) + sizeof( numEntries );
+				return get_memory_usage() + sizeof( version ) + sizeof( byteWidth ) + sizeof( std::size_t ) + sizeof( numEntries );
 			}
-			void Allocate( std::size_t newSize )noexcept
+			void allocate( std::size_t newSize )noexcept
 			{
 				std::size_t newmaxEntries = newSize;
 				void* newData = operator new(newmaxEntries * byteWidth);
@@ -191,7 +191,7 @@ namespace Utilities
 				data = newData;
 			}
 
-			void Reinit( std::size_t newnumEntries )noexcept
+			void reinit( std::size_t newnumEntries )noexcept
 			{
 				numEntries = newnumEntries;
 				map.clear();
@@ -216,14 +216,14 @@ namespace Utilities
 					return -2;
 
 				maxEntries = totalSize / byteWidth;
-				Allocate( maxEntries );
+				allocate( maxEntries );
 
 				std::size_t numEntires;
 				Binary_Stream::read( file, numEntires );
 
 				Binary_Stream::read( file, data, totalSize );
 
-				Reinit( numEntires );
+				reinit( numEntires );
 
 				return 0;
 			}
@@ -231,7 +231,7 @@ namespace Utilities
 			void writeToFile( std::ostream& file )noexcept
 			{
 				//shrink_to_fit();
-				auto totalSize = GetMemoryUsage();
+				auto totalSize = get_memory_usage();
 				Binary_Stream::write( file, version );
 				Binary_Stream::write( file, byteWidth );
 				Binary_Stream::write( file, totalSize );
@@ -439,7 +439,7 @@ namespace Utilities
 		public:
 			SofV( std::size_t size = 64 ) : numEntries( 0 ), maxEntries( size )
 			{
-				Allocate( maxEntries );
+				allocate( maxEntries );
 			}
 
 			~SofV()
@@ -454,7 +454,7 @@ namespace Utilities
 
 			inline void shrink_to_fit()
 			{
-				Allocate( numEntries );
+				allocate( numEntries );
 			}
 			inline optional<std::size_t> find( const Key key )const
 			{
@@ -472,7 +472,7 @@ namespace Utilities
 			std::size_t add( const Key key )
 			{
 				if ( numEntries + 1 > maxEntries )
-					Allocate( maxEntries * 2 );
+					allocate( maxEntries * 2 );
 				auto index = numEntries++;
 				std::get<0>( tvec )[index] = key;
 				return map[key] = index;
@@ -481,7 +481,7 @@ namespace Utilities
 			void add( const Key key, const Types... args )
 			{
 				if ( numEntries + 1 > maxEntries )
-					Allocate( maxEntries * 2 );
+					allocate( maxEntries * 2 );
 				auto index = map[key] = numEntries++;
 				const auto tpl = std::make_tuple( key, args... );
 				setValue<0, Key, Types...>( tvec, tpl, index );
@@ -587,7 +587,7 @@ namespace Utilities
 				resizeVectorsInTuple<I + 1, Types...>( tuple, newSize );
 			}
 
-			void Allocate( std::size_t newSize )
+			void allocate( std::size_t newSize )
 			{
 				resizeVectorsInTuple( tvec, newSize );
 				maxEntries = newSize;

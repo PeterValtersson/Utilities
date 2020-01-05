@@ -163,7 +163,7 @@ public:
 		{
 			s.add( i, i, i % 2 );
 		}
-		s.Allocate( 200000 );
+		s.allocate( 200000 );
 		for ( int i = 0; i < 100000; i++ )
 		{
 			Assert::IsTrue( s.find( i ).has_value() );
@@ -178,7 +178,7 @@ public:
 			int,
 			bool> s;
 
-		s.Allocate( 100000 );
+		s.allocate( 100000 );
 		for ( int i = 0; i < 100000; i++ )
 		{
 			s.add( i, i, i % 2 );
@@ -198,7 +198,7 @@ public:
 			int,
 			bool> s;
 
-		s.Allocate( 100000 );
+		s.allocate( 100000 );
 		for ( int i = 0; i < 50000; i++ )
 		{
 			s.add( i, i, i % 2 );
@@ -224,7 +224,7 @@ public:
 				int,
 				bool> s;
 
-			s.Allocate( 100000 );
+			s.allocate( 100000 );
 			for ( int i = 0; i < 100000; i++ )
 			{
 				s.add( i, i, i % 2 );

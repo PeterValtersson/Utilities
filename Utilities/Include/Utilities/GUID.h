@@ -2,6 +2,7 @@
 #define _UTILZ_GUID_H_
 #include "CompileTimeString.h"
 #include <string>
+#include <string_view>
 
 namespace Utilities
 {
