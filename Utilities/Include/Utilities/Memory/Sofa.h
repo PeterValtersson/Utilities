@@ -509,11 +509,16 @@ namespace Utilities
 				return std::get<N>( tvec )[index];
 			}
 
+			template<std::size_t N>
+			inline const auto& peek( )const
+			{
+				return std::get<N>( tvec );
+			}
 
 			template<std::size_t N>
 			inline auto get()
 			{
-				return std::get<N>( tvec ).data();
+				return std::get<N>( tvec );
 			}
 
 			bool erase( const Key key )
