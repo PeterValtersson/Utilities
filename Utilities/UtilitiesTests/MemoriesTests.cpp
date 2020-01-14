@@ -277,14 +277,14 @@ public:
 		auto h = allocator.allocate( sizeof( v ) );
 		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
-			Assert::AreEqual<size_t>( sizeof(v), m.used_size );
+			Assert::AreEqual<size_t>( sizeof( v ), m.used_size );
 		} );
 	}
 	TEST_METHOD( use_data_write )
 	{
 		Utilities::Memory::ChunkyAllocator allocator( 1000 );
 		int v = 1337;
-		decltype(v) v2 = 1338;
+		decltype( v ) v2 = 1338;
 		auto h = allocator.allocate( sizeof( v ) );
 		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
@@ -292,7 +292,7 @@ public:
 		} );
 		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
-			Assert::AreEqual( v, m.peek<decltype(v)>() );
+			Assert::AreEqual( v, m.peek<decltype( v )>() );
 		} );
 
 		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
@@ -301,7 +301,7 @@ public:
 		} );
 		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
-			Assert::AreEqual( v2, m.peek<decltype(v2)>() );
+			Assert::AreEqual( v2, m.peek<decltype( v2 )>() );
 		} );
 	}
 
@@ -319,7 +319,7 @@ public:
 		{
 			m = 1333;
 		} );
-		
+
 		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
 			Assert::AreEqual( 1337, m.peek<int>() );
@@ -336,7 +336,7 @@ public:
 		Utilities::Memory::ChunkyAllocator allocator( 1000 );
 		int v = 1337;
 		long int v2 = 1338;
-		auto h = allocator.allocate( sizeof(v) );
+		auto h = allocator.allocate( sizeof( v ) );
 		char* d = new char[Utilities::Memory::ChunkyAllocator::blocksize() + 1];
 		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
@@ -344,10 +344,10 @@ public:
 		} );
 		allocator.use_data( h, [=]( Utilities::Memory::MemoryBlock m )
 		{
-			
+
 			m.write( d, Utilities::Memory::ChunkyAllocator::blocksize() + 1 );
 			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() + 1, m.get_used_size() );
-			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize()*2 - sizeof( size_t ) * 2, m.get_total_size() );
+			Assert::AreEqual<size_t>( Utilities::Memory::ChunkyAllocator::blocksize() * 2 - sizeof( size_t ) * 2, m.get_total_size() );
 		} );
 		allocator.peek_data( h, [=]( const Utilities::Memory::ConstMemoryBlock m )
 		{
@@ -365,7 +365,7 @@ public:
 		allocator.write_data( h, &v, sizeof( v ) );
 		allocator.peek_data( h, [=]( Utilities::Memory::ConstMemoryBlock m )
 		{
-			Assert::AreEqual( v, m.peek<decltype(v)>() );
+			Assert::AreEqual( v, m.peek<decltype( v )>() );
 		} );
 	}
 	};
@@ -381,7 +381,7 @@ public:
 
 	};
 
-	class Test		{
+	class Test{
 		Utilities::Concurrent<int> ci = 1;
 	public:
 		int op()const
@@ -406,7 +406,7 @@ public:
 		TEST_METHOD( Return )
 		{
 			Utilities::Concurrent<int> ci;
-			auto i =ci( []( int& i )
+			auto i = ci( []( int& i )
 			{
 				i = 1;
 				return i;
@@ -431,6 +431,165 @@ public:
 		{
 			Test t;
 			Assert::AreEqual( 1, t.op() );
+		}
+	};
+
+
+
+	TEST_CLASS( SofV ){
+	public:
+		TEST_METHOD( Add )
+		{
+
+			Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::string,
+				std::vector<int>,
+				std::vector<std::string>> a;
+			std::vector<int> vi = { 1, -2, 3 };
+			int i = 1;
+			a.add( "Test", i, "test", { 1, -2, 3 }, { "Test2", "Test3" } );
+			auto find = a.find( "Test" );
+			Assert::IsTrue( find.has_value(), L"Could not find", LINE_INFO() );
+			Assert::AreEqual( Utilities::GUID( "Test" ).id, a.peek<0>( *find ).id, L"Incorrect ID", LINE_INFO() );
+			Assert::AreEqual( 1, a.peek<1>( *find ), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<std::string>( "test", a.peek<2>( *find ), L"Incorrect", LINE_INFO() );
+			auto& iv = a.peek<3>( *find );
+			Assert::AreEqual<size_t>( 3, iv.size(), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual( 1, iv[0], L"Incorrect", LINE_INFO() );
+			Assert::AreEqual( -2, iv[1], L"Incorrect", LINE_INFO() );
+			Assert::AreEqual( 3, iv[2], L"Incorrect", LINE_INFO() );
+			auto& sv = a.peek<4>( *find );
+			Assert::AreEqual<size_t>( 2, sv.size(), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<std::string>( "Test2", sv[0], L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<std::string>( "Test3", sv[1], L"Incorrect", LINE_INFO() );
+		}
+		TEST_METHOD( Add_Recursive_Sofa )
+		{
+
+			typedef Utilities::Memory::SofA<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int> sofa;
+			typedef Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::vector<int>> sofv;
+
+			Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::string,
+				std::vector<int>,
+				std::vector<std::string>,
+				sofa,
+				sofv> a;
+			a.add( "Test" );
+			a.get<1>( 0 ) = 1;
+			a.get<2>( 0 ) = "test";
+			a.get<3>( 0 ) = { 1, -2, 3 };
+			a.get<4>( 0 ) = { "Test2", "Test3" };
+
+			auto find = a.find( "Test" );
+			Assert::IsTrue( find.has_value(), L"Could not find", LINE_INFO() );
+			Assert::AreEqual( Utilities::GUID( "Test" ).id, a.peek<0>( *find ).id, L"Incorrect ID", LINE_INFO() );
+			Assert::AreEqual( 1, a.peek<1>( *find ), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<std::string>( "test", a.peek<2>( *find ), L"Incorrect", LINE_INFO() );
+			auto& iv = a.peek<3>( *find );
+			Assert::AreEqual<size_t>( 3, iv.size(), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual( 1, iv[0], L"Incorrect", LINE_INFO() );
+			Assert::AreEqual( -2, iv[1], L"Incorrect", LINE_INFO() );
+			Assert::AreEqual( 3, iv[2], L"Incorrect", LINE_INFO() );
+			auto& sv = a.peek<4>( *find );
+			Assert::AreEqual<size_t>( 2, sv.size(), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<std::string>( "Test2", sv[0], L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<std::string>( "Test3", sv[1], L"Incorrect", LINE_INFO() );
+
+			a.get<5>( 0 ).add( "Test", 1 );
+			Assert::AreEqual( 1, a.peek<5>( 0 ).peek<1>( 0 ), L"Incorrect", LINE_INFO() );
+			a.get<6>( 0 ).add( "Test", 1, { -1 } );
+			Assert::AreEqual( 1, a.peek<6>( 0 ).peek<1>( 0 ), L"Incorrect", LINE_INFO() );
+			auto& iv2 = a.peek<6>( 0 ).peek<2>( 0 );
+			Assert::AreEqual( -1, iv2[0], L"Incorrect", LINE_INFO() );
+		}
+		TEST_METHOD( Erase )
+		{
+			typedef Utilities::Memory::SofA<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int> sofa;
+			typedef Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::vector<int>> sofv;
+
+			Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::string,
+				std::vector<int>,
+				std::vector<std::string>,
+				sofa,
+				sofv> a;
+			a.add( "Test" );
+			a.get<1>( 0 ) = 1;
+			a.get<2>( 0 ) = "test";
+			a.get<3>( 0 ) = { 1, -2, 3 };
+			a.get<4>( 0 ) = { "Test2", "Test3" };
+			a.get<5>( 0 ).add( "Test", 1 );
+			a.get<6>( 0 ).add( "Test", 1, { -1 } );
+
+			a.erase( "Test" );
+			Assert::AreEqual<size_t>( 0, a.size(), L"Incorrect", LINE_INFO() );
+			a.add( "Test" );
+			auto& iv = a.peek<3>( 0 );
+
+			Assert::AreEqual<size_t>( 0, iv.size(), L"Incorrect", LINE_INFO() );
+
+			auto& sv = a.peek<4>( 0 );
+			Assert::AreEqual<size_t>( 0, sv.size(), L"Incorrect", LINE_INFO() );
+
+			Assert::AreEqual<size_t>( 0, a.peek<5>( 0 ).size(), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<size_t>( 0, a.peek<6>( 0 ).size(), L"Incorrect", LINE_INFO() );
+		}
+
+		TEST_METHOD( Clear )
+		{
+			typedef Utilities::Memory::SofA<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int> sofa;
+			typedef Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::vector<int>> sofv;
+
+			Utilities::Memory::SofV<
+				Utilities::GUID, Utilities::GUID::Hasher,
+				int,
+				std::string,
+				std::vector<int>,
+				std::vector<std::string>,
+				sofa,
+				sofv> a;
+			a.add( "Test" );
+			a.get<1>( 0 ) = 1;
+			a.get<2>( 0 ) = "test";
+			a.get<3>( 0 ) = { 1, -2, 3 };
+			a.get<4>( 0 ) = { "Test2", "Test3" };
+			a.get<5>( 0 ).add( "Test", 1 );
+			a.get<6>( 0 ).add( "Test", 1, { -1 } );
+
+			a.clear();
+			Assert::AreEqual<size_t>( 0, a.size(), L"Incorrect", LINE_INFO() );
+			a.add( "Test" );
+			auto& iv = a.peek<3>( 0 );
+
+			Assert::AreEqual<size_t>( 0, iv.size(), L"Incorrect", LINE_INFO() );
+
+			auto& sv = a.peek<4>( 0 );
+			Assert::AreEqual<size_t>( 0, sv.size(), L"Incorrect", LINE_INFO() );
+
+			Assert::AreEqual<size_t>( 0, a.peek<5>( 0 ).size(), L"Incorrect", LINE_INFO() );
+			Assert::AreEqual<size_t>( 0, a.peek<6>( 0 ).size(), L"Incorrect", LINE_INFO() );
 		}
 	};
 }
