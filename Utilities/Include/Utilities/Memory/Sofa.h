@@ -8,6 +8,9 @@
 #include <fstream>
 #include <Utilities/FStreamHelpers.h>
 #include <string_view>
+#include <array>
+#include <numeric>
+
 namespace Utilities
 {
 	namespace Memory
@@ -20,6 +23,18 @@ namespace Utilities
 		struct make_ptr_t<T*>{
 			typedef T* type;
 		};
+
+		template<typename T, std::size_t N>
+		constexpr T compile_time_accumulator( std::array<T, N> const& A, int const i = 0 )
+		{
+			return ( i < N ) ? A[i] + compile_time_accumulator( A, i + 1 ) : T( 0 );
+		}
+
+		template<typename... Types>
+		constexpr auto size_of_prm_pack()
+		{
+			return compile_time_accumulator( std::array<std::size_t, sizeof...( Types )>{ sizeof( Types )... } );
+		}
 
 		template <class Key, class KeyHash, bool Enable, typename... Types>
 		class SofA_Imp;
@@ -50,6 +65,30 @@ namespace Utilities
 				for ( auto&& v : typeSizes )
 					byteWidth += v;
 				allocate( maxEntries );
+			}
+
+			SofA_Imp( SofA_Imp&& other )
+			{
+				data = other.data; other.data = nullptr;
+				numEntries = other.numEntries;
+				maxEntries = other.maxEntries;
+				byteWidth = other.byteWidth;
+
+				typePointers = std::move( other.typePointers );
+
+				map = std::move( other.map );
+
+			}
+			void operator=( SofA_Imp&& other )
+			{
+				data = other.data; other.data = nullptr;
+				numEntries = other.numEntries;
+				maxEntries = other.maxEntries;
+				byteWidth = other.byteWidth;
+
+				typePointers = std::move( other.typePointers );
+
+				map = std::move( other.map );
 			}
 			~SofA_Imp()
 			{
@@ -299,6 +338,7 @@ namespace Utilities
 			void* data;
 			std::size_t numEntries;
 			std::size_t maxEntries;
+			//static constexpr std::size_t byteWidth = size_of_prm_pack<Types...>();
 			std::size_t byteWidth;
 
 			const std::array<std::size_t, sizeof...( Types ) + 1> typeSizes{ sizeof( Key ), sizeof( Types )... };
@@ -436,11 +476,11 @@ namespace Utilities
 
 
 		template <size_t I, class... Ts>
-		decltype( auto ) get_n_arg(const Ts&... ts )
+		decltype( auto ) get_n_arg( const Ts&... ts )
 		{
 			return std::get<I>( std::forward_as_tuple( ts... ) );
 		}
-	
+
 		template <typename T, typename = int>
 		struct has_clear : std::false_type{};
 
@@ -454,7 +494,24 @@ namespace Utilities
 			{
 				allocate( maxEntries );
 			}
+			SofV( SofV&& other )
+			{
 
+				numEntries = other.numEntries;
+				maxEntries = other.maxEntries;
+				tvec = std::move( other.tvec );
+				map = std::move( other.map );
+
+			}
+			void operator=( SofV&& other )
+			{
+
+				numEntries = other.numEntries;
+				maxEntries = other.maxEntries;
+				tvec = std::move( other.tvec );
+				map = std::move( other.map );
+
+			}
 			~SofV()
 			{
 
@@ -483,7 +540,7 @@ namespace Utilities
 				return numEntries;
 			};
 
-			std::size_t add(const Key key )
+			std::size_t add( const Key key )
 			{
 				if ( numEntries + 1 > maxEntries )
 					allocate( maxEntries * 2 );
@@ -492,7 +549,7 @@ namespace Utilities
 				return map[key] = index;
 			}
 
-			void add(const Key key, const Types&... args )
+			void add( const Key key, const Types&... args )
 			{
 				if ( numEntries + 1 > maxEntries )
 					allocate( maxEntries * 2 );
@@ -576,7 +633,7 @@ namespace Utilities
 
 			template<std::size_t I = 0, class... Types>
 			inline typename std::enable_if < I < sizeof...( Types ), void>::type
-				setValue( std::tuple<std::vector<Types>...> & tuple, std::size_t index, const Types&... args )
+				setValue( std::tuple<std::vector<Types>...> & tuple, std::size_t index, const Types &... args )
 			{
 				std::get<I>( tuple )[index] = get_n_arg<I>( args... );
 				setValue<I + 1, Types...>( tuple, index, args... );
