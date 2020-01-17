@@ -6,13 +6,16 @@
 namespace Utilities
 {
 	struct Exception : public std::exception {
+		Exception( std::string_view title, std::string_view what ) : _what( what )
+		{}
 		Exception( std::string_view what ) : _what( what ) { }
 		Exception( std::string_view what, std::string_view file, uint32_t line ) : _what( std::string(what) + "\nFile: \n" + std::string( file ) + ".\nLine: " + std::to_string( line ) + "." ) { }
 		virtual const char* what() const override
 		{
 			return _what.c_str();
 		}
-	private:
+
+		std::string title;
 		std::string _what;
 	};
 }
