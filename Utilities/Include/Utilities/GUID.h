@@ -40,6 +40,11 @@ namespace Utilities
 		{
 			this->id = hashString( str.data(), str.size() ); return *this;
 		}
+		template<std::size_t N>
+		constexpr GUID& operator=( const char( &a )[N] )noexcept
+		{
+			id = hashString( a );
+		};
 		constexpr operator StringHash()noexcept
 		{
 			return id;
