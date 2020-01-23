@@ -44,6 +44,7 @@ namespace Utilities
 		constexpr GUID& operator=( const char( &a )[N] )noexcept
 		{
 			id = hashString( a );
+			return *this;
 		};
 		constexpr operator StringHash()noexcept
 		{
