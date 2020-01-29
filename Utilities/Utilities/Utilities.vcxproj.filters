@@ -19,6 +19,9 @@
     <Filter Include="Memory">
       <UniqueIdentifier>{f0013a3b-2b09-439a-9109-340a08f70dc3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Time">
+      <UniqueIdentifier>{2a9ac89d-6668-49e4-84dd-f6032a241f87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Utilities\Memory\Memory_Literals.h">
@@ -57,14 +60,23 @@
     <ClInclude Include="..\Include\Utilities\ThreadPool.h">
       <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Utilities\TimeUtilities.h">
-      <Filter>Other</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Utilities\MonadicOptional.h">
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Utilities\Flags.h">
       <Filter>Other</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\Utilities\Time\TimeUtilities.h">
+      <Filter>Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Time</Filter>
+    </ClInclude>
+    <ClInclude Include="StopWatch.h">
+      <Filter>Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Time_Typedefs.h">
+      <Filter>Time</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
