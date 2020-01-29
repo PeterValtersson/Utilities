@@ -12,6 +12,8 @@
 #define ENUM_FLAGS(T) \
 inline T operator~ (const T& t) { return (T) (~static_cast<std::underlying_type_t <T>>(t)); } \
 inline bool flag_has (const T& lhs, const T& rhs) { return (static_cast<std::underlying_type_t <T>>(lhs) & static_cast<std::underlying_type_t <T>>(rhs));  } \
+inline bool operator! (const T& t) { return !(bool)static_cast<std::underlying_type_t <T>>(t);  } \
+inline bool operator* (const T& t) { return (bool)static_cast<std::underlying_type_t <T>>(t);  } \
 ENUM_FLAG_OPERATOR2(T,|) \
 ENUM_FLAG_OPERATOR2(T,&) \
 ENUM_FLAG_OPERATOR(T,|) \
