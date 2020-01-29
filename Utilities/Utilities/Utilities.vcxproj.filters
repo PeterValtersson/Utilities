@@ -69,13 +69,13 @@
     <ClInclude Include="..\Include\Utilities\Time\TimeUtilities.h">
       <Filter>Time</Filter>
     </ClInclude>
-    <ClInclude Include="Timer.h">
+    <ClInclude Include="..\Include\Utilities\Time\Time_Typedefs.h">
       <Filter>Time</Filter>
     </ClInclude>
-    <ClInclude Include="StopWatch.h">
+    <ClInclude Include="..\Include\Utilities\Time\Timer.h">
       <Filter>Time</Filter>
     </ClInclude>
-    <ClInclude Include="Time_Typedefs.h">
+    <ClInclude Include="..\Include\Utilities\Time\StopWatch.h">
       <Filter>Time</Filter>
     </ClInclude>
   </ItemGroup>

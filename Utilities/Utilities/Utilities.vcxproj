@@ -156,10 +156,10 @@
     <ClInclude Include="..\Include\Utilities\PathHelpers.h" />
     <ClInclude Include="..\Include\Utilities\StringUtilities.h" />
     <ClInclude Include="..\Include\Utilities\ThreadPool.h" />
+    <ClInclude Include="..\Include\Utilities\Time\StopWatch.h" />
+    <ClInclude Include="..\Include\Utilities\Time\Timer.h" />
     <ClInclude Include="..\Include\Utilities\Time\TimeUtilities.h" />
-    <ClInclude Include="StopWatch.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Time_Typedefs.h" />
+    <ClInclude Include="..\Include\Utilities\Time\Time_Typedefs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
