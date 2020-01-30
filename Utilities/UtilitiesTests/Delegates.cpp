@@ -67,6 +67,9 @@ public:
 		{
 			return 5;
 		} );
+		Utilities::Delegate<void()> dd( []
+		{} );
+
 		Utilities::Delegate<int()> d = l;
 
 		Assert::AreEqual( 5, d() );

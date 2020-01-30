@@ -7,7 +7,11 @@
 namespace Utilities
 {
 
+	template <typename T, typename = int>
+	struct has_target_type : std::false_type{};
 
+	template <typename T>
+	struct has_target_type <T, decltype( &T::target_type, 0 )> : std::true_type{};
 
 	template <typename T> class Delegate;
 
@@ -16,11 +20,11 @@ namespace Utilities
 		std::function<RET( PARAMS... )> invoker;
 		size_t uniqueIdentifier;
 	public:
-
-		Delegate()
+		using Callback_Signature = RET( PARAMS... );
+		Delegate()noexcept
 		{}
 
-		operator bool()
+		operator bool()noexcept
 		{
 			return invoker.operator bool();
 		}
@@ -28,7 +32,7 @@ namespace Utilities
 	/**
 	*@brief Copy constructor.
 	*/
-		Delegate( const Delegate& other )
+		Delegate( const Delegate& other )noexcept
 		{
 			this->invoker = other.invoker;
 			this->uniqueIdentifier = other.uniqueIdentifier;
@@ -36,7 +40,7 @@ namespace Utilities
 		/**
 		*@brief Copy constructor with rvalue.
 		*/
-		Delegate( Delegate&& other )
+		Delegate( Delegate&& other )noexcept
 		{
 			this->invoker = std::move( other.invoker );
 			this->uniqueIdentifier = other.uniqueIdentifier;
@@ -56,7 +60,7 @@ namespace Utilities
 		* Call(&foo); // Prints "Hello World"
 		* @endcode
 		*/
-		Delegate( RET( ptr )( PARAMS... ) )
+		Delegate( RET( ptr )( PARAMS... ) )noexcept
 		{
 			invoker = ptr;
 			uniqueIdentifier = (size_t)ptr;
@@ -75,13 +79,15 @@ namespace Utilities
 		* @endcode
 		*/
 		template <typename T>
-		Delegate( const T& lambda )
+		Delegate( const T& lambda )noexcept
 		{
 			invoker = lambda;
 			if constexpr ( std::is_same<T, std::function< RET( PARAMS... ) >>::value )
 				uniqueIdentifier = lambda.target_type().hash_code();
-			else
+			else if constexpr (std::is_convertible<T, size_t>::value )
 				uniqueIdentifier = ( size_t )lambda;
+			else
+				uniqueIdentifier = invoker.target_type().hash_code();
 		}
 
 
@@ -108,7 +114,7 @@ namespace Utilities
 
 
 		template <class T>
-		Delegate( T* instance, RET( T::* TMethod )( PARAMS... ) )
+		Delegate( T* instance, RET( T::* TMethod )( PARAMS... ) )noexcept
 		{
 			invoker = [instance, TMethod]( PARAMS... params ) -> RET
 			{
@@ -146,7 +152,7 @@ namespace Utilities
 		* @endcode
 		*/
 		template <class T>
-		Delegate( const T* instance, RET( T::* TMethod )( PARAMS... ) const )
+		Delegate( const T* instance, RET( T::* TMethod )( PARAMS... ) const )noexcept
 		{
 			invoker = [instance, TMethod]( PARAMS... params ) -> RET
 			{
@@ -165,11 +171,11 @@ namespace Utilities
 		/**
 		*@brief Equal operator.
 		*/
-		constexpr bool operator==( const Delegate& other )const
+		constexpr bool operator==( const Delegate& other )const noexcept
 		{
 			return uniqueIdentifier == other.uniqueIdentifier;
 		}
-		constexpr bool operator!=( const Delegate& other )const
+		constexpr bool operator!=( const Delegate& other )const noexcept
 		{
 			return uniqueIdentifier != other.uniqueIdentifier;
 		}
@@ -181,7 +187,7 @@ namespace Utilities
 		/**
 		*@brief Assignment from Delegate to Delegate.
 		*/
-		Delegate& operator=( const Delegate& other )
+		Delegate& operator=( const Delegate& other )noexcept
 		{
 			this->invoker = other.invoker;
 			uniqueIdentifier = other.uniqueIdentifier;
@@ -191,17 +197,18 @@ namespace Utilities
 		/**
 		*@brief Assignment from Delegate to Delegate, with rvalue.
 		*/
-		Delegate& operator=( const Delegate&& other )
+		Delegate& operator=( Delegate&& other )noexcept
 		{
 			this->invoker = std::move( other.invoker );
 			uniqueIdentifier = other.uniqueIdentifier;
+			other.uniqueIdentifier = 0;
 			return *this;
 		}
 
 		/**
 		*@brief Invoke the delegate.
 		*/
-		inline RET operator()( PARAMS... args )const
+		inline RET operator()( PARAMS... args )const noexcept
 		{
 			return invoker( std::forward<PARAMS>( args )... );
 		}

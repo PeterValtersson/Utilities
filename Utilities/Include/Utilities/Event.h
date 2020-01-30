@@ -5,8 +5,14 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
+#include <type_traits>
+
 namespace Utilities
 {
+	template<typename T1, typename T2>
+	struct not_same{
+		static constexpr bool value = !std::is_same<T1,T2>::value;
+	};
 	template <typename T> class Event;
 
 	/**
@@ -36,7 +42,7 @@ namespace Utilities
 		* ev(); // Prints "Hello World" four times
 		* @endcode
 		*/
-		Event& operator+=( const Delegate<RET( PARAMS... )>& other )
+		Event& operator+=( const Delegate<RET( PARAMS... )>& other )noexcept
 		{
 			invokerList.push_back( other );
 			return *this;
@@ -44,7 +50,7 @@ namespace Utilities
 		/**
 		*@brief Makes a copy of the invokerlist
 		*/
-		Event& operator=( const Event<RET( PARAMS... )>& other )
+		Event& operator=( const Event<RET( PARAMS... )>& other )noexcept
 		{
 			this->invokerList = other.invokerList;
 			return *this;
@@ -53,18 +59,18 @@ namespace Utilities
 		/**
 		*@brief Unregister all callbacks.
 		*/
-		inline void Clear()
+		inline void Clear()noexcept
 		{
 			invokerList.clear();
 		}
-		inline size_t NumRegisteredCallbacks()const
+		inline size_t NumRegisteredCallbacks()const noexcept
 		{
 			return invokerList.size();
 		}
 		/**
 		*@brief unregistering.
 		*/
-		Event& operator-=( const Delegate<RET( PARAMS... )>& other )
+		Event& operator-=( const Delegate<RET( PARAMS... )>& other )noexcept
 		{
 			invokerList.erase( std::remove_if( invokerList.begin(),
 											   invokerList.end(),
@@ -84,7 +90,7 @@ namespace Utilities
 		/**
 		*@brief Invoke all the delegates. No return handling.
 		*/
-		inline void operator()( PARAMS... args )const
+		inline void operator()( PARAMS... args )const noexcept
 		{
 			for ( auto& i : invokerList )
 				i( std::forward<PARAMS>( args )... );
@@ -106,7 +112,7 @@ namespace Utilities
 		* @endcode
 		*/
 		template<typename HANDLER>
-		void operator()( PARAMS... param, HANDLER handler ) const
+		void operator()( PARAMS... param, HANDLER handler ) const noexcept
 		{
 			size_t index = 0;
 			for ( auto& item : invokerList )
@@ -132,9 +138,10 @@ namespace Utilities
 		  * }); // Prints 2, 6
 		  * @endcode
 		  */
-		void operator()( PARAMS... param, Delegate<void( size_t, RET& )> handler ) const
+		template<class T = std::enable_if_t<!std::is_same<void, RET>::value, RET > >
+		void operator()( PARAMS... args, Delegate<void( size_t, T& )> handler ) const noexcept
 		{
-			operator() < decltype( handler ) > ( param..., handler );
+			operator() < decltype( handler ) > ( std::forward<PARAMS>( args )..., handler );
 		}
 
 		/**
@@ -151,9 +158,10 @@ namespace Utilities
 		* }); // Prints 2, 6
 		* @endcode
 		*/
-		void operator()( PARAMS... param, std::function<void( size_t, RET& )> handler ) const
+		template<class T = std::enable_if_t<!std::is_same<void, RET>::value, RET > >
+		void operator()( PARAMS... args, std::function<void( size_t, T& )> handler ) const noexcept
 		{
-			operator() < decltype( handler ) > ( param..., handler );
+			operator() < decltype( handler ) > ( std::forward<PARAMS>( args )..., handler );
 		}
 	};
 
