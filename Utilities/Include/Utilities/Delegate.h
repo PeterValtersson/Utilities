@@ -3,56 +3,6 @@
 #pragma once
 #include <functional>
 #include <type_traits>
-//#include <utility>		
-//#include <cstdlib>
-//#include <array>
-//#include <tuple>
-//
-//template<int I> struct placeholder{};
-//
-//namespace std
-//{
-//	template<int I>
-//	struct is_placeholder< ::placeholder<I>> : std::integral_constant<int, I>{};
-//} // std::
-//
-//
-//template <std::size_t... Indices>
-//struct indices{};
-//
-//template <class Tuple, std::size_t... Indices>
-//std::array<int, std::tuple_size<Tuple>::value> f_them_all( Tuple&& t, indices<Indices...> )
-//{
-//	return std::array<int, std::tuple_size<Tuple>::value> {
-//		{
-//			f( std::get<Indices>( std::forward<Tuple>( t ) ) )...
-//		} };
-//}
-//
-//template <std::size_t N, std::size_t... Is>
-//struct build_indices
-//	: build_indices<N - 1, N - 1, Is...>{};
-//
-//template <std::size_t... Is>
-//struct build_indices<0, Is...> : indices<Is...>{};
-//
-//template <typename Tuple>
-//using IndicesFor = build_indices<std::tuple_size<Tuple>::value>;
-//
-//template <typename Tuple>
-//std::array<int, std::tuple_size<Tuple>::value> f_them_all( Tuple&& t )
-//{
-//	return f_them_all( std::forward<Tuple>( t ), IndicesFor<Tuple> {} );
-//}
-
-
-
-	/*	template<class T, std::size_t... Is>
-		auto easy_bind( T* instance, RET( T::* TMethod )( PARAMS... ), indices<Is...> )
-			-> decltype( std::bind( TMethod, instance, placeholder<Is + 1>{}... ))
-		{
-			return std::bind( TMethod, instance, placeholder<Is + 1>{}... );
-		}*/
 
 namespace Utilities
 {
@@ -160,26 +110,11 @@ namespace Utilities
 		template <class T>
 		Delegate( T* instance, RET( T::* TMethod )( PARAMS... ) )
 		{
-			//invoker = easy_bind<T>( instance, TMethod, build_indices<sizeof...( PARAMS )>{} ); // Making a lambda was actually much faster when executing the callback.
 			invoker = [instance, TMethod]( PARAMS... params ) -> RET
 			{
 				T* p = static_cast< T* >( instance );
 				return ( instance->*TMethod )( std::forward<PARAMS>( params )... );
 			};
-			//union test
-			//{
-			//	size_t conv[2] = { 0, 0 };
-			//	RET(T::*ptr)(PARAMS...);
-			//};
-			//test ptr;
-			//ptr.ptr = TMethod;
-			//if (ptr.conv[1])
-			//	int i = 0;
-
-
-
-			//uniqueIdentifier = (size_t)(instance) | ptr.conv[0];
-			//	std::intptr_t b = reinterpret_cast<std::intptr_t>(TMethod);
 			union MCVRT				{
 				size_t iptr;
 				RET( T::* ptr )( PARAMS... );
