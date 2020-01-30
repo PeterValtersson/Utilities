@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsoleTests.cpp" />
+    <ClCompile Include="Delegates.cpp" />
     <ClCompile Include="MemoriesTests.cpp" />
     <ClCompile Include="MonadicOptionalTest.cpp" />
     <ClCompile Include="ProfilerTests.cpp" />

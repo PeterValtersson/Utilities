@@ -78,5 +78,8 @@
     <ClInclude Include="..\Include\Utilities\Time\StopWatch.h">
       <Filter>Time</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Utilities\Delegate.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
