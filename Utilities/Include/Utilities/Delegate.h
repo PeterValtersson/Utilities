@@ -64,7 +64,7 @@ namespace Utilities
 	template<typename RET, typename... PARAMS>
 	class Delegate<RET( PARAMS... )>{
 		std::function<RET( PARAMS... )> invoker;
-		//size_t uniqueIdentifier;
+		size_t uniqueIdentifier;
 	public:
 
 		Delegate()
@@ -81,7 +81,7 @@ namespace Utilities
 		Delegate( const Delegate& other )
 		{
 			this->invoker = other.invoker;
-			//this->uniqueIdentifier = other.uniqueIdentifier;
+			this->uniqueIdentifier = other.uniqueIdentifier;
 		}
 		/**
 		*@brief Copy constructor with rvalue.
@@ -89,7 +89,8 @@ namespace Utilities
 		Delegate( Delegate&& other )
 		{
 			this->invoker = std::move( other.invoker );
-			//this->uniqueIdentifier = other.uniqueIdentifier;
+			this->uniqueIdentifier = other.uniqueIdentifier;
+			other.uniqueIdentifier = 0;
 		}
 
 		/**
@@ -108,7 +109,7 @@ namespace Utilities
 		Delegate( RET( ptr )( PARAMS... ) )
 		{
 			invoker = ptr;
-			//uniqueIdentifier = (size_t)ptr;
+			uniqueIdentifier = (size_t)ptr;
 		}
 
 		/**
@@ -127,7 +128,10 @@ namespace Utilities
 		Delegate( const T& lambda )
 		{
 			invoker = lambda;
-		//	uniqueIdentifier = lambda.target_type().hash_code();
+			if constexpr ( std::is_same<T, std::function< RET( PARAMS... ) >>::value )
+				uniqueIdentifier = lambda.target_type().hash_code();
+			else
+				uniqueIdentifier = ( size_t )lambda;
 		}
 
 
@@ -176,7 +180,13 @@ namespace Utilities
 
 			//uniqueIdentifier = (size_t)(instance) | ptr.conv[0];
 			//	std::intptr_t b = reinterpret_cast<std::intptr_t>(TMethod);
-			//	uniqueIdentifier = (size_t)instance | (size_t)TMethod;
+			union MCVRT				{
+				size_t iptr;
+				RET( T::* ptr )( PARAMS... );
+			};
+			MCVRT mcvrt;
+			mcvrt.ptr = TMethod;
+			uniqueIdentifier = (size_t)instance ^ mcvrt.iptr;
 		}
 
 
@@ -208,12 +218,26 @@ namespace Utilities
 				T* const p = const_cast< T* >( instance );
 				return ( instance->*TMethod )( std::forward<PARAMS>( params )... );
 			};
+			union MCVRT{
+				size_t iptr;
+				RET( T::* ptr )( PARAMS... );
+			};
+			MCVRT mcvrt;
+			mcvrt.ptr = TMethod;
+			uniqueIdentifier = ( size_t )instance ^ mcvrt.iptr;
 		}
 
 		/**
-		*@brief No equal operator for now.
+		*@brief Equal operator.
 		*/
-		bool operator==( const Delegate& other )const = delete;
+		constexpr bool operator==( const Delegate& other )const
+		{
+			return uniqueIdentifier == other.uniqueIdentifier;
+		}
+		constexpr bool operator!=( const Delegate& other )const
+		{
+			return uniqueIdentifier != other.uniqueIdentifier;
+		}
 		bool operator+=( const Delegate& other )const = delete;
 		bool operator-=( const Delegate& other )const = delete;
 		bool operator+( const Delegate& other )const = delete;
@@ -225,6 +249,7 @@ namespace Utilities
 		Delegate& operator=( const Delegate& other )
 		{
 			this->invoker = other.invoker;
+			uniqueIdentifier = other.uniqueIdentifier;
 			return *this;
 		}
 
@@ -234,6 +259,7 @@ namespace Utilities
 		Delegate& operator=( const Delegate&& other )
 		{
 			this->invoker = std::move( other.invoker );
+			uniqueIdentifier = other.uniqueIdentifier;
 			return *this;
 		}
 

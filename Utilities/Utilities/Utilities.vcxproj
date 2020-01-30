@@ -146,6 +146,7 @@
     <ClInclude Include="..\Include\Utilities\Concurrent.h" />
     <ClInclude Include="..\Include\Utilities\Delegate.h" />
     <ClInclude Include="..\Include\Utilities\ErrorHandling.h" />
+    <ClInclude Include="..\Include\Utilities\Event.h" />
     <ClInclude Include="..\Include\Utilities\Flags.h" />
     <ClInclude Include="..\Include\Utilities\FStreamHelpers.h" />
     <ClInclude Include="..\Include\Utilities\GUID.h" />
