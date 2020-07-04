@@ -7,6 +7,7 @@
 namespace Utilities
 {
 	struct GUID{
+		static GUID invalid;
 		struct Compare{
 			constexpr bool operator() ( const GUID& lhs, const GUID& rhs ) const
 			{
