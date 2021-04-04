@@ -37,6 +37,7 @@ namespace UtilitiesTests
 		TEST_METHOD( String_split_4_with_space )
 		{
 			const std::vector<std::string> splits = Utilities::String::split<std::vector<std::string>>(" This   is  a string ");
+		
 			Assert::AreEqual( 4ull, splits.size() );
 			Assert::AreEqual<std::string>( "This", splits[0] );
 			Assert::AreEqual<std::string>( "is", splits[1] );
@@ -77,5 +78,17 @@ namespace UtilitiesTests
 		{
 			Assert::AreEqual<std::string>( "Test", Utilities::String::wstring_2_string( L"Test" ) );
 		}*/
+
+		TEST_METHOD(ConstSizeStringConstruction)
+		{
+			Utilities::String::ConstSizeString<255> str("test");
+			Assert::AreEqual<std::string>("test", str);
+		}
+		TEST_METHOD(ConstSizeStringAssignment)
+		{
+			Utilities::String::ConstSizeString<255> str("test");
+			str = "test2";
+			Assert::AreEqual<std::string>("test2", str);
+		}
 	};
 }

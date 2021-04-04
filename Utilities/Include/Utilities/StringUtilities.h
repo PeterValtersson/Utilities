@@ -15,6 +15,50 @@ namespace Utilities
 {
 	namespace String
 	{
+		template<size_t MAX_SIZE>
+		class ConstSizeString
+		{
+			char string[MAX_SIZE+1];
+			size_t size;
+		public:
+			ConstSizeString()
+			{
+				string[0] = '\0';
+				size = 0;
+			}
+			ConstSizeString(std::string_view other)
+			{
+				*this = other;
+			}
+			template<size_t SIZE>
+			constexpr ConstSizeString(const char(&a)[SIZE])
+			{
+				size = std::min<size_t>(SIZE-1, MAX_SIZE);
+				memcpy(string, a, size);
+				string[size] = '\0';			
+			};
+			operator std::string()const noexcept
+			{
+				return std::string(string, string + size);
+			}
+			std::string operator=(std::string_view other)noexcept
+			{
+				size = other.copy(string, std::min<size_t>(other.size(), MAX_SIZE));
+				string[size] = '\0';
+				return *this;
+			}
+			template<size_t SIZE>
+			std::string operator=(const char(&a)[SIZE])noexcept
+			{
+				size = std::min<size_t>(SIZE - 1, MAX_SIZE);
+				memcpy(string, a, size);
+				string[size] = '\0';
+
+				return *this;
+			}
+
+		};
+
 		template<class _Container = std::vector<std::string>>
 		void split( const std::string_view str, _Container& container, std::string_view token = " " )
 		{
