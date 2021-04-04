@@ -150,6 +150,7 @@
     <ClInclude Include="..\Include\Utilities\Flags.h" />
     <ClInclude Include="..\Include\Utilities\FStreamHelpers.h" />
     <ClInclude Include="..\Include\Utilities\GUID.h" />
+    <ClInclude Include="..\Include\Utilities\Math.h" />
     <ClInclude Include="..\Include\Utilities\Memory\ChunkyAllocator.h" />
     <ClInclude Include="..\Include\Utilities\Memory\MemoryBlock.h" />
     <ClInclude Include="..\Include\Utilities\Memory\Memory_Literals.h" />
@@ -162,7 +163,6 @@
     <ClInclude Include="..\Include\Utilities\Time\Timer.h" />
     <ClInclude Include="..\Include\Utilities\Time\TimeUtilities.h" />
     <ClInclude Include="..\Include\Utilities\Time\Time_Typedefs.h" />
-    <ClInclude Include="Math.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
