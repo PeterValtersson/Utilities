@@ -13,6 +13,10 @@ namespace Utilities
 		{
 			return degrees * 0.0174532925f;
 		}
+		inline float radians_to_degrees(float radians)
+		{
+			return radians *57.2957795f;
+		}
 	}
 }
 
