@@ -84,5 +84,8 @@
     <ClInclude Include="..\Include\Utilities\Event.h">
       <Filter>Other</Filter>
     </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
