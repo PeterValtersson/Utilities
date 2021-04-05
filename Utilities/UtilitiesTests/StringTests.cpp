@@ -90,5 +90,24 @@ namespace UtilitiesTests
 			str = "test2";
 			Assert::AreEqual<std::string>("test2", str);
 		}
+
+		TEST_METHOD(ConstSizeStringConstStringRefParameter)
+		{
+			struct TestS
+			{
+				Utilities::String::ConstSizeString<255> my_str;
+				void test(const std::string& str)
+				{
+					test2(str);
+				}
+				void test2(const Utilities::String::ConstSizeString<255> str)
+				{
+					my_str = str;
+				}
+			};
+			TestS s;
+			s.test("test");
+			Assert::AreEqual<std::string>("test", s.my_str);
+		}
 	};
 }

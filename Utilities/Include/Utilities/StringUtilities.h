@@ -26,7 +26,7 @@ namespace Utilities
 				string[0] = '\0';
 				size = 0;
 			}
-			ConstSizeString(std::string_view other)
+			ConstSizeString(const std::string& other)
 			{
 				*this = other;
 			}
@@ -41,7 +41,7 @@ namespace Utilities
 			{
 				return std::string(string, string + size);
 			}
-			std::string operator=(std::string_view other)noexcept
+			std::string operator=(const std::string& other)noexcept
 			{
 				size = other.copy(string, std::min<size_t>(other.size(), MAX_SIZE));
 				string[size] = '\0';
